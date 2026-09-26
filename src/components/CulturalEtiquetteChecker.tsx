@@ -1,22 +1,32 @@
 import React, { useState } from 'react';
 import { OutfitConfig } from '../types/vietphuc';
 import { GARMENTS, HERITAGE_COLORS } from '../data/heritageData';
-import { checkCulturalEtiquette } from '../utils/culturalRuleChecker';
-import { ShieldCheck, AlertTriangle, Sparkles, BookOpen, ChevronDown, ChevronUp, Info } from 'lucide-react';
+import { checkCulturalEtiquette, culturalRespectScore } from '../utils/culturalRuleChecker';
+import { ShieldCheck, AlertTriangle, Sparkles, BookOpen, ChevronDown, ChevronUp, Info, OctagonAlert } from 'lucide-react';
+import { AuthenticityBadge } from './AuthenticityBadge';
+
+const SOURCE_TYPE_LABEL = {
+  book: 'Sách',
+  museum: 'Bảo tàng',
+  'historical-record': 'Sử liệu',
+  press: 'Báo chí'
+} as const;
 
 interface CulturalEtiquetteCheckerProps {
   config: OutfitConfig;
 }
 
 export const CulturalEtiquetteChecker: React.FC<CulturalEtiquetteCheckerProps> = ({ config }) => {
-  const [activeTab, setActiveTab] = useState<'rules' | 'history' | 'symbolism'>('rules');
+  const [activeTab, setActiveTab] = useState<'rules' | 'history' | 'symbolism' | 'sources'>('rules');
   const [isExpanded, setIsExpanded] = useState(true);
 
   const garment = GARMENTS.find(g => g.id === config.garmentId) || GARMENTS[0];
   const color = HERITAGE_COLORS.find(c => c.id === config.colorId) || HERITAGE_COLORS[0];
   const alerts = checkCulturalEtiquette(config);
+  const score = culturalRespectScore(config);
 
-  const hasWarning = alerts.some(a => a.level === 'warning');
+  const hasCritical = alerts.some(a => a.level === 'critical');
+  const hasWarning = hasCritical || alerts.some(a => a.level === 'warning');
 
   return (
     <div className="bg-white rounded-xl border border-stone-200/90 shadow-xs overflow-hidden transition-all duration-200">
@@ -26,8 +36,8 @@ export const CulturalEtiquetteChecker: React.FC<CulturalEtiquetteCheckerProps> =
         className="px-5 py-4 border-b border-stone-100 flex items-center justify-between cursor-pointer hover:bg-stone-50/70 transition-colors"
       >
         <div className="flex items-center gap-3">
-          <div className={`p-2 rounded-lg ${hasWarning ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700'}`}>
-            {hasWarning ? <AlertTriangle className="w-5 h-5" /> : <ShieldCheck className="w-5 h-5" />}
+          <div className={`p-2 rounded-lg ${hasCritical ? 'bg-red-50 text-red-700' : hasWarning ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700'}`}>
+            {hasCritical ? <OctagonAlert className="w-5 h-5" /> : hasWarning ? <AlertTriangle className="w-5 h-5" /> : <ShieldCheck className="w-5 h-5" />}
           </div>
           <div>
             <div className="flex items-center gap-2">
@@ -35,11 +45,16 @@ export const CulturalEtiquetteChecker: React.FC<CulturalEtiquetteCheckerProps> =
                 Thẩm Định Chuẩn Mực Văn Hóa
               </h3>
               <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
-                hasWarning 
-                  ? 'bg-amber-100 text-amber-800' 
+                hasCritical
+                  ? 'bg-red-100 text-red-800'
+                  : hasWarning
+                  ? 'bg-amber-100 text-amber-800'
                   : 'bg-emerald-100 text-emerald-800'
               }`}>
-                {hasWarning ? 'Cần lưu ý bối cảnh' : 'Chuẩn mực di sản'}
+                {hasCritical ? 'Sai lệch đặc trưng' : hasWarning ? 'Cần lưu ý bối cảnh' : 'Chuẩn mực di sản'}
+              </span>
+              <span className="text-[11px] font-mono font-semibold text-stone-600 bg-stone-100 px-2 py-0.5 rounded-full" title="Điểm tôn trọng văn hóa">
+                {score}/100
               </span>
             </div>
             <p className="text-xs text-stone-500 mt-0.5">
@@ -87,6 +102,16 @@ export const CulturalEtiquetteChecker: React.FC<CulturalEtiquetteCheckerProps> =
             >
               Ý nghĩa chi tiết
             </button>
+            <button
+              onClick={() => setActiveTab('sources')}
+              className={`flex-1 py-1.5 px-3 rounded-md transition-all ${
+                activeTab === 'sources'
+                  ? 'bg-white text-stone-900 shadow-xs font-semibold'
+                  : 'text-stone-600 hover:text-stone-900'
+              }`}
+            >
+              Nguồn & Kiểm chứng
+            </button>
           </div>
 
           {/* TAB 1: Rules & Alerts */}
@@ -96,7 +121,9 @@ export const CulturalEtiquetteChecker: React.FC<CulturalEtiquetteCheckerProps> =
                 <div
                   key={idx}
                   className={`p-3.5 rounded-lg border text-xs leading-relaxed ${
-                    alert.level === 'warning'
+                    alert.level === 'critical'
+                      ? 'bg-red-50/70 border-red-200/80 text-red-950'
+                      : alert.level === 'warning'
                       ? 'bg-amber-50/70 border-amber-200/80 text-amber-950'
                       : alert.level === 'kudos'
                       ? 'bg-emerald-50/70 border-emerald-200/80 text-emerald-950'
@@ -104,6 +131,7 @@ export const CulturalEtiquetteChecker: React.FC<CulturalEtiquetteCheckerProps> =
                   }`}
                 >
                   <div className="flex items-start gap-2.5">
+                    {alert.level === 'critical' && <OctagonAlert className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />}
                     {alert.level === 'warning' && <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />}
                     {alert.level === 'kudos' && <Sparkles className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />}
                     {alert.level === 'info' && <Info className="w-4 h-4 text-stone-500 shrink-0 mt-0.5" />}
@@ -113,6 +141,12 @@ export const CulturalEtiquetteChecker: React.FC<CulturalEtiquetteCheckerProps> =
                       <p className="text-stone-500 italic mt-1 font-sans">
                         💡 Lời khuyên: {alert.guidance}
                       </p>
+                      {alert.basis && (
+                        <p className="text-[11px] text-stone-500 flex items-start gap-1 pt-0.5">
+                          <BookOpen className="w-3 h-3 shrink-0 mt-0.5" />
+                          <span>Cơ sở: {alert.basis}</span>
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -142,8 +176,11 @@ export const CulturalEtiquetteChecker: React.FC<CulturalEtiquetteCheckerProps> =
                 <div className="text-[11px] text-stone-500 font-medium uppercase tracking-wider mb-1">
                   Niên đại & Thời kỳ
                 </div>
-                <div className="text-stone-900 font-serif text-base font-semibold">
-                  {garment.dynasty}
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <div className="text-stone-900 font-serif text-base font-semibold">
+                    {garment.dynasty}
+                  </div>
+                  <AuthenticityBadge level={garment.authenticity} />
                 </div>
               </div>
 
@@ -192,6 +229,42 @@ export const CulturalEtiquetteChecker: React.FC<CulturalEtiquetteCheckerProps> =
                 <p className="text-stone-600">{color.meaning}</p>
                 <p className="text-stone-500 italic mt-1">{color.culturalBackground}</p>
               </div>
+            </div>
+          )}
+
+          {/* TAB 4: Sources & verification */}
+          {activeTab === 'sources' && (
+            <div className="space-y-3 text-xs text-stone-700 leading-relaxed">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-stone-900">Mức độ tư liệu:</span>
+                <AuthenticityBadge level={garment.authenticity} />
+              </div>
+              <div className="p-3 bg-amber-50/60 rounded-lg border border-amber-100 text-amber-950">
+                <span className="font-semibold">Ghi chú kiểm chứng: </span>
+                {garment.verificationNote}
+              </div>
+              <div>
+                <h4 className="font-semibold text-stone-900 mb-1.5">Tài liệu tham khảo:</h4>
+                <ul className="space-y-1.5">
+                  {garment.sources.map((s, i) => (
+                    <li key={i} className="flex items-start gap-2 p-2 rounded border border-stone-100 bg-stone-50">
+                      <span className="text-[10px] font-semibold uppercase bg-stone-200 text-stone-700 px-1.5 py-0.5 rounded shrink-0">
+                        {SOURCE_TYPE_LABEL[s.type]}
+                      </span>
+                      <span>
+                        <span className="font-medium text-stone-900 italic">{s.title}</span>
+                        {s.author && <> – {s.author}</>}
+                        {s.publisher && <>, {s.publisher}</>}
+                        {s.year && <> ({s.year})</>}
+                        {s.note && <span className="block text-stone-500 text-[11px]">{s.note}</span>}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <p className="text-[11px] text-stone-400 italic">
+                Nội dung được biên soạn nhằm mục đích giáo dục và đang chờ chuyên gia thẩm định. Nếu thấy thông tin chưa chính xác, hãy góp ý để chúng tôi cập nhật.
+              </p>
             </div>
           )}
         </div>

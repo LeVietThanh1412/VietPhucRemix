@@ -11,6 +11,7 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 
 app.use(express.json());
 
@@ -57,12 +58,12 @@ Yêu cầu câu trả lời:
 `;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-3.8-flash',
+      model: GEMINI_MODEL,
       contents: prompt
     });
 
     const reply = response.text || 'Outfit phối đồ của bạn rất ấn tượng và đậm chất di sản đương đại!';
-    return res.json({ reply });
+    return res.json({ reply, model: GEMINI_MODEL });
   } catch (error: any) {
     console.error('Error in /api/ai-stylist:', error);
     return res.status(500).json({ error: 'Failed to generate styling advice' });
@@ -71,7 +72,7 @@ Yêu cầu câu trả lời:
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', time: new Date().toISOString() });
+  res.json({ status: 'ok', ai: Boolean(ai), model: GEMINI_MODEL, time: new Date().toISOString() });
 });
 
 // Setup Vite middleware in dev or static files in production

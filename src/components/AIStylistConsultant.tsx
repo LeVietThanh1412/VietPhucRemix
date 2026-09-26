@@ -11,6 +11,7 @@ export const AIStylistConsultant: React.FC<AIStylistConsultantProps> = ({ config
   const [promptQuery, setPromptQuery] = useState('');
   const [response, setResponse] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [source, setSource] = useState<'ai' | 'offline' | null>(null);
 
   const garment = GARMENTS.find(g => g.id === config.garmentId) || GARMENTS[0];
   const color = HERITAGE_COLORS.find(c => c.id === config.colorId) || HERITAGE_COLORS[0];
@@ -23,6 +24,19 @@ export const AIStylistConsultant: React.FC<AIStylistConsultantProps> = ({ config
     'Gợi ý cách tạo dáng chụp ảnh tôn vinh tà áo',
     'Làm sao để remix thêm phụ kiện mà vẫn chuẩn văn hóa?'
   ];
+
+  const buildFallback = () => {
+    if (garment.id === 'ao-tac') {
+      return `Outfit Áo Tấc sắc ${color.name} này mang lại thần thái "Vương triều quý tộc" cực đỉnh! Điểm cộng lớn là tay áo thụng rộng tạo cảm giác bề thế, uy nghiêm. Nếu bạn mang guốc mộc truyền thống, hãy thử tạo dáng hai tay chắp phía trước bụng để ống tay áo buông tự nhiên thành dáng chữ Nhất - vừa tôn nét khiêm hòa vừa lên ảnh lookbook cực kỳ điện ảnh!`;
+    }
+    if (garment.id === 'ao-ngu-than') {
+      return `Sự kết hợp giữa Áo Ngũ Thân tay chẽn và ${footwear.name} là chuẩn định nghĩa "Việt phục Remix" của Gen Z! Bạn vừa giữ trọn đạo lý 5 khuy Ngũ thường (Nhân - Lễ - Nghĩa - Trí - Tín), vừa có sự năng động để tự tin sải bước cà phê phố cổ hay đi kỷ yếu. Tuyệt đối đừng quên một chiếc kính râm retro để bức ảnh tăng thêm 100% độ "slay"!`;
+    }
+    if (garment.id === 'ao-tu-than') {
+      return `Vibe thiếu nữ Kinh Bắc hòa cùng phong cách hiện đại rất ngọt ngào! Dải yếm thắm màu bên trong lấp ló sau tà áo tứ thân tạo nét duyên ngầm tinh tế. Nếu đi sự kiện hoặc biểu diễn, một chiếc nón quai thao nghiêng nhẹ góc 45 độ sẽ tạo bố cục khuôn hình hoàn hảo.`;
+    }
+    return `Bản phối ${garment.name} với tông màu ${color.name} và ${bottom.name} thể hiện gu thẩm mỹ rất có chiều sâu. Bạn đã khéo léo cân bằng giữa tính trang trọng của di sản và sự thoải mái hiện đại, sẵn sàng tỏa sáng trong dịp ${event.name}!`;
+  };
 
   const handleConsult = async (queryText?: string) => {
     const query = queryText || promptQuery || 'Thẩm định outfit hiện tại';
@@ -52,21 +66,11 @@ export const AIStylistConsultant: React.FC<AIStylistConsultantProps> = ({ config
 
       const data = await res.json();
       setResponse(data.reply);
+      setSource('ai');
     } catch {
-      // Local fallback with rich Gen Z cultural fashion critique
-      setTimeout(() => {
-        let fallbackText = '';
-        if (garment.id === 'ao-tac') {
-          fallbackText = `Outfit Áo Tấc sắc ${color.name} này mang lại thần thái "Vương triều quý tộc" cực đỉnh! Điểm cộng lớn là tay áo thụng rộng tạo cảm giác bề thế, uy nghiêm. Nếu bạn mang guốc mộc truyền thống, hãy thử tạo dáng hai tay chắp phía trước bụng để ống tay áo buông tự nhiên thành dáng chữ Nhất - vừa tôn nét khiêm hòa vừa lên ảnh lookbook cực kỳ điện ảnh!`;
-        } else if (garment.id === 'ao-ngu-than') {
-          fallbackText = `Sự kết hợp giữa Áo Ngũ Thân tay chẽn và ${footwear.name} là chuẩn định nghĩa "Việt phục Remix" của Gen Z! Bạn vừa giữ trọn đạo lý 5 khuy Ngũ thường (Nhân - Lễ - Nghĩa - Trí - Tín), vừa có sự năng động để tự tin sải bước cà phê phố cổ hay đi kỷ yếu. Tuyệt đối đừng quên một chiếc kính râm retro để bức ảnh tăng thêm 100% độ "slay"!`;
-        } else if (garment.id === 'ao-tu-than') {
-          fallbackText = `Vibe thiếu nữ Kinh Bắc hòa cùng phong cách hiện đại rất ngọt ngào! Dải yếm thắm màu bên trong lấp ló sau tà áo tứ thân tạo nét duyên ngầm tinh tế. Nếu đi sự kiện hoặc biểu diễn, một chiếc nón quai thao nghiêng nhẹ góc 45 độ sẽ tạo bố cục khuôn hình hoàn hảo.`;
-        } else {
-          fallbackText = `Bản phối ${garment.name} với tông màu ${color.name} và ${bottom.name} thể hiện gu thẩm mỹ rất có chiều sâu. Bạn đã khéo léo cân bằng giữa tính trang trọng của di sản và sự thoải mái hiện đại, sẵn sàng tỏa sáng trong dịp ${event.name}!`;
-        }
-        setResponse(fallbackText);
-      }, 500);
+      // Local fallback (no API key / network error)
+      setResponse(buildFallback());
+      setSource('offline');
     } finally {
       setLoading(false);
     }
@@ -83,7 +87,7 @@ export const AIStylistConsultant: React.FC<AIStylistConsultantProps> = ({ config
             <h3 className="font-semibold text-stone-900 text-sm md:text-base flex items-center gap-2">
               <span>Trợ Lý Thời Trang Di Sản AI</span>
               <span className="text-[10px] bg-indigo-100 text-indigo-800 font-medium px-2 py-0.5 rounded-full">
-                Gemini 2.5 Flash
+                {source === 'offline' ? 'Chế độ offline' : 'Gemini AI'}
               </span>
             </h3>
             <p className="text-xs text-stone-500">

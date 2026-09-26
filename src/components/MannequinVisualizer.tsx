@@ -6,15 +6,22 @@ interface MannequinVisualizerProps {
   config: OutfitConfig;
   className?: string;
   isZoomed?: boolean;
+  /** Hide the HTML overlay badge (e.g. for compact thumbnails) */
+  hideBadge?: boolean;
+  svgRef?: React.Ref<SVGSVGElement>;
 }
 
 export const MannequinVisualizer: React.FC<MannequinVisualizerProps> = ({
   config,
   className = '',
-  isZoomed = false
+  isZoomed = false,
+  hideBadge = false,
+  svgRef
 }) => {
   const selectedColor = HERITAGE_COLORS.find(c => c.id === config.colorId) || HERITAGE_COLORS[0];
   const selectedGarment = GARMENTS.find(g => g.id === config.garmentId) || GARMENTS[0];
+  // Unique prefix so several mannequins on one page don't share <defs> ids
+  const uid = 'vp' + React.useId().replace(/[^a-zA-Z0-9]/g, '') + '-';
 
   // Helper colors
   const primaryHex = selectedColor.hex;
@@ -45,7 +52,7 @@ export const MannequinVisualizer: React.FC<MannequinVisualizerProps> = ({
       case 'hoang-thanh':
         return (
           <g opacity="0.85">
-            <rect width="600" height="800" fill="url(#bg-hoang-thanh)" />
+            <rect width="600" height="800" fill={`url(#${uid}bg-hoang-thanh)`} />
             {/* Imperial Palace Silhouette */}
             <path
               d="M100 480 L180 430 L220 440 L300 390 L380 440 L420 430 L500 480 L520 650 L80 650 Z"
@@ -61,7 +68,7 @@ export const MannequinVisualizer: React.FC<MannequinVisualizerProps> = ({
       case 'pho-co':
         return (
           <g opacity="0.85">
-            <rect width="600" height="800" fill="url(#bg-pho-co)" />
+            <rect width="600" height="800" fill={`url(#${uid}bg-pho-co)`} />
             {/* Old French Balcony & Lanterns */}
             <line x1="50" y1="120" x2="550" y2="120" stroke="#78350F" strokeWidth="1.5" opacity="0.25" />
             {/* Lantern 1 */}
@@ -76,7 +83,7 @@ export const MannequinVisualizer: React.FC<MannequinVisualizerProps> = ({
       case 'hieu-anh':
         return (
           <g opacity="0.85">
-            <rect width="600" height="800" fill="url(#bg-hieu-anh)" />
+            <rect width="600" height="800" fill={`url(#${uid}bg-hieu-anh)`} />
             {/* Classic Indochine Photo Studio Arch */}
             <rect x="50" y="50" width="500" height="700" rx="250" fill="none" stroke="#78350F" strokeWidth="1.5" opacity="0.25" strokeDasharray="4 4" />
             <circle cx="300" cy="360" r="160" fill="#FAF6EE" opacity="0.6" />
@@ -86,7 +93,7 @@ export const MannequinVisualizer: React.FC<MannequinVisualizerProps> = ({
       default:
         return (
           <g opacity="0.85">
-            <rect width="600" height="800" fill="url(#bg-studio-zen)" />
+            <rect width="600" height="800" fill={`url(#${uid}bg-studio-zen)`} />
             <circle cx="300" cy="380" r="210" fill="#F5EFE6" opacity="0.7" />
             <circle cx="300" cy="380" r="210" stroke="#E5DEC9" strokeWidth="1.5" fill="none" opacity="0.5" />
           </g>
@@ -97,31 +104,33 @@ export const MannequinVisualizer: React.FC<MannequinVisualizerProps> = ({
   return (
     <div className={`relative w-full aspect-[3/4] max-w-[540px] mx-auto overflow-hidden rounded-2xl shadow-xl border border-stone-200/80 bg-[#FAF7F2] transition-all duration-300 ${className}`}>
       <svg
+        ref={svgRef}
+        xmlns="http://www.w3.org/2000/svg"
         viewBox={isZoomed ? "100 80 400 500" : "0 0 600 800"}
         className="w-full h-full object-contain select-none"
         aria-label="Minh họa phối trang phục Việt Phục Remix"
       >
         <defs>
           {/* Background Gradients */}
-          <linearGradient id="bg-studio-zen" x1="0%" y1="0%" x2="0%" y2="100%">
+          <linearGradient id={`${uid}bg-studio-zen`} x1="0%" y1="0%" x2="0%" y2="100%">
             <stop offset="0%" stopColor="#F9F6F0" />
             <stop offset="100%" stopColor="#EDE5D8" />
           </linearGradient>
-          <linearGradient id="bg-hoang-thanh" x1="0%" y1="0%" x2="0%" y2="100%">
+          <linearGradient id={`${uid}bg-hoang-thanh`} x1="0%" y1="0%" x2="0%" y2="100%">
             <stop offset="0%" stopColor="#FEF7EE" />
             <stop offset="100%" stopColor="#EAD7C0" />
           </linearGradient>
-          <linearGradient id="bg-pho-co" x1="0%" y1="0%" x2="0%" y2="100%">
+          <linearGradient id={`${uid}bg-pho-co`} x1="0%" y1="0%" x2="0%" y2="100%">
             <stop offset="0%" stopColor="#FBF7EE" />
             <stop offset="100%" stopColor="#E2D4BE" />
           </linearGradient>
-          <linearGradient id="bg-hieu-anh" x1="0%" y1="0%" x2="0%" y2="100%">
+          <linearGradient id={`${uid}bg-hieu-anh`} x1="0%" y1="0%" x2="0%" y2="100%">
             <stop offset="0%" stopColor="#F7F1E5" />
             <stop offset="100%" stopColor="#D5C5AC" />
           </linearGradient>
 
           {/* Garment Silk Shading Gradient */}
-          <linearGradient id="silk-sheen" x1="0%" y1="0%" x2="100%" y2="0%">
+          <linearGradient id={`${uid}silk-sheen`} x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stopColor="#000000" stopOpacity="0.18" />
             <stop offset="35%" stopColor="#ffffff" stopOpacity="0.12" />
             <stop offset="65%" stopColor="#ffffff" stopOpacity="0.04" />
@@ -129,7 +138,7 @@ export const MannequinVisualizer: React.FC<MannequinVisualizerProps> = ({
           </linearGradient>
 
           {/* Pattern: Vân Mây Ngũ Sắc */}
-          <pattern id="pattern-van-may" width="40" height="40" patternUnits="userSpaceOnUse">
+          <pattern id={`${uid}pattern-van-may`} width="40" height="40" patternUnits="userSpaceOnUse">
             <path
               d="M 5 25 Q 15 10 25 25 Q 35 15 38 28 Q 20 35 5 25 Z"
               fill="none"
@@ -140,7 +149,7 @@ export const MannequinVisualizer: React.FC<MannequinVisualizerProps> = ({
           </pattern>
 
           {/* Pattern: Hoa Sen Lý - Trần */}
-          <pattern id="pattern-hoa-sen" width="50" height="50" patternUnits="userSpaceOnUse">
+          <pattern id={`${uid}pattern-hoa-sen`} width="50" height="50" patternUnits="userSpaceOnUse">
             <path
               d="M25 15 C20 22 20 28 25 35 C30 28 30 22 25 15 Z"
               fill={isDarkGarment ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.08)'}
@@ -156,19 +165,19 @@ export const MannequinVisualizer: React.FC<MannequinVisualizerProps> = ({
           </pattern>
 
           {/* Pattern: Bát Bửu Cát Tường */}
-          <pattern id="pattern-bat-buu" width="45" height="45" patternUnits="userSpaceOnUse">
+          <pattern id={`${uid}pattern-bat-buu`} width="45" height="45" patternUnits="userSpaceOnUse">
             <circle cx="22.5" cy="22.5" r="9" fill="none" stroke={isDarkGarment ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.1)'} strokeWidth="1" />
             <path d="M15 22.5 L30 22.5 M22.5 15 L22.5 30" stroke={isDarkGarment ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.1)'} strokeWidth="1" />
           </pattern>
 
           {/* Pattern: Chữ Thọ */}
-          <pattern id="pattern-chu-tho" width="50" height="50" patternUnits="userSpaceOnUse">
+          <pattern id={`${uid}pattern-chu-tho`} width="50" height="50" patternUnits="userSpaceOnUse">
             <circle cx="25" cy="25" r="14" fill="none" stroke={isDarkGarment ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'} strokeWidth="1.2" />
             <path d="M17 21 L33 21 M17 25 L33 25 M17 29 L33 29 M25 15 L25 35" stroke={isDarkGarment ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'} strokeWidth="1" />
           </pattern>
 
           {/* Pattern: Chu Đậu */}
-          <pattern id="pattern-chu-dau" width="40" height="40" patternUnits="userSpaceOnUse">
+          <pattern id={`${uid}pattern-chu-dau`} width="40" height="40" patternUnits="userSpaceOnUse">
             <path d="M 0 20 Q 10 10 20 20 T 40 20" fill="none" stroke={isDarkGarment ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'} strokeWidth="1.2" />
             <path d="M 0 26 Q 10 16 20 26 T 40 26" fill="none" stroke={isDarkGarment ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.06)'} strokeWidth="1" />
           </pattern>
@@ -370,12 +379,12 @@ export const MannequinVisualizer: React.FC<MannequinVisualizerProps> = ({
               {config.patternId !== 'plain-silk' && (
                 <path
                   d="M250 250 L350 250 L370 560 Q 300 575 230 560 Z"
-                  fill={`url(#pattern-${config.patternId})`}
+                  fill={`url(#${uid}pattern-${config.patternId})`}
                   opacity="0.8"
                 />
               )}
               {/* Silk Sheen Overlay */}
-              <path d="M250 250 L350 250 L370 560 Q 300 575 230 560 Z" fill="url(#silk-sheen)" />
+              <path d="M250 250 L350 250 L370 560 Q 300 575 230 560 Z" fill={`url(#${uid}silk-sheen)`} />
 
               {/* Lập Lĩnh (Cổ áo đứng vuông vức) */}
               <path d="M285 236 L315 236 L317 252 L283 252 Z" fill={primaryHex} stroke={strokeColor} strokeWidth="1.5" />
@@ -412,11 +421,11 @@ export const MannequinVisualizer: React.FC<MannequinVisualizerProps> = ({
               {config.patternId !== 'plain-silk' && (
                 <path
                   d="M252 250 L348 250 L362 525 Q 300 540 238 525 Z"
-                  fill={`url(#pattern-${config.patternId})`}
+                  fill={`url(#${uid}pattern-${config.patternId})`}
                   opacity="0.8"
                 />
               )}
-              <path d="M252 250 L348 250 L362 525 Q 300 540 238 525 Z" fill="url(#silk-sheen)" />
+              <path d="M252 250 L348 250 L362 525 Q 300 540 238 525 Z" fill={`url(#${uid}silk-sheen)`} />
 
               {/* Lapel curve (Vạt nách cong đặc trưng ngũ thân) */}
               <path d="M300 252 Q 320 270 318 310 L 318 530" stroke={strokeColor} strokeWidth="1.5" fill="none" />
@@ -484,9 +493,9 @@ export const MannequinVisualizer: React.FC<MannequinVisualizerProps> = ({
               {/* Main Robe */}
               <path d="M248 250 L352 250 L368 560 Q 300 575 232 560 Z" fill={primaryHex} stroke={strokeColor} strokeWidth="1.5" />
               {config.patternId !== 'plain-silk' && (
-                <path d="M248 250 L352 250 L368 560 Q 300 575 232 560 Z" fill={`url(#pattern-${config.patternId})`} opacity="0.8" />
+                <path d="M248 250 L352 250 L368 560 Q 300 575 232 560 Z" fill={`url(#${uid}pattern-${config.patternId})`} opacity="0.8" />
               )}
-              <path d="M248 250 L352 250 L368 560 Q 300 575 232 560 Z" fill="url(#silk-sheen)" />
+              <path d="M248 250 L352 250 L368 560 Q 300 575 232 560 Z" fill={`url(#${uid}silk-sheen)`} />
 
               {/* Distinctive Rectangular Collar (Cổ áo Nhật Bình) */}
               <rect x="272" y="246" width="56" height="95" rx="3" fill="#D97706" stroke="#78350F" strokeWidth="1.5" />
@@ -520,9 +529,9 @@ export const MannequinVisualizer: React.FC<MannequinVisualizerProps> = ({
               {/* Main Body */}
               <path d="M250 250 L350 250 L365 545 Q 300 560 235 545 Z" fill={primaryHex} stroke={strokeColor} strokeWidth="1.5" />
               {config.patternId !== 'plain-silk' && (
-                <path d="M250 250 L350 250 L365 545 Q 300 560 235 545 Z" fill={`url(#pattern-${config.patternId})`} opacity="0.8" />
+                <path d="M250 250 L350 250 L365 545 Q 300 560 235 545 Z" fill={`url(#${uid}pattern-${config.patternId})`} opacity="0.8" />
               )}
-              <path d="M250 250 L350 250 L365 545 Q 300 560 235 545 Z" fill="url(#silk-sheen)" />
+              <path d="M250 250 L350 250 L365 545 Q 300 560 235 545 Z" fill={`url(#${uid}silk-sheen)`} />
 
               {/* Iconic Crossed Collar (Vạt trái đè vạt phải) */}
               <path d="M272 238 L330 350 L315 350 L260 248 Z" fill="#FDFBF7" stroke="#D1D5DB" strokeWidth="1.5" />
@@ -552,11 +561,11 @@ export const MannequinVisualizer: React.FC<MannequinVisualizerProps> = ({
               {config.patternId !== 'plain-silk' && (
                 <path
                   d="M258 250 L342 250 L332 340 L352 570 Q 300 580 248 570 L268 340 Z"
-                  fill={`url(#pattern-${config.patternId})`}
+                  fill={`url(#${uid}pattern-${config.patternId})`}
                   opacity="0.8"
                 />
               )}
-              <path d="M258 250 L342 250 L332 340 L352 570 Q 300 580 248 570 L268 340 Z" fill="url(#silk-sheen)" />
+              <path d="M258 250 L342 250 L332 340 L352 570 Q 300 580 248 570 L268 340 Z" fill={`url(#${uid}silk-sheen)`} />
 
               {/* Lemur stylized collar (cổ tim hoặc cánh sen) */}
               <path d="M285 242 Q 300 256 315 242" stroke={strokeColor} strokeWidth="2" fill="none" />
@@ -726,12 +735,12 @@ export const MannequinVisualizer: React.FC<MannequinVisualizerProps> = ({
       </svg>
 
       {/* Floating Mode Indicator Badge */}
-      <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-md text-[11px] text-stone-700 font-medium border border-stone-200/80 shadow-xs flex items-center gap-1.5 pointer-events-none">
+      {!hideBadge && <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-md text-[11px] text-stone-700 font-medium border border-stone-200/80 shadow-xs flex items-center gap-1.5 pointer-events-none">
         <span className="w-2 h-2 rounded-full" style={{ backgroundColor: selectedColor.hex }} />
         <span>{selectedColor.name.split(' (')[0]}</span>
         <span className="text-stone-300">/</span>
         <span>{selectedGarment.dynasty.split(' (')[0]}</span>
-      </div>
+      </div>}
     </div>
   );
 };

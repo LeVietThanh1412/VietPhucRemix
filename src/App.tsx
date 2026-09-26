@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { DEFAULT_LOOK, loadInitialLook, saveLook } from './utils/lookStorage';
 import { OutfitConfig, GarmentId, ColorId, PatternId, BottomId, HeadwearId, FootwearId, AccessoryId, EventId, ModelGender } from './types/vietphuc';
 import { 
   GARMENTS, 
@@ -18,6 +19,10 @@ import { WeatherEventRecommender } from './components/WeatherEventRecommender';
 import { AIStylistConsultant } from './components/AIStylistConsultant';
 import { LookbookCardModal } from './components/LookbookCardModal';
 import { LookComparisonModal } from './components/LookComparisonModal';
+import { AuthenticityBadge } from './components/AuthenticityBadge';
+import { StyleQuizModal } from './components/StyleQuizModal';
+import { SavedLooksPanel } from './components/SavedLooksPanel';
+import { useSavedLooks } from './hooks/useSavedLooks';
 import { 
   Sparkles, 
   ArrowRightLeft, 
@@ -31,29 +36,68 @@ import {
   Palette, 
   Check, 
   Layers,
-  ChevronRight
+  ChevronRight,
+  Wand2,
+  Bookmark,
+  BookmarkCheck
 } from 'lucide-react';
 
 export default function App() {
   // Current outfit configuration
-  const [config, setConfig] = useState<OutfitConfig>({
-    garmentId: 'ao-ngu-than',
-    colorId: 'lam-cham',
-    patternId: 'van-may',
-    bottomId: 'quan-lua-trang',
-    headwearId: 'khan-van',
-    footwearId: 'sneaker-trang',
-    accessories: ['kinh-mat-y2k', 'tui-tote-cham'],
-    targetEvent: 'ca-phe-dao-pho',
-    modelGender: 'unisex',
-    backdrop: 'pho-co'
-  });
+  const [config, setConfig] = useState<OutfitConfig>(loadInitialLook);
+
+  // Persist look locally on every change
+  useEffect(() => {
+    saveLook(config);
+  }, [config]);
+
+  // Strip ?look= after loading a shared look so the URL doesn't go stale
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    if (url.searchParams.has('look')) {
+      url.searchParams.delete('look');
+      window.history.replaceState(null, '', url.toString());
+    }
+  }, []);
 
   // UI state
   const [activeTab, setActiveTab] = useState<'garment' | 'color' | 'pattern' | 'bottom' | 'headwear' | 'footwear' | 'accessories'>('garment');
   const [isZoomed, setIsZoomed] = useState(false);
   const [isLookbookModalOpen, setIsLookbookModalOpen] = useState(false);
   const [isComparisonModalOpen, setIsComparisonModalOpen] = useState(false);
+  const [compareSelection, setCompareSelection] = useState<string[] | undefined>(undefined);
+  const saved = useSavedLooks();
+  const [saveFlash, setSaveFlash] = useState<string | null>(null);
+
+  const handleSaveLook = () => {
+    const r = saved.save(config);
+    setSaveFlash(r === 'saved' ? 'Đã lưu vào Tủ đồ' : r === 'duplicate' ? 'Look này đã được lưu' : `Tủ đồ đầy (tối đa ${saved.max})`);
+    window.setTimeout(() => setSaveFlash(null), 2000);
+  };
+
+  const openCompare = (keys?: string[]) => {
+    setCompareSelection(keys);
+    setIsComparisonModalOpen(true);
+  };
+  // Auto-open quiz for first-time visitors (not when arriving via a shared link)
+  const [isQuizOpen, setIsQuizOpen] = useState(() => {
+    try {
+      const seen = localStorage.getItem('vietphuc-remix:quiz-seen');
+      const shared = new URLSearchParams(window.location.search).has('look');
+      return !seen && !shared;
+    } catch {
+      return false;
+    }
+  });
+
+  const closeQuiz = React.useCallback(() => {
+    setIsQuizOpen(false);
+    try {
+      localStorage.setItem('vietphuc-remix:quiz-seen', '1');
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   // Active section view for scroll
   const scrollToSection = (id: string) => {
@@ -90,18 +134,7 @@ export default function App() {
 
   // Reset to default look
   const handleReset = () => {
-    setConfig({
-      garmentId: 'ao-ngu-than',
-      colorId: 'lam-cham',
-      patternId: 'van-may',
-      bottomId: 'quan-lua-trang',
-      headwearId: 'khan-van',
-      footwearId: 'sneaker-trang',
-      accessories: ['kinh-mat-y2k', 'tui-tote-cham'],
-      targetEvent: 'ca-phe-dao-pho',
-      modelGender: 'unisex',
-      backdrop: 'pho-co'
-    });
+    setConfig(DEFAULT_LOOK);
   };
 
   // Toggle accessory selection
@@ -155,7 +188,14 @@ export default function App() {
           {/* Zone 3: 1-2 primary actions */}
           <div className="flex items-center gap-2.5">
             <button
-              onClick={() => setIsComparisonModalOpen(true)}
+              onClick={() => setIsQuizOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-800/40 bg-amber-50 text-xs font-semibold text-amber-900 hover:bg-amber-100 transition-colors whitespace-nowrap"
+            >
+              <Wand2 className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Quiz phong cách</span>
+            </button>
+            <button
+              onClick={() => openCompare()}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-medium text-stone-700 hover:bg-stone-100 transition-colors whitespace-nowrap"
             >
               <ArrowRightLeft className="w-3.5 h-3.5 text-amber-800" />
@@ -198,6 +238,16 @@ export default function App() {
               <span aria-hidden="true">·</span>
               <span>Hệ Thống Thẩm Định Văn Hóa Thời Gian Thực</span>
             </div>
+
+            <div className="pt-3">
+              <button
+                onClick={() => setIsQuizOpen(true)}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-stone-900 text-sm font-bold shadow-md transition-colors"
+              >
+                <Wand2 className="w-4 h-4" />
+                Trả lời 3 câu để nhận gợi ý phối đồ
+              </button>
+            </div>
           </div>
         </section>
 
@@ -215,6 +265,23 @@ export default function App() {
 
             {/* Visualizer Utilities */}
             <div className="flex items-center gap-2">
+              {saveFlash && (
+                <span role="status" className="text-xs text-emerald-700 font-medium flex items-center gap-1">
+                  <Check className="w-3.5 h-3.5" /> {saveFlash}
+                </span>
+              )}
+              <button
+                onClick={handleSaveLook}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors shadow-2xs ${
+                  saved.isSaved(config)
+                    ? 'border-amber-800/40 bg-amber-50 text-amber-900'
+                    : 'border-stone-200 bg-white text-stone-700 hover:bg-stone-50'
+                }`}
+                title="Lưu look vào Tủ đồ để so sánh"
+              >
+                {saved.isSaved(config) ? <BookmarkCheck className="w-3.5 h-3.5" /> : <Bookmark className="w-3.5 h-3.5 text-amber-800" />}
+                <span>{saved.isSaved(config) ? 'Đã lưu' : 'Lưu look'}</span>
+              </button>
               <button
                 onClick={handleShuffle}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-stone-200 text-xs font-medium text-stone-700 bg-white hover:bg-stone-50 transition-colors shadow-2xs"
@@ -353,7 +420,10 @@ export default function App() {
                             </span>
                           )}
                         </div>
-                        <p className="text-[11px] text-stone-500 font-medium mt-0.5">{g.dynasty}</p>
+                        <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                          <p className="text-[11px] text-stone-500 font-medium">{g.dynasty}</p>
+                          <AuthenticityBadge level={g.authenticity} />
+                        </div>
                         <p className="text-xs text-stone-600 line-clamp-2 mt-1.5 leading-relaxed">{g.shortDesc}</p>
                       </div>
                     ))}
@@ -566,6 +636,26 @@ export default function App() {
           </div>
         </section>
 
+        {/* 3b. Personal wardrobe (saved looks) */}
+        <section id="tu-do" className="space-y-4">
+          <div>
+            <span className="text-xs uppercase tracking-widest font-semibold text-amber-800 font-sans">MY WARDROBE</span>
+            <h2 className="font-serif text-2xl font-bold text-stone-900">Tủ Đồ Của Bạn</h2>
+          </div>
+          <SavedLooksPanel
+            looks={saved.looks}
+            max={saved.max}
+            currentLook={config}
+            onApply={c => {
+              setConfig(c);
+              scrollToSection('studio-remix');
+            }}
+            onRemove={saved.remove}
+            onRename={saved.rename}
+            onCompare={keys => openCompare(keys)}
+          />
+        </section>
+
         {/* 4. Cultural Etiquette & Safe Heritage Checker */}
         <section id="cultural-checker" className="space-y-4">
           <div>
@@ -714,12 +804,25 @@ export default function App() {
         isOpen={isLookbookModalOpen}
         onClose={() => setIsLookbookModalOpen(false)}
         config={config}
+        onSave={(c, name) => saved.save(c, name)}
+        isSaved={saved.isSaved(config)}
+      />
+
+      <StyleQuizModal
+        isOpen={isQuizOpen}
+        onClose={closeQuiz}
+        onApply={newConfig => {
+          setConfig(newConfig);
+          setTimeout(() => scrollToSection('studio-remix'), 50);
+        }}
       />
 
       <LookComparisonModal
         isOpen={isComparisonModalOpen}
         onClose={() => setIsComparisonModalOpen(false)}
         currentLook={config}
+        savedLooks={saved.looks}
+        initialSelection={compareSelection}
         onApplyLook={newConfig => setConfig(newConfig)}
       />
     </div>

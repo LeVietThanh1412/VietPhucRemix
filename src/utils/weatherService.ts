@@ -1,0 +1,135 @@
+import { OutfitConfig, WeatherId } from '../types/vietphuc';
+
+export interface City {
+  id: string;
+  name: string;
+  lat: number;
+  lon: number;
+}
+
+export const CITIES: City[] = [
+  { id: 'ha-noi', name: 'Hà Nội', lat: 21.0285, lon: 105.8542 },
+  { id: 'bac-ninh', name: 'Bắc Ninh', lat: 21.1861, lon: 106.0763 },
+  { id: 'hue', name: 'Huế', lat: 16.4637, lon: 107.5909 },
+  { id: 'da-nang', name: 'Đà Nẵng', lat: 16.0544, lon: 108.2022 },
+  { id: 'tp-hcm', name: 'TP. Hồ Chí Minh', lat: 10.8231, lon: 106.6297 },
+  { id: 'can-tho', name: 'Cần Thơ', lat: 10.0452, lon: 105.7469 }
+];
+
+export interface LiveWeather {
+  placeName: string;
+  temperature: number;
+  apparentTemperature: number;
+  humidity: number;
+  precipitation: number;
+  weatherCode: number;
+  windSpeed: number;
+  tempMax: number;
+  tempMin: number;
+  rainChance: number;
+  uvMax: number;
+  fetchedAt: string;
+}
+
+/** WMO weather code → Vietnamese label + icon */
+export function describeWeatherCode(code: number): { label: string; icon: string } {
+  if (code === 0) return { label: 'Trời quang', icon: '☀️' };
+  if (code <= 2) return { label: 'Ít mây', icon: '🌤️' };
+  if (code === 3) return { label: 'Nhiều mây', icon: '☁️' };
+  if (code === 45 || code === 48) return { label: 'Sương mù', icon: '🌫️' };
+  if (code >= 51 && code <= 57) return { label: 'Mưa phùn', icon: '🌦️' };
+  if (code >= 61 && code <= 67) return { label: 'Mưa', icon: '🌧️' };
+  if (code >= 80 && code <= 82) return { label: 'Mưa rào', icon: '🌧️' };
+  if (code >= 95) return { label: 'Dông', icon: '⛈️' };
+  return { label: 'Không xác định', icon: '🌡️' };
+}
+
+export const isRainy = (w: LiveWeather) =>
+  w.precipitation > 0.2 || w.rainChance >= 60 || (w.weatherCode >= 51 && w.weatherCode <= 99 && w.weatherCode !== 45 && w.weatherCode !== 48);
+
+export async function fetchLiveWeather(lat: number, lon: number, placeName: string, signal?: AbortSignal): Promise<LiveWeather> {
+  const params = new URLSearchParams({
+    latitude: lat.toFixed(4),
+    longitude: lon.toFixed(4),
+    current: 'temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,wind_speed_10m',
+    daily: 'temperature_2m_max,temperature_2m_min,precipitation_probability_max,uv_index_max',
+    timezone: 'auto',
+    forecast_days: '1'
+  });
+  const res = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`, { signal });
+  if (!res.ok) throw new Error(`Open-Meteo HTTP ${res.status}`);
+  const d = await res.json();
+  const c = d.current ?? {};
+  const daily = d.daily ?? {};
+  return {
+    placeName,
+    temperature: Math.round(c.temperature_2m),
+    apparentTemperature: Math.round(c.apparent_temperature),
+    humidity: Math.round(c.relative_humidity_2m),
+    precipitation: c.precipitation ?? 0,
+    weatherCode: c.weather_code ?? -1,
+    windSpeed: Math.round(c.wind_speed_10m ?? 0),
+    tempMax: Math.round(daily.temperature_2m_max?.[0] ?? c.temperature_2m),
+    tempMin: Math.round(daily.temperature_2m_min?.[0] ?? c.temperature_2m),
+    rainChance: daily.precipitation_probability_max?.[0] ?? 0,
+    uvMax: Math.round(daily.uv_index_max?.[0] ?? 0),
+    fetchedAt: new Date().toISOString()
+  };
+}
+
+/** Map real temperature to the app's 4 seasonal presets (uses "feels like"). */
+export function toWeatherId(w: LiveWeather, month = new Date().getMonth() + 1): WeatherId {
+  const t = w.apparentTemperature;
+  if (t >= 29) return 'ha-oi-nong';
+  if (t <= 18) return 'dong-lanh-gia';
+  if (t <= 24 && month >= 1 && month <= 4) return 'xuan-se-lanh';
+  return 'thu-diu-mat';
+}
+
+export interface WeatherAdvice {
+  tips: string[];
+  /** Adjustments applied on top of the event combo */
+  adjust: Partial<OutfitConfig>;
+}
+
+/** Material / footwear / headwear advice from live data. Respects ceremonial garments. */
+export function adviseForWeather(w: LiveWeather, base: Partial<OutfitConfig>): WeatherAdvice {
+  const tips: string[] = [];
+  const adjust: Partial<OutfitConfig> = {};
+  const ceremonial = base.garmentId === 'ao-tac' || base.garmentId === 'ao-nhat-binh';
+  const formalEvent = base.targetEvent === 'le-chua-tam-linh' || base.targetEvent === 'dam-cuoi-ban-than';
+
+  if (w.apparentTemperature >= 32) {
+    tips.push('Trời nóng: chọn lụa tơ tằm, đũi hoặc lanh mỏng, mặc một lớp. Tránh gấm dày và áo lót đôi.');
+  } else if (w.apparentTemperature <= 16) {
+    tips.push('Trời lạnh: mặc áo lót đôi (có lớp lót) hoặc thêm áo giữ nhiệt mỏng bên trong, nên che kín cổ. Gấm và nhung giữ ấm tốt.');
+    if (!ceremonial && !formalEvent) adjust.footwearId = 'boot-da-co-thap';
+  } else if (w.apparentTemperature <= 22) {
+    tips.push('Trời se lạnh: dùng gấm hoặc lụa dày vừa. Khăn vấn vừa giữ ấm vừa làm đẹp.');
+  } else {
+    tips.push('Trời dễ chịu: lụa hay gấm đều mặc được, là lúc đẹp nhất để chụp ảnh ngoài trời.');
+  }
+
+  if (isRainy(w)) {
+    tips.push(`Khả năng mưa ${w.rainChance}%: tránh lụa màu nhạt dễ ố nước, guốc mộc dễ trơn trượt. Mang giày bít mũi đế chống trơn.`);
+    if (base.footwearId === 'guoc-moc' || base.footwearId === 'sandal-toi-gian') {
+      adjust.footwearId = ceremonial || formalEvent ? 'giay-oxford' : 'sneaker-trang';
+    }
+  }
+
+  if (w.uvMax >= 8 && !isRainy(w)) {
+    tips.push(`Chỉ số UV rất cao (${w.uvMax}): nên đội nón lá hoặc che ô, tránh chụp ảnh ngoài trời trong khoảng 10h–15h.`);
+    const casual = !ceremonial && (base.targetEvent === 'ca-phe-dao-pho' || base.targetEvent === 'bieu-dien-van-nghe');
+    if (casual && (base.headwearId === 'none' || base.headwearId === 'bom-ngoc-trai')) adjust.headwearId = 'non-la';
+  }
+
+  if (w.humidity >= 85) {
+    tips.push(`Độ ẩm ${w.humidity}%: vải đũi và lanh thấm hút tốt hơn satin hoặc voan.`);
+  }
+
+  if (w.windSpeed >= 30) {
+    tips.push('Gió mạnh: nên buộc gọn dải lụa và tà áo. Nón quai thao rộng vành dễ bị lật khi gió to.');
+  }
+
+  return { tips, adjust };
+}

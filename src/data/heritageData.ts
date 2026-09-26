@@ -10,7 +10,8 @@ import {
   AccessoryId, 
   EventId, 
   WeatherId, 
-  LookbookPreset 
+  LookbookPreset,
+  OutfitConfig
 } from '../types/vietphuc';
 
 export const GARMENTS: GarmentDefinition[] = [
@@ -32,6 +33,13 @@ export const GARMENTS: GarmentDefinition[] = [
       'Khi mặc Áo Tấc cần giữ tư thế ngay ngắn, hai tay chắp phía trước bụng trong vạt tay áo.',
       'Tránh xắn tay áo thụng lên tùy tiện vì làm mất phom dáng lễ nghi trang trọng.',
       'Không nên mặc cùng quần ngố hoặc trang phục hở hang bên dưới.'
+    ],
+    authenticity: 'documented',
+    verificationNote: 'Có hiện vật và ảnh tư liệu thời Nguyễn. Số đo tay áo (30–50cm) là ước lượng tham khảo, thực tế thay đổi theo phẩm trật và thời kỳ.',
+    sources: [
+      { title: 'Ngàn năm áo mũ', author: 'Trần Quang Đức', publisher: 'Nhã Nam & NXB Thế Giới', year: '2013', type: 'book' },
+      { title: 'Hiện vật lễ phục triều Nguyễn', publisher: 'Bảo tàng Cổ vật Cung đình Huế', type: 'museum' },
+      { title: 'Trang phục Việt Nam', author: 'Đoàn Thị Tình', publisher: 'NXB Mỹ thuật', year: '2006', type: 'book' }
     ]
   },
   {
@@ -51,6 +59,13 @@ export const GARMENTS: GarmentDefinition[] = [
     etiquetteNotes: [
       'Cài đủ 5 khuy cúc để giữ đúng biểu tượng Ngũ thường, không nên mở cúc phanh ngực bừa bãi.',
       'Ống tay chẽn ôm cổ tay thanh lịch, rất phù hợp mặc thường nhật của học sinh sinh viên.'
+    ],
+    authenticity: 'documented',
+    verificationNote: 'Việc chúa Nguyễn Phúc Khoát định lệ y phục (1744) và vua Minh Mạng thống nhất trang phục (thập niên 1820–1830) được chép trong chính sử. Cách giải thích "5 thân = cha mẹ hai bên + bản thân" và "5 khuy = Ngũ thường" là diễn giải dân gian phổ biến, chưa thấy ghi trong văn bản gốc.',
+    sources: [
+      { title: 'Đại Nam thực lục (bản dịch)', publisher: 'Viện Sử học – NXB Giáo Dục', type: 'historical-record', note: 'Ghi chép cải cách y phục thời Nguyễn Phúc Khoát, Minh Mạng' },
+      { title: 'Ngàn năm áo mũ', author: 'Trần Quang Đức', publisher: 'Nhã Nam & NXB Thế Giới', year: '2013', type: 'book' },
+      { title: 'Trang phục Việt Nam', author: 'Đoàn Thị Tình', publisher: 'NXB Mỹ thuật', year: '2006', type: 'book' }
     ]
   },
   {
@@ -70,6 +85,13 @@ export const GARMENTS: GarmentDefinition[] = [
     etiquetteNotes: [
       'Yếm mặc bên trong cần vừa vặn, kín đáo vừa độ, không nên biến tấu hở hang quá mức làm mất nét đoan trang.',
       'Dải thắt lưng buông lơi tự nhiên phía trước hông tạo nhịp điệu thướt tha khi bước đi.'
+    ],
+    authenticity: 'documented',
+    verificationNote: 'Trang phục dân gian Bắc Bộ, có ảnh tư liệu đầu thế kỷ 20 và hiện vật bảo tàng. Liên hệ "4 thân = 4 mùa / tứ thân phụ mẫu" là diễn giải dân gian. Quan họ Bắc Ninh là Di sản văn hóa phi vật thể đại diện của nhân loại (UNESCO, 2009).',
+    sources: [
+      { title: 'Trang phục truyền thống người Việt', publisher: 'Bảo tàng Dân tộc học Việt Nam', type: 'museum' },
+      { title: 'Trang phục Việt Nam', author: 'Đoàn Thị Tình', publisher: 'NXB Mỹ thuật', year: '2006', type: 'book' },
+      { title: 'Dân ca Quan họ Bắc Ninh – hồ sơ di sản', publisher: 'UNESCO', year: '2009', type: 'historical-record' }
     ]
   },
   {
@@ -89,6 +111,12 @@ export const GARMENTS: GarmentDefinition[] = [
     etiquetteNotes: [
       'Là trang phục mang tính lễ nghi cung đình cao, tuyệt đối không phối cùng trang phục quá bụi bặm như quần rách hay dép lê.',
       'Nên búi tóc gọn gàng hoặc đội khăn vành, bờm ngọc trai để tôn trọn vẹn phần cổ áo thêu công phu.'
+    ],
+    authenticity: 'documented',
+    verificationNote: 'Có hiện vật tại Huế. Nhật bình là lễ phục/thường phục cao cấp của hậu phi, công chúa và nữ quan, không phải "triều phục" theo nghĩa hẹp. Màu sắc và hoa văn (phượng, rồng) phụ thuộc phẩm trật; bản mặc hiện nay là bản phỏng dựng.',
+    sources: [
+      { title: 'Hiện vật y phục hoàng gia triều Nguyễn', publisher: 'Bảo tàng Cổ vật Cung đình Huế', type: 'museum' },
+      { title: 'Ngàn năm áo mũ', author: 'Trần Quang Đức', publisher: 'Nhã Nam & NXB Thế Giới', year: '2013', type: 'book' }
     ]
   },
   {
@@ -98,7 +126,7 @@ export const GARMENTS: GarmentDefinition[] = [
     shortDesc: 'Cổ áo vạt chéo đan qua ngực cổ kính, toát lên phong thái thư sinh nho nhã và khí phách ngàn năm.',
     culturalSignificance: 'Giao Lĩnh là cội nguồn của nhiều dạng thức trang phục cổ xưa, thể hiện tư duy đối xứng âm dương hài hòa trong văn hóa Á Đông hàng nghìn năm.',
     features: [
-      'Vạt áo bên trái đè lên vạt bên phải (tả nhậm), thắt dây đai eo',
+      'Vạt trái đè lên vạt phải (hữu nhậm – cổ áo tạo hình chữ "y"), thắt dây đai eo',
       'Phom dáng suông rộng, tạo cảm giác phiêu dật, phong nhã',
       'Cổ áo chéo hình chữ V kín đáo, tôn đường nét khuôn mặt'
     ],
@@ -106,8 +134,14 @@ export const GARMENTS: GarmentDefinition[] = [
     modernVibe: 'Dark Academia / Minimalist Zen: phối cùng kính gọng tròn cổ điển, giày oxford và túi da thô mộc.',
     recommendedColors: ['lam-cham', 'trang-nga', 'den-mun', 'ngoc-bich'],
     etiquetteNotes: [
-      'Quy tắc bất biến: vạt trái phải đè lên vạt phải (không bao giờ buộc ngược vì theo quan niệm xưa vạt phải đè trái là dành cho người đã khuất).',
+      'Quy tắc quan trọng: vạt trái đè lên vạt phải (hữu nhậm). Không mặc ngược (vạt phải đè trái – tả nhậm) vì theo quan niệm xưa đó là cách mặc cho người đã khuất.',
       'Đai thắt lưng nên thắt ngay ngắn giữa eo.'
+    ],
+    authenticity: 'reconstructed',
+    verificationNote: 'Hiện vật vải thời Lý – Trần – Lê sơ gần như không còn; hình dáng được phỏng dựng từ tượng, tranh chân dung, bia ký và thư tịch. Các bản may hiện nay là phục dựng, chi tiết có thể khác nhau giữa các nhóm nghiên cứu.',
+    sources: [
+      { title: 'Ngàn năm áo mũ', author: 'Trần Quang Đức', publisher: 'Nhã Nam & NXB Thế Giới', year: '2013', type: 'book', note: 'Phần trang phục Lý – Trần – Lê' },
+      { title: 'Tượng thờ, tranh chân dung các thời Lê – Mạc', publisher: 'Bảo tàng Lịch sử Quốc gia', type: 'museum' }
     ]
   },
   {
@@ -127,6 +161,12 @@ export const GARMENTS: GarmentDefinition[] = [
     etiquetteNotes: [
       'Chọn chất liệu tơ tằm hoặc voan cát rủ vừa phải, tránh chất liệu mỏng manh xuyên thấu gây phản cảm.',
       'Nên kết hợp cùng quần lụa ống suông truyền thống hoặc váy suông để giữ bước đi khoan thai.'
+    ],
+    authenticity: 'modern',
+    verificationNote: 'Là cải cách thời trang có tác giả: họa sĩ Nguyễn Cát Tường (Lemur) giới thiệu trên báo Phong Hóa năm 1934, sau đó họa sĩ Lê Phổ điều chỉnh. Đây là "truyền thống cận đại", nền tảng của áo dài ngày nay.',
+    sources: [
+      { title: 'Báo Phong Hóa – mục mốt y phục Lemur', publisher: 'Tự Lực Văn Đoàn', year: '1934', type: 'press' },
+      { title: 'Trang phục Việt Nam', author: 'Đoàn Thị Tình', publisher: 'NXB Mỹ thuật', year: '2006', type: 'book' }
     ]
   }
 ];
@@ -507,6 +547,16 @@ export const EVENTS: { id: EventId; name: string; desc: string; weather: Weather
     recommendedGarments: ['ao-tu-than', 'ao-giao-linh', 'ao-ngu-than']
   }
 ];
+
+/** Công thức phối chuẩn cho từng sự kiện (đã kiểm tra không vi phạm luật văn hóa). */
+export const EVENT_COMBOS: Record<EventId, Partial<OutfitConfig>> = {
+  'tet-du-xuan': { garmentId: 'ao-tac', colorId: 'do-chu-sa', patternId: 'van-may', bottomId: 'quan-lua-trang', headwearId: 'khan-van', footwearId: 'guoc-moc', backdrop: 'hoang-thanh' },
+  'ky-yeu-hoc-duong': { garmentId: 'ao-ngu-than', colorId: 'lam-cham', patternId: 'van-may', bottomId: 'quan-lua-trang', headwearId: 'khan-van', footwearId: 'sneaker-trang', backdrop: 'pho-co' },
+  'le-chua-tam-linh': { garmentId: 'ao-giao-linh', colorId: 'trang-nga', patternId: 'hoa-sen', bottomId: 'quan-lua-den', headwearId: 'khan-van', footwearId: 'giay-oxford', backdrop: 'studio-zen' },
+  'ca-phe-dao-pho': { garmentId: 'ao-tu-than', colorId: 'canh-sen', patternId: 'plain-silk', bottomId: 'vay-xep-ly', headwearId: 'bom-ngoc-trai', footwearId: 'guoc-moc', backdrop: 'pho-co' },
+  'dam-cuoi-ban-than': { garmentId: 'ao-nhat-binh', colorId: 'do-chu-sa', patternId: 'bat-buu', bottomId: 'quan-lua-trang', headwearId: 'khan-van', footwearId: 'guoc-moc', backdrop: 'hoang-thanh' },
+  'bieu-dien-van-nghe': { garmentId: 'ao-tu-than', colorId: 'cam-bat-trang', patternId: 'plain-silk', bottomId: 'vay-xep-ly', headwearId: 'non-quai-thao', footwearId: 'guoc-moc', backdrop: 'pho-co' }
+};
 
 export const PRESET_LOOKBOOKS: LookbookPreset[] = [
   {

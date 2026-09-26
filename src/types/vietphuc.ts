@@ -85,6 +85,22 @@ export interface GarmentDefinition {
   modernVibe: string;
   recommendedColors: ColorId[];
   etiquetteNotes: string[];
+  /** Mức độ tư liệu: có hiện vật/ảnh tư liệu, phỏng dựng từ nguồn gián tiếp, hay cách tân hiện đại */
+  authenticity: AuthenticityLevel;
+  /** Ghi chú kiểm chứng: phân biệt dữ kiện lịch sử với cách diễn giải dân gian */
+  verificationNote: string;
+  sources: CulturalSource[];
+}
+
+export type AuthenticityLevel = 'documented' | 'reconstructed' | 'modern';
+
+export interface CulturalSource {
+  title: string;
+  author?: string;
+  publisher?: string;
+  year?: string;
+  type: 'book' | 'museum' | 'historical-record' | 'press';
+  note?: string;
 }
 
 export interface ColorDefinition {
@@ -126,11 +142,28 @@ export interface OutfitConfig {
   backdrop: 'hoang-thanh' | 'pho-co' | 'studio-zen' | 'hieu-anh';
 }
 
+export type AlertLevel = 'critical' | 'warning' | 'info' | 'kudos';
+
 export interface CulturalAlert {
-  level: 'info' | 'warning' | 'kudos';
+  id?: string;
+  level: AlertLevel;
   title: string;
   message: string;
   guidance: string;
+  /** Cơ sở văn hóa / lý do của luật */
+  basis?: string;
+}
+
+export interface CulturalRule {
+  id: string;
+  level: AlertLevel;
+  /** Nhóm luật để hiển thị/thống kê */
+  category: 'boi-canh' | 'tang-lop' | 'vung-mien' | 'mau-sac' | 'hoa-van' | 'gioi' | 'cau-truc' | 'remix';
+  when: (config: OutfitConfig) => boolean;
+  title: string;
+  message: string;
+  guidance: string;
+  basis: string;
 }
 
 export interface ColorHarmonyResult {
