@@ -15,26 +15,90 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 const IS_PROD = process.env.NODE_ENV === 'production' || process.argv.includes('--prod');
-const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
 const MAX_QUERY = 500;
 
 app.set('trust proxy', true);
 app.use(express.json({ limit: '16kb' }));
 
-// ───────────── Gemini client ─────────────
-const apiKey = process.env.GEMINI_API_KEY;
-let ai: GoogleGenAI | null = null;
-if (apiKey && apiKey !== 'MY_GEMINI_API_KEY') {
+// ───────────── Gemini API Key Pool & Auto-Rotation ─────────────
+function parseGeminiKeys(): string[] {
+  const rawList = process.env.GEMINI_API_KEYS || process.env.GEMINI_API_KEY || '';
+  return rawList
+    .split(/[\n,;]+/)
+    .map(k => k.trim().replace(/^["']|["']$/g, ''))
+    .filter(k => k && k !== 'MY_GEMINI_API_KEY' && k !== 'MY_GEMINI_API_KEYS');
+}
+
+const keyPool = parseGeminiKeys();
+interface KeyClient {
+  key: string;
+  client: GoogleGenAI;
+  label: string;
+}
+
+const aiClients: KeyClient[] = [];
+for (let i = 0; i < keyPool.length; i++) {
+  const k = keyPool[i];
   try {
-    ai = new GoogleGenAI({ apiKey });
+    const masked = k.length > 10 ? `${k.slice(0, 6)}...${k.slice(-4)}` : '***';
+    aiClients.push({
+      key: k,
+      client: new GoogleGenAI({ apiKey: k }),
+      label: `Account #${i + 1} (${masked})`
+    });
   } catch (err) {
-    console.error('Error initializing GoogleGenAI:', err);
+    console.error(`[Key Pool] Lỗi khởi tạo client #${i + 1}:`, err);
   }
+}
+
+let currentClientIndex = 0;
+
+/** Round-robin key execution with automatic failover across keys on 429/quota limits */
+async function generateContentWithRotation(prompt: string, systemInstruction: string) {
+  if (aiClients.length === 0) {
+    throw new Error('NO_API_KEYS');
+  }
+
+  const maxAttempts = aiClients.length;
+  let lastError: any = null;
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const idx = (currentClientIndex + attempt) % aiClients.length;
+    const target = aiClients[idx];
+
+    try {
+      const response = await target.client.models.generateContent({
+        model: GEMINI_MODEL,
+        contents: prompt,
+        config: {
+          systemInstruction,
+          temperature: 0.6,
+          maxOutputTokens: 700
+        }
+      });
+
+      // Advance round-robin pointer for next incoming request
+      currentClientIndex = (idx + 1) % aiClients.length;
+      return { response, usedAccount: target.label };
+    } catch (err: any) {
+      lastError = err;
+      const isQuotaOrRateLimit =
+        err?.status === 429 ||
+        err?.message?.includes('RESOURCE_EXHAUSTED') ||
+        err?.message?.includes('quota') ||
+        err?.message?.includes('rate limit');
+
+      console.warn(`[Key Rotation] ${target.label} gặp lỗi (${isQuotaOrRateLimit ? 'Hết Quota/Rate Limit' : 'Lỗi gọi API'}). Đang tự động chuyển sang tài khoản kế tiếp...`);
+    }
+  }
+
+  throw lastError;
 }
 
 // ───────────── Simple in-memory rate limit (per IP) ─────────────
 const WINDOW_MS = 60_000;
-const MAX_PER_WINDOW = 8;
+const MAX_PER_WINDOW = 15; // Increased per-IP limit since pool has multiple keys
 const hits = new Map<string, number[]>();
 function rateLimited(ip: string): boolean {
   const now = Date.now();
@@ -67,9 +131,9 @@ app.get('/api/public-url', (_req, res) => {
   res.json(publicBaseUrl());
 });
 
-// ───────────── AI Stylist (grounded on app data) ─────────────
+// ───────────── AI Stylist (grounded on app data with key rotation) ─────────────
 app.post('/api/ai-stylist', async (req, res) => {
-  if (!ai) {
+  if (aiClients.length === 0) {
     return res.status(503).json({ error: 'Gemini API not configured. Falling back to local styling logic.' });
   }
   if (rateLimited(req.ip || 'unknown')) {
@@ -84,26 +148,27 @@ app.post('/api/ai-stylist', async (req, res) => {
 
   try {
     const context = buildStylistContext(config);
-    const response = await ai.models.generateContent({
-      model: GEMINI_MODEL,
-      contents: `${context}\n\n<cau_hoi_nguoi_dung>\n${query}\n</cau_hoi_nguoi_dung>`,
-      config: {
-        systemInstruction: STYLIST_SYSTEM_PROMPT,
-        temperature: 0.6,
-        maxOutputTokens: 700
-      }
-    });
+    const prompt = `${context}\n\n<cau_hoi_nguoi_dung>\n${query}\n</cau_hoi_nguoi_dung>`;
+
+    const { response, usedAccount } = await generateContentWithRotation(prompt, STYLIST_SYSTEM_PROMPT);
 
     const reply = response.text?.trim() || 'Outfit phối đồ của bạn rất ấn tượng và đậm chất di sản đương đại!';
-    return res.json({ reply, model: GEMINI_MODEL });
+    return res.json({ reply, model: GEMINI_MODEL, account: usedAccount });
   } catch (error: unknown) {
-    console.error('Error in /api/ai-stylist:', error);
+    console.error('Error in /api/ai-stylist after trying key pool:', error);
     return res.status(500).json({ error: 'Failed to generate styling advice' });
   }
 });
 
 app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', ai: Boolean(ai), model: GEMINI_MODEL, publicUrl: publicBaseUrl(), time: new Date().toISOString() });
+  res.json({
+    status: 'ok',
+    ai: aiClients.length > 0,
+    totalKeys: aiClients.length,
+    model: GEMINI_MODEL,
+    publicUrl: publicBaseUrl(),
+    time: new Date().toISOString()
+  });
 });
 
 // ───────────── Frontend ─────────────
@@ -127,7 +192,7 @@ async function startServer() {
     const pub = publicBaseUrl();
     console.log(`Server listening on http://localhost:${PORT} (${IS_PROD ? 'production' : 'dev'})`);
     if (pub.url) console.log(`Share links / QR codes will use: ${pub.url} [${pub.source}]`);
-    console.log(`Gemini: ${ai ? `enabled (${GEMINI_MODEL})` : 'disabled – offline stylist fallback'}`);
+    console.log(`Gemini: ${aiClients.length > 0 ? `enabled (${aiClients.length} accounts in rotation pool, model: ${GEMINI_MODEL})` : 'disabled – offline stylist fallback'}`);
   });
 }
 

@@ -10,8 +10,8 @@ export const FORMAT_SIZE: Record<ExportFormat, { w: number; h: number; label: st
   post: { w: 1080, h: 1350, label: 'Post 4:5' }
 };
 
-const SERIF = '"Cormorant Garamond", Georgia, serif';
-const SANS = '"Plus Jakarta Sans", system-ui, sans-serif';
+const SERIF = '"Playfair Display", "Lora", "Cormorant Garamond", Georgia, serif';
+const SANS = '"Be Vietnam Pro", "Plus Jakarta Sans", system-ui, sans-serif';
 const INK = '#1C1917';
 const MUTED = '#57534E';
 const ACCENT = '#78350F';

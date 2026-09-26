@@ -208,11 +208,11 @@ export const CULTURAL_RULES: CulturalRule[] = [
     id: 'female-garment-male',
     level: 'info',
     category: 'gioi',
-    when: all(is('garmentId', 'ao-tu-than', 'ao-nhat-binh'), is('modelGender', 'male')),
-    title: 'Trang phục vốn dành cho nữ giới',
-    message: 'Áo tứ thân (có yếm) và áo Nhật Bình theo truyền thống là trang phục của phụ nữ.',
-    guidance: 'Với nam giới, nên chọn Áo Ngũ Thân, Áo Tấc hoặc Áo Giao Lĩnh. Nếu cố ý phối phá cách, hãy ghi chú rõ khi chia sẻ.',
-    basis: 'Phân biệt trang phục nam/nữ trong y phục truyền thống người Việt.'
+    when: all(is('garmentId', 'ao-tu-than', 'ao-nhat-binh', 'ao-dai-tan-thoi'), is('modelGender', 'male')),
+    title: 'Trang phục truyền thống của nữ giới',
+    message: 'Áo tứ thân (yếm đào), áo Nhật Bình và áo dài Lemur vốn là các mẫu trang phục thiết kế dành riêng cho phái nữ.',
+    guidance: 'Với nam giới, các lựa chọn chuẩn mực di sản là Áo Tấc, Áo Ngũ Thân, Áo Giao Lĩnh, Áo Dài Hiện Đại nam hoặc Áo Bà Ba.',
+    basis: 'Phân định trang phục nam/nữ trong chiều dài văn hóa y phục người Việt.'
   },
   {
     id: 'quai-thao-offregion',

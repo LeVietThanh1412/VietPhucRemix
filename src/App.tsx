@@ -64,12 +64,24 @@ export default function App() {
 
   // UI state
   const [activeTab, setActiveTab] = useState<'garment' | 'color' | 'pattern' | 'bottom' | 'headwear' | 'footwear' | 'accessories'>('garment');
+  const [garmentGenderFilter, setGarmentGenderFilter] = useState<'all' | 'female' | 'male' | 'both'>('all');
   const [isZoomed, setIsZoomed] = useState(false);
   const [isLookbookModalOpen, setIsLookbookModalOpen] = useState(false);
   const [isComparisonModalOpen, setIsComparisonModalOpen] = useState(false);
   const [compareSelection, setCompareSelection] = useState<string[] | undefined>(undefined);
   const saved = useSavedLooks();
   const [saveFlash, setSaveFlash] = useState<string | null>(null);
+
+  const filteredGarments = React.useMemo(() => {
+    if (garmentGenderFilter === 'all') return GARMENTS;
+    if (garmentGenderFilter === 'female') return GARMENTS.filter(g => g.targetGender === 'female' || g.targetGender === 'both');
+    if (garmentGenderFilter === 'male') return GARMENTS.filter(g => g.targetGender === 'male' || g.targetGender === 'both');
+    return GARMENTS.filter(g => g.targetGender === 'both');
+  }, [garmentGenderFilter]);
+
+  const femaleGarmentCount = GARMENTS.filter(g => g.targetGender === 'female' || g.targetGender === 'both').length;
+  const maleGarmentCount = GARMENTS.filter(g => g.targetGender === 'male' || g.targetGender === 'both').length;
+  const bothGarmentCount = GARMENTS.filter(g => g.targetGender === 'both').length;
 
   const handleSaveLook = () => {
     const r = saved.save(config);
@@ -351,6 +363,22 @@ export default function App() {
                   </div>
                 </div>
 
+                {config.modelGender === 'male' && (
+                  <p className="text-[11px] text-sky-900 bg-sky-50 px-2.5 py-1.5 rounded-lg border border-sky-200/60 leading-relaxed">
+                    👔 <b>Dáng Nam:</b> Bờ vai vuông rộng, tư thế đĩnh đạc, búi tóc củ hành. Áo truyền thống chuẩn nam: Áo Tấc, Áo Ngũ Thân, Áo Giao Lĩnh, Áo Dài nam, Áo Bà Ba.
+                  </p>
+                )}
+                {config.modelGender === 'female' && (
+                  <p className="text-[11px] text-rose-900 bg-rose-50 px-2.5 py-1.5 rounded-lg border border-rose-200/60 leading-relaxed">
+                    🌸 <b>Dáng Nữ:</b> Cổ kiêu thanh tú, bờ vai mềm mại, hoa tai ngọc, búi tóc cung đình đoan trang. Phù hợp trọn vẹn 7 mẫu áo truyền thống của phái nữ.
+                  </p>
+                )}
+                {config.modelGender === 'unisex' && (
+                  <p className="text-[11px] text-amber-900 bg-amber-50 px-2.5 py-1.5 rounded-lg border border-amber-200/60 leading-relaxed">
+                    ✨ <b>Dáng Unisex:</b> Tỷ lệ thanh lịch đương đại, tôn vinh trọn vẹn nét hài hòa của cổ phục Việt.
+                  </p>
+                )}
+
                 <div className="flex items-center justify-between text-xs border-t border-stone-100 pt-2.5">
                   <span className="font-semibold text-stone-700">Bối cảnh nền:</span>
                   <div className="flex items-center gap-1">
@@ -407,13 +435,74 @@ export default function App() {
               {/* TAB 1: Garment Type */}
               {activeTab === 'garment' && (
                 <div className="space-y-4">
-                  <div className="flex justify-between items-center text-xs">
+                  <div className="flex justify-between items-center text-xs flex-wrap gap-2">
                     <span className="font-semibold text-stone-700">Chọn dáng trang phục truyền thống:</span>
                     <span className="text-amber-800 font-medium">Hiện tại: {selectedGarment.name}</span>
                   </div>
 
+                  {/* Gender Category Filter Bar */}
+                  <div className="flex items-center gap-1.5 p-1 bg-stone-100 rounded-xl overflow-x-auto text-xs no-scrollbar">
+                    <span className="text-[11px] font-semibold text-stone-500 pl-2 pr-1 shrink-0">Phân loại:</span>
+                    <button
+                      onClick={() => setGarmentGenderFilter('all')}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all shrink-0 ${
+                        garmentGenderFilter === 'all'
+                          ? 'bg-white text-stone-900 shadow-2xs font-semibold'
+                          : 'text-stone-600 hover:text-stone-900'
+                      }`}
+                    >
+                      Tất cả ({GARMENTS.length})
+                    </button>
+                    <button
+                      onClick={() => setGarmentGenderFilter('female')}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all shrink-0 flex items-center gap-1 ${
+                        garmentGenderFilter === 'female'
+                          ? 'bg-rose-50 text-rose-900 border border-rose-200 shadow-2xs font-semibold'
+                          : 'text-stone-600 hover:text-stone-900'
+                      }`}
+                    >
+                      <span>🌸 Dành cho Nữ</span>
+                      <span className="text-[10px] opacity-75">({femaleGarmentCount})</span>
+                    </button>
+                    <button
+                      onClick={() => setGarmentGenderFilter('male')}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all shrink-0 flex items-center gap-1 ${
+                        garmentGenderFilter === 'male'
+                          ? 'bg-sky-50 text-sky-900 border border-sky-200 shadow-2xs font-semibold'
+                          : 'text-stone-600 hover:text-stone-900'
+                      }`}
+                    >
+                      <span>👔 Dành cho Nam</span>
+                      <span className="text-[10px] opacity-75">({maleGarmentCount})</span>
+                    </button>
+                    <button
+                      onClick={() => setGarmentGenderFilter('both')}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all shrink-0 flex items-center gap-1 ${
+                        garmentGenderFilter === 'both'
+                          ? 'bg-amber-50 text-amber-900 border border-amber-200 shadow-2xs font-semibold'
+                          : 'text-stone-600 hover:text-stone-900'
+                      }`}
+                    >
+                      <span>🔷 Cả Nam & Nữ</span>
+                      <span className="text-[10px] opacity-75">({bothGarmentCount})</span>
+                    </button>
+                  </div>
+
+                  {/* Contextual guidance if male mannequin currently has female-only garment selected */}
+                  {config.modelGender === 'male' && selectedGarment.targetGender === 'female' && (
+                    <div className="p-3 rounded-xl bg-amber-50/90 border border-amber-200/90 text-xs text-amber-900 flex items-start gap-2.5">
+                      <span className="text-base shrink-0">🌸</span>
+                      <div>
+                        <p className="font-semibold">Lưu ý phân định giới tính di sản:</p>
+                        <p className="text-[11px] text-amber-800 leading-relaxed mt-0.5">
+                          <b>{selectedGarment.name}</b> theo lịch sử là trang phục thiết kế dành cho nữ giới. Bạn có thể đổi sang người mẫu Nữ hoặc chọn áo truyền thống của Nam như <b>Áo Tấc</b>, <b>Áo Ngũ Thân</b>, <b>Áo Giao Lĩnh</b>, <b>Áo Dài nam</b>, <b>Áo Bà Ba</b>.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {GARMENTS.map(g => (
+                    {filteredGarments.map(g => (
                       <div
                         key={g.id}
                         onClick={() => setConfig(prev => ({ ...prev, garmentId: g.id }))}
@@ -423,7 +512,7 @@ export default function App() {
                             : 'border-stone-200 hover:border-stone-300 bg-stone-50/30'
                         }`}
                       >
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between gap-1">
                           <h4 className="font-serif font-bold text-stone-900 text-sm">{g.name}</h4>
                           {config.garmentId === g.id && (
                             <span className="w-5 h-5 rounded-full bg-amber-800 text-white flex items-center justify-center shrink-0">
@@ -431,11 +520,30 @@ export default function App() {
                             </span>
                           )}
                         </div>
-                        <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+
+                        {/* Dynasty + Authenticity + Gender Badge */}
+                        <div className="flex items-center gap-1.5 mt-1 flex-wrap">
                           <p className="text-[11px] text-stone-500 font-medium">{g.dynasty}</p>
                           <AuthenticityBadge level={g.authenticity} />
+                          {g.targetGender === 'female' ? (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+                              🌸 Nữ giới
+                            </span>
+                          ) : (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+                              🔷 Nam & Nữ
+                            </span>
+                          )}
                         </div>
+
                         <p className="text-xs text-stone-600 line-clamp-2 mt-1.5 leading-relaxed">{g.shortDesc}</p>
+
+                        {/* Gender-specific cut/etiquette note */}
+                        {g.genderNote && (
+                          <p className="text-[11px] text-stone-600 bg-stone-100/70 rounded-md px-2 py-1 mt-2 border border-stone-200/60 leading-relaxed">
+                            {g.genderNote}
+                          </p>
+                        )}
                       </div>
                     ))}
                   </div>

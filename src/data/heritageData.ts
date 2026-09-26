@@ -40,7 +40,9 @@ export const GARMENTS: GarmentDefinition[] = [
       { title: 'Ngàn năm áo mũ', author: 'Trần Quang Đức', publisher: 'Nhã Nam & NXB Thế Giới', year: '2013', type: 'book' },
       { title: 'Hiện vật lễ phục triều Nguyễn', publisher: 'Bảo tàng Cổ vật Cung đình Huế', type: 'museum' },
       { title: 'Trang phục Việt Nam', author: 'Đoàn Thị Tình', publisher: 'NXB Mỹ thuật', year: '2006', type: 'book' }
-    ]
+    ],
+    targetGender: 'both',
+    genderNote: 'Cả Nam & Nữ: Lễ phục trang nghiêm thời Nguyễn. Bản Nam phom rộng uy nghi, chắp tay phong thái quân tử; bản Nữ đoan trang, quyền quý.'
   },
   {
     id: 'ao-ngu-than',
@@ -66,7 +68,9 @@ export const GARMENTS: GarmentDefinition[] = [
       { title: 'Đại Nam thực lục (bản dịch)', publisher: 'Viện Sử học – NXB Giáo Dục', type: 'historical-record', note: 'Ghi chép cải cách y phục thời Nguyễn Phúc Khoát, Minh Mạng' },
       { title: 'Ngàn năm áo mũ', author: 'Trần Quang Đức', publisher: 'Nhã Nam & NXB Thế Giới', year: '2013', type: 'book' },
       { title: 'Trang phục Việt Nam', author: 'Đoàn Thị Tình', publisher: 'NXB Mỹ thuật', year: '2006', type: 'book' }
-    ]
+    ],
+    targetGender: 'both',
+    genderNote: 'Cả Nam & Nữ: Áo ngũ thân nam phom đứng đĩnh đạc, cổ cao nghiêm trang; áo ngũ thân nữ lượn eo nhẹ nhàng, vạt cánh cung thanh thoát.'
   },
   {
     id: 'ao-tu-than',
@@ -92,7 +96,9 @@ export const GARMENTS: GarmentDefinition[] = [
       { title: 'Trang phục truyền thống người Việt', publisher: 'Bảo tàng Dân tộc học Việt Nam', type: 'museum' },
       { title: 'Trang phục Việt Nam', author: 'Đoàn Thị Tình', publisher: 'NXB Mỹ thuật', year: '2006', type: 'book' },
       { title: 'Dân ca Quan họ Bắc Ninh – hồ sơ di sản', publisher: 'UNESCO', year: '2009', type: 'historical-record' }
-    ]
+    ],
+    targetGender: 'female',
+    genderNote: 'Dành cho Nữ giới: Nét đẹp mộc mạc, đoan trang của phụ nữ Kinh Bắc, đi cùng yếm thắm, thắt lưng bao và nón quai thao.'
   },
   {
     id: 'ao-nhat-binh',
@@ -117,7 +123,9 @@ export const GARMENTS: GarmentDefinition[] = [
     sources: [
       { title: 'Hiện vật y phục hoàng gia triều Nguyễn', publisher: 'Bảo tàng Cổ vật Cung đình Huế', type: 'museum' },
       { title: 'Ngàn năm áo mũ', author: 'Trần Quang Đức', publisher: 'Nhã Nam & NXB Thế Giới', year: '2013', type: 'book' }
-    ]
+    ],
+    targetGender: 'female',
+    genderNote: 'Dành cho Nữ giới: Lễ phục cao quý của Hoàng Thái Hậu, Hoàng Hậu, Công Chúa và nữ quan triều đình Huế với cổ áo chữ nhật thêu hoa mỹ.'
   },
   {
     id: 'ao-giao-linh',
@@ -142,7 +150,9 @@ export const GARMENTS: GarmentDefinition[] = [
     sources: [
       { title: 'Ngàn năm áo mũ', author: 'Trần Quang Đức', publisher: 'Nhã Nam & NXB Thế Giới', year: '2013', type: 'book', note: 'Phần trang phục Lý – Trần – Lê' },
       { title: 'Tượng thờ, tranh chân dung các thời Lê – Mạc', publisher: 'Bảo tàng Lịch sử Quốc gia', type: 'museum' }
-    ]
+    ],
+    targetGender: 'both',
+    genderNote: 'Cả Nam & Nữ: Cổ phục thời Lý - Trần - Lê sơ cho cả văn nhân, sĩ tử nam giới lẫn nữ giới quý tộc với vạt chéo hữu nhậm.'
   },
   {
     id: 'ao-dai-tan-thoi',
@@ -167,7 +177,9 @@ export const GARMENTS: GarmentDefinition[] = [
     sources: [
       { title: 'Báo Phong Hóa – mục mốt y phục Lemur', publisher: 'Tự Lực Văn Đoàn', year: '1934', type: 'press' },
       { title: 'Trang phục Việt Nam', author: 'Đoàn Thị Tình', publisher: 'NXB Mỹ thuật', year: '2006', type: 'book' }
-    ]
+    ],
+    targetGender: 'female',
+    genderNote: 'Dành cho Nữ giới: Cải cách y phục của họa sĩ Lemur (1934) nhằm tôn vinh vóc dáng thanh xuân của phụ nữ Việt Nam thời Thơ Mới.'
   },
   // ⚠️ Append-only: share links encode catalog index. Add new items at the END.
   {
@@ -196,7 +208,9 @@ export const GARMENTS: GarmentDefinition[] = [
     sources: [
       { title: 'Trang phục Việt Nam', author: 'Đoàn Thị Tình', publisher: 'NXB Mỹ thuật', year: '2006', type: 'book' },
       { title: 'Trưng bày trang phục người Việt thế kỷ 20', publisher: 'Bảo tàng Phụ nữ Việt Nam', type: 'museum' }
-    ]
+    ],
+    targetGender: 'both',
+    genderNote: 'Cả Nam & Nữ: Áo dài nữ chiết eo tà dài thướt tha; Áo dài nam hiện đại phom đứng đĩnh đạc, vạt qua gối lịch lãm.'
   },
   {
     id: 'ao-ba-ba',
@@ -223,7 +237,9 @@ export const GARMENTS: GarmentDefinition[] = [
     sources: [
       { title: 'Trang phục truyền thống người Việt', publisher: 'Bảo tàng Dân tộc học Việt Nam', type: 'museum' },
       { title: 'Trang phục Việt Nam', author: 'Đoàn Thị Tình', publisher: 'NXB Mỹ thuật', year: '2006', type: 'book' }
-    ]
+    ],
+    targetGender: 'both',
+    genderNote: 'Cả Nam & Nữ: Thường phục Nam Bộ cho cả hai giới; Nam mặc phóng khoáng thuận tiện lao động, Nữ mặc chít eo nhẹ nhàng tôn nét duyên quê.'
   }
 ];
 

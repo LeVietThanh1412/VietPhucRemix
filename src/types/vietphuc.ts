@@ -76,6 +76,7 @@ export type WeatherId =
   | 'dong-lanh-gia';
 
 export type ModelGender = 'female' | 'male' | 'unisex';
+export type GenderCategory = 'female' | 'male' | 'both';
 
 export interface GarmentDefinition {
   id: GarmentId;
@@ -93,6 +94,10 @@ export interface GarmentDefinition {
   /** Ghi chú kiểm chứng: phân biệt dữ kiện lịch sử với cách diễn giải dân gian */
   verificationNote: string;
   sources: CulturalSource[];
+  /** Đối tượng mặc truyền thống: dành cho Nữ, Nam hay Cả Nam & Nữ */
+  targetGender: GenderCategory;
+  /** Ghi chú phân hóa kiểu dáng hoặc bối cảnh theo giới tính */
+  genderNote?: string;
 }
 
 export type AuthenticityLevel = 'documented' | 'reconstructed' | 'modern';

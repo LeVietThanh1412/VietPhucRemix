@@ -143,7 +143,7 @@ export const STYLES: { id: StyleId; label: string; desc: string; icon: string; a
 ];
 
 const FORMAL_EVENTS: EventId[] = ['le-chua-tam-linh', 'dam-cuoi-ban-than', 'tet-du-xuan'];
-const FEMALE_ONLY: GarmentId[] = ['ao-tu-than', 'ao-nhat-binh'];
+const FEMALE_ONLY: GarmentId[] = ['ao-tu-than', 'ao-nhat-binh', 'ao-dai-tan-thoi'];
 // Áo dài hiện đại & bà ba are worn by both genders (áo dài nam exists), so not restricted.
 
 export interface QuizResult {
