@@ -1,7 +1,7 @@
 import React from 'react';
 import { OutfitConfig } from '../types/vietphuc';
 import { MannequinVisualizer } from './MannequinVisualizer';
-import { buildShareUrl } from '../utils/lookStorage';
+import { buildShareUrl, shareLinksAreLocalOnly } from '../utils/lookStorage';
 import { computeLookMetrics } from '../utils/lookMetrics';
 import {
   ExportFormat,
@@ -182,6 +182,13 @@ export const LookbookCardModal: React.FC<LookbookCardModalProps> = ({ isOpen, on
                 className="w-full px-3 py-2 border border-stone-200 rounded-lg bg-white focus:outline-hidden focus:ring-1 focus:ring-stone-400"
               />
             </label>
+
+            {shareLinksAreLocalOnly() && (
+              <div className="p-2.5 rounded-lg bg-sky-50 border border-sky-200 text-sky-900 text-[11px]">
+                Link/QR hiện trỏ về <b>localhost</b>, chỉ mở được trên máy này. Hãy đặt <code>APP_URL</code> (xem README) hoặc
+                deploy để người khác quét được.
+              </div>
+            )}
 
             {metrics.critical > 0 && (
               <div className="flex items-start gap-2 p-3 rounded-lg bg-red-50 border border-red-200 text-red-900">

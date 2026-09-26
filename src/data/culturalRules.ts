@@ -145,6 +145,66 @@ export const CULTURAL_RULES: CulturalRule[] = [
     basis: 'Phân biệt phục sức nam/nữ trong trang phục truyền thống người Việt.'
   },
   {
+    id: 'ba-ba-formal',
+    level: 'warning',
+    category: 'tang-lop',
+    when: all(is('garmentId', 'ao-ba-ba'), is('targetEvent', 'dam-cuoi-ban-than', 'le-chua-tam-linh')),
+    title: 'Áo bà ba là thường phục',
+    message: 'Áo bà ba là trang phục sinh hoạt và lao động thường ngày của người Nam Bộ, chưa đủ trang trọng cho đám cưới hay lễ chùa.',
+    guidance: 'Với dịp trang trọng, hãy chọn Áo Dài Hiện Đại hoặc Áo Ngũ Thân. Áo bà ba hợp nhất khi đi chơi, đi chợ nổi hay biểu diễn đờn ca tài tử.',
+    basis: 'Phân tầng lễ phục và thường phục trong trang phục Nam Bộ.'
+  },
+  {
+    id: 'khan-ran-offregion',
+    level: 'info',
+    category: 'vung-mien',
+    when: all(is('headwearId', 'khan-ran'), not(is('garmentId', 'ao-ba-ba', 'ao-ngu-than', 'ao-dai-hien-dai'))),
+    title: 'Khăn rằn là nét riêng của Nam Bộ',
+    message: 'Khăn rằn thường đi với áo bà ba. Phối với lễ phục cung đình hay áo tứ thân Bắc Bộ sẽ bị lẫn đặc trưng vùng miền.',
+    guidance: 'Để giữ nét Nam Bộ, hãy mặc Áo Bà Ba với khăn rằn và nón lá.',
+    basis: 'Mỗi vùng văn hóa có bộ phục sức đặc trưng riêng.'
+  },
+  {
+    id: 'khan-ran-sacred',
+    level: 'warning',
+    category: 'boi-canh',
+    when: all(is('headwearId', 'khan-ran'), is('targetEvent', 'le-chua-tam-linh', 'dam-cuoi-ban-than')),
+    title: 'Khăn rằn là phụ kiện đời thường',
+    message: 'Khăn rằn là phụ kiện lao động, đi đường, không hợp với dịp trang nghiêm.',
+    guidance: 'Tháo khăn rằn hoặc thay bằng khăn vấn, khăn đóng.',
+    basis: 'Mức độ trang trọng của phụ kiện nên tương đương với mức độ trang trọng của dịp.'
+  },
+  {
+    id: 'ao-dai-denim-formal',
+    level: 'warning',
+    category: 'boi-canh',
+    when: all(is('garmentId', 'ao-dai-hien-dai', 'ao-dai-tan-thoi'), is('bottomId', 'quan-jeans-suong'), is('targetEvent', 'tet-du-xuan', 'dam-cuoi-ban-than', 'ky-yeu-hoc-duong')),
+    title: 'Áo dài đi quần jeans trong dịp trang trọng',
+    message: 'Áo dài mặc với quần jeans hợp để dạo phố, nhưng ở lễ Tết, đám cưới hay lễ tốt nghiệp sẽ trông thiếu chỉn chu.',
+    guidance: 'Chọn quần lụa ống suông trắng hoặc đen, dài chạm gót.',
+    basis: 'Bộ áo dài chuẩn gồm áo và quần lụa ống suông.'
+  },
+  {
+    id: 'ba-ba-khan-ran',
+    level: 'kudos',
+    category: 'vung-mien',
+    when: all(is('garmentId', 'ao-ba-ba'), is('headwearId', 'khan-ran', 'non-la')),
+    title: 'Chuẩn chất miền Tây sông nước',
+    message: 'Áo bà ba đi cùng khăn rằn hoặc nón lá là hình ảnh quen thuộc của người Nam Bộ.',
+    guidance: 'Thêm túi cói đan để trọn vibe chợ nổi và cà phê vườn.',
+    basis: 'Bộ trang phục thường ngày đặc trưng của Nam Bộ.'
+  },
+  {
+    id: 'ao-dai-proper',
+    level: 'kudos',
+    category: 'tang-lop',
+    when: all(is('garmentId', 'ao-dai-hien-dai'), is('bottomId', 'quan-lua-trang', 'quan-lua-den'), is('targetEvent', 'tet-du-xuan', 'ky-yeu-hoc-duong', 'dam-cuoi-ban-than')),
+    title: 'Áo dài chuẩn mực cho dịp lễ',
+    message: 'Áo dài đi với quần lụa ống suông là trang phục được chấp nhận rộng rãi ở mọi dịp trang trọng.',
+    guidance: 'Nên để tà áo buông thẳng khi đứng chụp; nữ sinh có thể kết hợp nón lá.',
+    basis: 'Áo dài là trang phục lễ phổ biến nhất của người Việt hiện nay.'
+  },
+  {
     id: 'female-garment-male',
     level: 'info',
     category: 'gioi',

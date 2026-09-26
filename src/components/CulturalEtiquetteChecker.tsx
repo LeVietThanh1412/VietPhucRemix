@@ -263,7 +263,17 @@ export const CulturalEtiquetteChecker: React.FC<CulturalEtiquetteCheckerProps> =
                 </ul>
               </div>
               <p className="text-[11px] text-stone-400 italic">
-                Nội dung được biên soạn nhằm mục đích giáo dục và đang chờ chuyên gia thẩm định. Nếu thấy thông tin chưa chính xác, hãy góp ý để chúng tôi cập nhật.
+                Nội dung được biên soạn nhằm mục đích giáo dục và đang chờ chuyên gia thẩm định. Phạm vi hiện tại: trang phục người Kinh.
+                Nếu thấy thông tin chưa chính xác, hãy góp ý để chúng tôi cập nhật
+                {import.meta.env.VITE_FEEDBACK_URL ? (
+                  <>
+                    {' '}
+                    <a href={import.meta.env.VITE_FEEDBACK_URL} target="_blank" rel="noopener noreferrer" className="underline text-amber-800">
+                      tại đây
+                    </a>
+                  </>
+                ) : null}
+                .
               </p>
             </div>
           )}

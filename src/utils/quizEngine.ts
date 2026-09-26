@@ -43,7 +43,7 @@ export const REGIONS: { id: RegionId; label: string; desc: string; icon: string;
     desc: 'Kinh Bắc, Thăng Long: tứ thân, quai thao, gốm Chu Đậu',
     icon: '🏮',
     affinity: {
-      garments: ['ao-tu-than', 'ao-giao-linh', 'ao-dai-tan-thoi'],
+      garments: ['ao-tu-than', 'ao-giao-linh', 'ao-dai-tan-thoi', 'ao-dai-hien-dai'],
       colors: ['canh-sen', 'cam-bat-trang', 'lam-cham', 'trang-nga'],
       patterns: ['chu-dau', 'hoa-sen', 'plain-silk'],
       headwear: ['non-quai-thao', 'khan-van'],
@@ -68,13 +68,13 @@ export const REGIONS: { id: RegionId; label: string; desc: string; icon: string;
   {
     id: 'nam',
     label: 'Nam Bộ',
-    desc: 'Phóng khoáng, thoáng mát: ngũ thân, áo dài, nón lá',
+    desc: 'Miền Tây sông nước: áo bà ba, khăn rằn, nón lá, áo dài',
     icon: '🌴',
     affinity: {
-      garments: ['ao-ngu-than', 'ao-dai-tan-thoi'],
-      colors: ['trang-nga', 'ngoc-bich', 'lam-cham'],
+      garments: ['ao-ba-ba', 'ao-dai-hien-dai', 'ao-ngu-than'],
+      colors: ['trang-nga', 'ngoc-bich', 'lam-cham', 'tim-hue', 'den-mun'],
       patterns: ['plain-silk', 'hoa-sen'],
-      headwear: ['non-la', 'none'],
+      headwear: ['khan-ran', 'non-la', 'none'],
       accessories: ['tui-coi-dan', 'quat-giay-do'],
       backdrop: 'studio-zen'
     }
@@ -102,7 +102,7 @@ export const STYLES: { id: StyleId; label: string; desc: string; icon: string; a
     desc: 'Streetwear, sneaker, kính Y2K, dễ mặc đi chơi',
     icon: '🛹',
     affinity: {
-      garments: ['ao-ngu-than', 'ao-tu-than', 'ao-dai-tan-thoi'],
+      garments: ['ao-ngu-than', 'ao-dai-hien-dai', 'ao-tu-than', 'ao-dai-tan-thoi', 'ao-ba-ba'],
       bottoms: ['vay-xep-ly', 'quan-palazzo', 'quan-jeans-suong'],
       headwear: ['none', 'bom-ngoc-trai'],
       footwear: ['sneaker-trang', 'boot-da-co-thap'],
@@ -144,6 +144,7 @@ export const STYLES: { id: StyleId; label: string; desc: string; icon: string; a
 
 const FORMAL_EVENTS: EventId[] = ['le-chua-tam-linh', 'dam-cuoi-ban-than', 'tet-du-xuan'];
 const FEMALE_ONLY: GarmentId[] = ['ao-tu-than', 'ao-nhat-binh'];
+// Áo dài hiện đại & bà ba are worn by both genders (áo dài nam exists), so not restricted.
 
 export interface QuizResult {
   config: OutfitConfig;
@@ -229,6 +230,8 @@ export function recommendLooks(a: QuizAnswers, topN = 3): QuizResult[] {
     if (a.gender === 'male' && FEMALE_ONLY.includes(g.id)) continue;
     const gScore =
       (event.recommendedGarments.includes(g.id) ? 30 : 0) +
+      // first listed garment = the most typical choice for that event
+      (event.recommendedGarments[0] === g.id ? 8 : 0) +
       (inList(region.garments, g.id) ? 18 : 0) +
       (inList(style.garments, g.id) ? 14 : 0);
 

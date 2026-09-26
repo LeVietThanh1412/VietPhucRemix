@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { OutfitConfig } from '../types/vietphuc';
 import { GARMENTS, HERITAGE_COLORS, BOTTOMS, FOOTWEAR, EVENTS } from '../data/heritageData';
 import { Bot, Sparkles, Send, Loader2, RefreshCw } from 'lucide-react';
+import { checkCulturalEtiquette } from '../utils/culturalRuleChecker';
 
 interface AIStylistConsultantProps {
   config: OutfitConfig;
@@ -26,14 +27,22 @@ export const AIStylistConsultant: React.FC<AIStylistConsultantProps> = ({ config
   ];
 
   const buildFallback = () => {
+    const issues = checkCulturalEtiquette(config).filter(a => a.level === 'critical' || a.level === 'warning');
+    const prefix = issues.length
+      ? `⚠️ Trước tiên, lưu ý: ${issues.map(a => `${a.title}. ${a.guidance}`).join(' ')}\n\n`
+      : '';
+    return prefix + buildPraise();
+  };
+
+  const buildPraise = () => {
     if (garment.id === 'ao-tac') {
       return `Outfit Áo Tấc sắc ${color.name} này mang lại thần thái "Vương triều quý tộc" cực đỉnh! Điểm cộng lớn là tay áo thụng rộng tạo cảm giác bề thế, uy nghiêm. Nếu bạn mang guốc mộc truyền thống, hãy thử tạo dáng hai tay chắp phía trước bụng để ống tay áo buông tự nhiên thành dáng chữ Nhất - vừa tôn nét khiêm hòa vừa lên ảnh lookbook cực kỳ điện ảnh!`;
     }
     if (garment.id === 'ao-ngu-than') {
-      return `Sự kết hợp giữa Áo Ngũ Thân tay chẽn và ${footwear.name} là chuẩn định nghĩa "Việt phục Remix" của Gen Z! Bạn vừa giữ trọn đạo lý 5 khuy Ngũ thường (Nhân - Lễ - Nghĩa - Trí - Tín), vừa có sự năng động để tự tin sải bước cà phê phố cổ hay đi kỷ yếu. Tuyệt đối đừng quên một chiếc kính râm retro để bức ảnh tăng thêm 100% độ "slay"!`;
+      return `Sự kết hợp giữa Áo Ngũ Thân tay chẽn và ${footwear.name} là chuẩn định nghĩa "Việt phục Remix" của Gen Z! Bạn vừa giữ phom áo năm thân với 5 khuy (theo cách hiểu phổ biến là tượng trưng cho Ngũ thường), vừa có sự năng động để tự tin sải bước cà phê phố cổ hay đi kỷ yếu. Tuyệt đối đừng quên một chiếc kính râm retro để bức ảnh tăng thêm 100% độ "slay"!`;
     }
     if (garment.id === 'ao-tu-than') {
-      return `Vibe thiếu nữ Kinh Bắc hòa cùng phong cách hiện đại rất ngọt ngào! Dải yếm thắm màu bên trong lấp ló sau tà áo tứ thân tạo nét duyên ngầm tinh tế. Nếu đi sự kiện hoặc biểu diễn, một chiếc nón quai thao nghiêng nhẹ góc 45 độ sẽ tạo bố cục khuôn hình hoàn hảo.`;
+      return `Vibe thiếu nữ Kinh Bắc hòa cùng phong cách hiện đại rất ngọt ngào! Chiếc yếm thắm màu bên trong tà áo tứ thân tạo nét duyên dáng, đoan trang. Nếu đi sự kiện hoặc biểu diễn, một chiếc nón quai thao nghiêng nhẹ góc 45 độ sẽ tạo bố cục khuôn hình hoàn hảo.`;
     }
     return `Bản phối ${garment.name} với tông màu ${color.name} và ${bottom.name} thể hiện gu thẩm mỹ rất có chiều sâu. Bạn đã khéo léo cân bằng giữa tính trang trọng của di sản và sự thoải mái hiện đại, sẵn sàng tỏa sáng trong dịp ${event.name}!`;
   };
@@ -46,20 +55,15 @@ export const AIStylistConsultant: React.FC<AIStylistConsultantProps> = ({ config
       const res = await fetch('/api/ai-stylist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          query,
-          outfit: {
-            garment: garment.name,
-            dynasty: garment.dynasty,
-            color: `${color.name} (Hành ${color.element})`,
-            bottom: bottom.name,
-            footwear: footwear.name,
-            accessories: config.accessories.join(', '),
-            event: event.name
-          }
-        })
+        body: JSON.stringify({ query: query.slice(0, 500), config })
       });
 
+      if (res.status === 429) {
+        const data = await res.json().catch(() => ({}));
+        setResponse(data.error || 'Bạn hỏi hơi nhanh, thử lại sau ít phút nhé.');
+        setSource('offline');
+        return;
+      }
       if (!res.ok) {
         throw new Error('API request failed');
       }

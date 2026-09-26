@@ -47,7 +47,7 @@ export const GARMENTS: GarmentDefinition[] = [
     name: 'Áo Ngũ Thân (Tay Chẽn)',
     dynasty: 'Thời Chúa Nguyễn & Vua Minh Mạng chuẩn hóa',
     shortDesc: 'Trang phục chuẩn mực của người Việt xưa với 5 thân áo ôm thanh thoát, tay chẽn gọn gàng.',
-    culturalSignificance: '5 thân áo tượng trưng cho Tứ thân phụ mẫu (cha mẹ đẻ, cha mẹ chồng/vợ) ôm lấy thân con ở giữa. 5 chiếc khuy đại diện cho Ngũ thường: Nhân, Lễ, Nghĩa, Trí, Tín.',
+    culturalSignificance: 'Là thường phục chuẩn của người Việt từ sau cải cách y phục thời chúa Nguyễn, mặc được cả trong sinh hoạt lẫn dịp lễ. Theo cách hiểu phổ biến trong dân gian, 5 thân áo tượng trưng cho cha mẹ hai bên ôm lấy thân con ở giữa, còn 5 khuy tượng trưng cho Ngũ thường (Nhân, Lễ, Nghĩa, Trí, Tín).',
     features: [
       '5 thân vải ghép lại: 2 thân trước, 2 thân sau và 1 thân con (tả lót) bên trong',
       'Ống tay chẽn gọn gàng, thuận tiện sinh hoạt hàng ngày lẫn công việc văn phòng/học đường',
@@ -73,7 +73,7 @@ export const GARMENTS: GarmentDefinition[] = [
     name: 'Áo Tứ Thân & Yếm Đào',
     dynasty: 'Văn hóa Dân gian Đồng bằng Bắc Bộ',
     shortDesc: 'Vẻ đẹp mộc mạc, trữ tình xứ Kinh Bắc với 4 vạt áo thướt tha kết hợp yếm lụa và dải thắt lưng bao.',
-    culturalSignificance: 'Tượng trưng cho sự tần tảo, duyên dáng và gắn kết bốn mùa xuân hạ thu đông. Hai vạt trước buộc chéo tạo điểm nhấn eo thon quyến rũ mà đoan trang.',
+    culturalSignificance: 'Trang phục thường ngày và ngày hội của phụ nữ đồng bằng Bắc Bộ, gắn với hình ảnh người phụ nữ tần tảo và dân ca Quan họ. Hai vạt trước có thể buộc lại với nhau hoặc để buông, tạo dáng gọn gàng và đoan trang.',
     features: [
       '4 vạt áo gồm 2 vạt sau may liền sống lưng và 2 vạt trước buông tơi hoặc buộc chéo',
       'Mặc lót yếm đào thắm màu bên trong, khoác ngoài dải thắt lưng lụa ngũ sắc',
@@ -97,8 +97,8 @@ export const GARMENTS: GarmentDefinition[] = [
   {
     id: 'ao-nhat-binh',
     name: 'Áo Nhật Bình',
-    dynasty: 'Triều phục Hậu phi Quý tộc triều Nguyễn',
-    shortDesc: 'Triều phục lộng lẫy với cổ áo hình chữ nhật thêu hoa văn ngũ sắc và phượng vũ cung đình.',
+    dynasty: 'Lễ phục hậu phi, công chúa triều Nguyễn',
+    shortDesc: 'Lễ phục lộng lẫy của nữ giới hoàng tộc, với cổ áo hình chữ nhật thêu hoa văn ngũ sắc và phượng.',
     culturalSignificance: 'Nhật Bình (cổ vuông/chữ nhật song song trước ngực) là hiện thân của trật tự vương quyền, phẩm trật cao quý và vẻ đẹp hoa mỹ tột bậc của cung đình Huế xưa.',
     features: [
       'Cổ áo chữ nhật đặc trưng thêu viền dải ngũ hành rực rỡ',
@@ -166,6 +166,62 @@ export const GARMENTS: GarmentDefinition[] = [
     verificationNote: 'Là cải cách thời trang có tác giả: họa sĩ Nguyễn Cát Tường (Lemur) giới thiệu trên báo Phong Hóa năm 1934, sau đó họa sĩ Lê Phổ điều chỉnh. Đây là "truyền thống cận đại", nền tảng của áo dài ngày nay.',
     sources: [
       { title: 'Báo Phong Hóa – mục mốt y phục Lemur', publisher: 'Tự Lực Văn Đoàn', year: '1934', type: 'press' },
+      { title: 'Trang phục Việt Nam', author: 'Đoàn Thị Tình', publisher: 'NXB Mỹ thuật', year: '2006', type: 'book' }
+    ]
+  },
+  // ⚠️ Append-only: share links encode catalog index. Add new items at the END.
+  {
+    id: 'ao-dai-hien-dai',
+    name: 'Áo Dài Hiện Đại (Tay Raglan)',
+    dynasty: 'Từ thập niên 1960 đến nay',
+    shortDesc: 'Áo dài ôm dáng, tay raglan liền vai, cổ đứng 2–4cm, hai tà dài quá gối: trang phục truyền thống quen thuộc nhất của người Việt hôm nay.',
+    culturalSignificance:
+      'Kế thừa áo ngũ thân và cải cách Lemur, áo dài hiện đại trở thành biểu tượng văn hóa được mặc trong lễ Tết, cưới hỏi, trường học, công sở và các sự kiện ngoại giao. Đây là "truyền thống sống": vẫn tiếp tục được may, mặc và cách tân mỗi ngày.',
+    features: [
+      'Tay raglan nối chéo từ cổ xuống nách, giúp vai áo ôm tự nhiên, không nhăn',
+      'Cổ đứng (cổ tàu) cao 2–4cm, hoặc cách tân thành cổ thuyền, cổ tim',
+      'Thân áo ôm eo, xẻ tà hai bên từ eo, hai tà trước và sau dài quá gối đến mắt cá'
+    ],
+    traditionalOccasions: ['Tết Nguyên Đán', 'Lễ cưới, ăn hỏi', 'Đồng phục nữ sinh THPT', 'Lễ tốt nghiệp, kỷ yếu', 'Sự kiện ngoại giao, văn hóa'],
+    modernVibe: 'Clean girl / Soft minimal: lụa trơn màu pastel, quần suông, sneaker trắng hoặc giày búp bê, túi mini và tóc buộc thấp.',
+    recommendedColors: ['trang-nga', 'canh-sen', 'hoang-yen', 'ngoc-bich', 'do-chu-sa', 'tim-hue'],
+    etiquetteNotes: [
+      'Đi lễ chùa hoặc dự tang nên chọn màu trầm, trơn, tránh vải xuyên thấu và xẻ tà quá cao.',
+      'Không cắt ngắn tà áo lên trên gối rồi vẫn gọi là "áo dài truyền thống". Nếu muốn cách tân, hãy gọi là "áo dài cách tân".',
+      'Quần mặc cùng nên dài chạm gót, để tà áo buông thẳng khi đứng.'
+    ],
+    authenticity: 'modern',
+    verificationNote:
+      'Hình thành từ áo Lemur (1934), qua nhiều lần cải tiến. Kiểu tay raglan được các nhà may ở Sài Gòn phổ biến vào khoảng cuối thập niên 1950 đến 1960; tên nhà may và năm chính xác có nhiều tư liệu khác nhau. Các số đo trong phần mô tả chỉ mang tính tham khảo.',
+    sources: [
+      { title: 'Trang phục Việt Nam', author: 'Đoàn Thị Tình', publisher: 'NXB Mỹ thuật', year: '2006', type: 'book' },
+      { title: 'Trưng bày trang phục người Việt thế kỷ 20', publisher: 'Bảo tàng Phụ nữ Việt Nam', type: 'museum' }
+    ]
+  },
+  {
+    id: 'ao-ba-ba',
+    name: 'Áo Bà Ba Nam Bộ',
+    dynasty: 'Nam Bộ, cuối thế kỷ 19 đến nay',
+    shortDesc: 'Áo ngắn ngang hông, không cổ hoặc cổ tròn, xẻ tà nhỏ, cài nút giữa, thường có hai túi, là thường phục mộc mạc của miền sông nước.',
+    culturalSignificance:
+      'Gắn với đời sống lao động và sinh hoạt thường ngày ở Nam Bộ: gọn, thoáng, dễ xuống ghe, ra đồng. Áo bà ba đi cùng khăn rằn và nón lá đã thành hình ảnh quen thuộc của người miền Tây, được cả nam và nữ mặc.',
+    features: [
+      'Thân ngắn ngang hông, hai bên xẻ tà nhỏ',
+      'Cổ tròn không bâu (hoặc cổ trái tim), hàng nút cài chính giữa phía trước',
+      'Tay dài hơi rộng, thường có hai túi ở vạt trước; mặc với quần đen hoặc quần trắng'
+    ],
+    traditionalOccasions: ['Sinh hoạt, lao động thường ngày', 'Chợ nổi, lễ hội miền Tây', 'Đờn ca tài tử', 'Biểu diễn văn nghệ dân gian'],
+    modernVibe: 'Mekong chill / Cottagecore: bà ba lụa trơn, quần ống suông, sandal quai mảnh, túi cói và nón lá. Rất hợp đi chụp ảnh ở chợ nổi hoặc quán cà phê vườn.',
+    recommendedColors: ['trang-nga', 'den-mun', 'tim-hue', 'ngoc-bich', 'cam-bat-trang'],
+    etiquetteNotes: [
+      'Áo bà ba là thường phục. Dự đám cưới hay lễ trang trọng nên chọn áo dài.',
+      'Chọn lụa hoặc vải cotton đứng dáng; tránh cắt ngắn để hở eo khi đi nơi đông người lớn tuổi.'
+    ],
+    authenticity: 'documented',
+    verificationNote:
+      'Có nhiều ảnh tư liệu đầu thế kỷ 20. Nguồn gốc tên gọi "bà ba" có nhiều giả thuyết (liên hệ với áo của người Baba/Peranakan ở Penang, hoặc gắn với một nhân vật cụ thể) nhưng chưa có kết luận thống nhất, nên ứng dụng không khẳng định giả thuyết nào.',
+    sources: [
+      { title: 'Trang phục truyền thống người Việt', publisher: 'Bảo tàng Dân tộc học Việt Nam', type: 'museum' },
       { title: 'Trang phục Việt Nam', author: 'Đoàn Thị Tình', publisher: 'NXB Mỹ thuật', year: '2006', type: 'book' }
     ]
   }
@@ -390,6 +446,14 @@ export const HEADWEAR: ItemOption<HeadwearId>[] = [
     description: 'Trâm kim loại mạ bạc hoặc đồng chạm khắc cành mai, gài trên búi tóc.',
     genzTip: 'Tôn nét cổ phong thanh khiết mà không hề nặng nề.',
     formality: 'formal'
+  },
+  {
+    id: 'khan-ran',
+    name: 'Khăn Rằn Nam Bộ',
+    category: 'Dân gian',
+    description: 'Khăn vải sọc caro đen trắng (hoặc nâu trắng) quàng cổ hay quấn đầu, gắn liền với người miền Tây sông nước.',
+    genzTip: 'Quàng hờ quanh cổ khi mặc bà ba là đủ "chất" miền Tây. Có thể buộc làm băng đô cho vibe năng động.',
+    formality: 'casual'
   }
 ];
 
@@ -509,49 +573,49 @@ export const EVENTS: { id: EventId; name: string; desc: string; weather: Weather
     name: 'Tết Du Xuân & Phố Cổ',
     desc: 'Không khí se lạnh rộn ràng cành đào cành mai, thăm chúc họ hàng và dạo phố chụp ảnh đầu năm.',
     weather: 'xuan-se-lanh',
-    recommendedGarments: ['ao-tac', 'ao-ngu-than', 'ao-nhat-binh']
+    recommendedGarments: ['ao-tac', 'ao-ngu-than', 'ao-nhat-binh', 'ao-dai-hien-dai']
   },
   {
     id: 'ky-yeu-hoc-duong',
     name: 'Lễ Tốt Nghiệp & Kỷ Yếu',
     desc: 'Lưu giữ khoảnh khắc thanh xuân rực rỡ bên giảng đường, thầy cô và bạn bè đồng niên.',
     weather: 'thu-diu-mat',
-    recommendedGarments: ['ao-ngu-than', 'ao-dai-tan-thoi', 'ao-giao-linh']
+    recommendedGarments: ['ao-dai-hien-dai', 'ao-ngu-than', 'ao-dai-tan-thoi', 'ao-giao-linh']
   },
   {
     id: 'le-chua-tam-linh',
     name: 'Đi Lễ Đền Chùa & Nơi Tôn Nghiêm',
     desc: 'Cầu bình an, tìm về chốn tịnh tâm đòi hỏi trang phục kín kẽ, đoan trang, tôn trọng tín ngưỡng.',
     weather: 'xuan-se-lanh',
-    recommendedGarments: ['ao-tac', 'ao-ngu-than', 'ao-giao-linh']
+    recommendedGarments: ['ao-tac', 'ao-ngu-than', 'ao-giao-linh', 'ao-dai-hien-dai']
   },
   {
     id: 'ca-phe-dao-pho',
     name: 'Cà Phê Cuối Tuần & Triển Lãm',
     desc: 'Gặp gỡ bạn bè, ghé art-gallery hoặc cà phê phố cổ với phong cách thời trang trẻ trung, thoải mái.',
     weather: 'thu-diu-mat',
-    recommendedGarments: ['ao-ngu-than', 'ao-tu-than', 'ao-dai-tan-thoi']
+    recommendedGarments: ['ao-ngu-than', 'ao-tu-than', 'ao-dai-tan-thoi', 'ao-ba-ba', 'ao-dai-hien-dai']
   },
   {
     id: 'dam-cuoi-ban-than',
     name: 'Dự Lễ Cưới & Gia Tiên',
     desc: 'Chia vui cùng ngày trọng đại của bạn thân, sang trọng vừa đủ, tôn vinh cô dâu chú rể.',
     weather: 'thu-diu-mat',
-    recommendedGarments: ['ao-tac', 'ao-nhat-binh', 'ao-ngu-than']
+    recommendedGarments: ['ao-tac', 'ao-nhat-binh', 'ao-ngu-than', 'ao-dai-hien-dai']
   },
   {
     id: 'bieu-dien-van-nghe',
     name: 'Biểu Diễn Văn Nghệ & Lễ Hội Trường',
     desc: 'Sân khấu biểu diễn nghệ thuật, múa dân gian, hội trại sinh viên đầy năng lượng tươi trẻ.',
     weather: 'ha-oi-nong',
-    recommendedGarments: ['ao-tu-than', 'ao-giao-linh', 'ao-ngu-than']
+    recommendedGarments: ['ao-tu-than', 'ao-giao-linh', 'ao-ngu-than', 'ao-ba-ba']
   }
 ];
 
 /** Công thức phối chuẩn cho từng sự kiện (đã kiểm tra không vi phạm luật văn hóa). */
 export const EVENT_COMBOS: Record<EventId, Partial<OutfitConfig>> = {
   'tet-du-xuan': { garmentId: 'ao-tac', colorId: 'do-chu-sa', patternId: 'van-may', bottomId: 'quan-lua-trang', headwearId: 'khan-van', footwearId: 'guoc-moc', backdrop: 'hoang-thanh' },
-  'ky-yeu-hoc-duong': { garmentId: 'ao-ngu-than', colorId: 'lam-cham', patternId: 'van-may', bottomId: 'quan-lua-trang', headwearId: 'khan-van', footwearId: 'sneaker-trang', backdrop: 'pho-co' },
+  'ky-yeu-hoc-duong': { garmentId: 'ao-dai-hien-dai', colorId: 'lam-cham', patternId: 'van-may', bottomId: 'quan-lua-trang', headwearId: 'khan-van', footwearId: 'sneaker-trang', backdrop: 'pho-co' },
   'le-chua-tam-linh': { garmentId: 'ao-giao-linh', colorId: 'trang-nga', patternId: 'hoa-sen', bottomId: 'quan-lua-den', headwearId: 'khan-van', footwearId: 'giay-oxford', backdrop: 'studio-zen' },
   'ca-phe-dao-pho': { garmentId: 'ao-tu-than', colorId: 'canh-sen', patternId: 'plain-silk', bottomId: 'vay-xep-ly', headwearId: 'bom-ngoc-trai', footwearId: 'guoc-moc', backdrop: 'pho-co' },
   'dam-cuoi-ban-than': { garmentId: 'ao-nhat-binh', colorId: 'do-chu-sa', patternId: 'bat-buu', bottomId: 'quan-lua-trang', headwearId: 'khan-van', footwearId: 'guoc-moc', backdrop: 'hoang-thanh' },

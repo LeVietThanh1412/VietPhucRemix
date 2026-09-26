@@ -459,7 +459,9 @@ const GARMENT_TAG: Record<OutfitConfig['garmentId'], string> = {
   'ao-tu-than': '#AoTuThan',
   'ao-nhat-binh': '#AoNhatBinh',
   'ao-giao-linh': '#AoGiaoLinh',
-  'ao-dai-tan-thoi': '#AoDaiLemur'
+  'ao-dai-tan-thoi': '#AoDaiLemur',
+  'ao-dai-hien-dai': '#AoDai',
+  'ao-ba-ba': '#AoBaBa'
 };
 
 export function buildCaption(config: OutfitConfig, title?: string): string {

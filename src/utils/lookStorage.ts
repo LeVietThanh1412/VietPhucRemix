@@ -116,8 +116,32 @@ export function encodeLookLegacy(config: OutfitConfig): string {
   return toBase64Url(JSON.stringify(config));
 }
 
+// ───────────── Public base URL (QR codes must not point to localhost) ─────────────
+const isLocalHost = (h: string) => h === 'localhost' || h === '127.0.0.1' || h === '[::1]' || h === '0.0.0.0';
+let publicBase: string | null = (import.meta.env?.VITE_PUBLIC_URL as string | undefined)?.replace(/\/+$/, '') || null;
+
+/** Ask the server for APP_URL / LAN address. Call once on app start. */
+export async function initPublicBaseUrl(): Promise<void> {
+  if (publicBase || typeof window === 'undefined' || !isLocalHost(window.location.hostname)) return;
+  try {
+    const r = await fetch('/api/public-url');
+    if (!r.ok) return;
+    const d = (await r.json()) as { url?: string };
+    if (d.url && /^https?:\/\//.test(d.url)) publicBase = d.url.replace(/\/+$/, '');
+  } catch {
+    /* static hosting without server → keep current origin */
+  }
+}
+
+/** True when share links would only work on this computer. */
+export function shareLinksAreLocalOnly(): boolean {
+  if (publicBase) return isLocalHost(new URL(publicBase).hostname);
+  return typeof window !== 'undefined' && isLocalHost(window.location.hostname);
+}
+
 export function buildShareUrl(config: OutfitConfig): string {
-  const url = new URL(window.location.origin + window.location.pathname);
+  const base = publicBase || window.location.origin;
+  const url = new URL(publicBase ? '/' : window.location.pathname, base);
   url.searchParams.set(URL_PARAM, encodeLook(config));
   return url.toString();
 }

@@ -571,8 +571,72 @@ export const MannequinVisualizer: React.FC<MannequinVisualizerProps> = ({
               <path d="M285 242 Q 300 256 315 242" stroke={strokeColor} strokeWidth="2" fill="none" />
               {/* Row of side pearl buttons */}
               {[254, 274, 296, 320].map((by, i) => (
-                <circle key={i} cx="318 + (i * 2)" cy={by} r="2.5" fill="#FAF5FF" stroke="#A855F7" strokeWidth="0.6" />
+                <circle key={i} cx={318 + i * 2} cy={by} r="2.5" fill="#FAF5FF" stroke="#A855F7" strokeWidth="0.6" />
               ))}
+            </g>
+          )}
+
+          {/* CASE G: Áo Dài Hiện Đại (tay raglan, tà dài quá gối, xẻ từ eo) */}
+          {config.garmentId === 'ao-dai-hien-dai' && (
+            <g>
+              {/* Back flap (tà sau) peeking behind legs */}
+              <path d="M262 345 L246 640 Q 300 652 354 640 L338 345 Z" fill={primaryHex} stroke={strokeColor} strokeWidth="1.2" opacity="0.85" />
+              {/* Long slim raglan sleeves to wrist */}
+              <path d="M258 252 L226 350 L236 438 L254 436 L250 355 L272 262 Z" fill={primaryHex} stroke={strokeColor} strokeWidth="1.2" />
+              <path d="M342 252 L374 350 L364 438 L346 436 L350 355 L328 262 Z" fill={primaryHex} stroke={strokeColor} strokeWidth="1.2" />
+              {/* Raglan seams (diagonal from neck to underarm) */}
+              <path d="M288 246 L262 300" stroke={strokeColor} strokeWidth="1.2" />
+              <path d="M312 246 L338 300" stroke={strokeColor} strokeWidth="1.2" />
+              {/* Fitted bodice to waist */}
+              <path d="M262 250 L338 250 L334 345 L266 345 Z" fill={primaryHex} stroke={strokeColor} strokeWidth="1.5" />
+              {/* Front flap (tà trước) from waist, below knee */}
+              <path d="M266 345 L334 345 L346 630 Q 300 640 254 630 Z" fill={primaryHex} stroke={strokeColor} strokeWidth="1.5" />
+              {config.patternId !== 'plain-silk' && (
+                <path
+                  d="M262 250 L338 250 L334 345 L346 630 Q 300 640 254 630 L266 345 Z"
+                  fill={`url(#${uid}pattern-${config.patternId})`}
+                  opacity="0.8"
+                />
+              )}
+              <path d="M262 250 L338 250 L334 345 L346 630 Q 300 640 254 630 L266 345 Z" fill={`url(#${uid}silk-sheen)`} />
+              {/* Side slits (xẻ tà từ eo) */}
+              <path d="M266 345 L262 352" stroke={strokeColor} strokeWidth="2" />
+              <path d="M334 345 L338 352" stroke={strokeColor} strokeWidth="2" />
+              {/* Mandarin collar (cổ đứng 2–4cm) */}
+              <path d="M287 234 L313 234 L315 250 L285 250 Z" fill={primaryHex} stroke={strokeColor} strokeWidth="1.5" />
+              {/* Diagonal button line from collar to right underarm (đường khuy chéo) */}
+              <path d="M313 250 Q 326 262 334 300" stroke={strokeColor} strokeWidth="1.2" fill="none" />
+              {[256, 272, 290].map((y, i) => (
+                <circle key={i} cx={318 + i * 6} cy={y} r="2" fill={highlightHex} stroke={strokeColor} strokeWidth="0.6" />
+              ))}
+            </g>
+          )}
+
+          {/* CASE H: Áo Bà Ba (ngắn ngang hông, cổ tròn, nút giữa, 2 túi) */}
+          {config.garmentId === 'ao-ba-ba' && (
+            <g>
+              {/* Loose long sleeves */}
+              <path d="M254 255 L214 365 L230 440 L254 434 L250 360 L270 262 Z" fill={primaryHex} stroke={strokeColor} strokeWidth="1.5" />
+              <path d="M346 255 L386 365 L370 440 L346 434 L350 360 L330 262 Z" fill={primaryHex} stroke={strokeColor} strokeWidth="1.5" />
+              {/* Short straight body to hip */}
+              <path d="M256 250 L344 250 L352 452 Q 300 460 248 452 Z" fill={primaryHex} stroke={strokeColor} strokeWidth="1.5" />
+              {config.patternId !== 'plain-silk' && (
+                <path d="M256 250 L344 250 L352 452 Q 300 460 248 452 Z" fill={`url(#${uid}pattern-${config.patternId})`} opacity="0.7" />
+              )}
+              <path d="M256 250 L344 250 L352 452 Q 300 460 248 452 Z" fill={`url(#${uid}silk-sheen)`} />
+              {/* Round collarless neckline */}
+              <path d="M284 246 Q 300 262 316 246" stroke={strokeColor} strokeWidth="2" fill="none" />
+              {/* Center front opening + buttons */}
+              <line x1="300" y1="256" x2="300" y2="455" stroke={strokeColor} strokeWidth="1.2" />
+              {[272, 305, 338, 371, 404].map((y, i) => (
+                <circle key={i} cx="300" cy={y} r="2.6" fill={highlightHex} stroke={strokeColor} strokeWidth="0.8" />
+              ))}
+              {/* Two lower pockets */}
+              <rect x="262" y="400" width="28" height="30" rx="2" fill="none" stroke={strokeColor} strokeWidth="1.2" />
+              <rect x="310" y="400" width="28" height="30" rx="2" fill="none" stroke={strokeColor} strokeWidth="1.2" />
+              {/* Small side slits */}
+              <path d="M250 430 L248 452" stroke={strokeColor} strokeWidth="2" />
+              <path d="M350 430 L352 452" stroke={strokeColor} strokeWidth="2" />
             </g>
           )}
         </g>
@@ -709,6 +773,33 @@ export const MannequinVisualizer: React.FC<MannequinVisualizerProps> = ({
               {[272, 282, 292, 300, 308, 318, 328].map((px, i) => (
                 <circle key={i} cx={px} cy={138 + Math.abs(px - 300) * 0.3} r="3.2" fill="#FFFFFF" stroke="#D1D5DB" strokeWidth="0.8" />
               ))}
+            </g>
+          )}
+
+          {/* Khăn Rằn Nam Bộ (quàng cổ, sọc caro đen trắng) */}
+          {config.headwearId === 'khan-ran' && (
+            <g>
+              <defs>
+                <pattern id={`${uid}khan-ran`} width="8" height="8" patternUnits="userSpaceOnUse">
+                  <rect width="8" height="8" fill="#F5F5F4" />
+                  <rect width="4" height="4" fill="#1C1917" />
+                  <rect x="4" y="4" width="4" height="4" fill="#1C1917" />
+                </pattern>
+              </defs>
+              {/* Scarf wrapped around neck */}
+              <path d="M276 236 Q 300 262 324 236 L 330 252 Q 300 280 270 252 Z" fill={`url(#${uid}khan-ran)`} stroke="#44403C" strokeWidth="1" />
+              {/* Hanging ends */}
+              <path d="M312 258 L322 330 L336 326 L324 254 Z" fill={`url(#${uid}khan-ran)`} stroke="#44403C" strokeWidth="1" />
+              <path d="M300 262 L304 318 L316 318 L310 258 Z" fill={`url(#${uid}khan-ran)`} stroke="#44403C" strokeWidth="1" />
+              {/* Hair stays visible */}
+              {config.modelGender === 'male' ? (
+                <path d="M263 175 C 260 140, 340 140, 337 175 C 330 148, 270 148, 263 175 Z" fill="#241B18" />
+              ) : (
+                <path
+                  d="M260 178 C 255 130, 345 130, 340 178 C 345 220, 330 250, 330 250 L 325 240 C 330 210, 330 170, 300 148 C 270 170, 270 210, 275 240 L 270 250 C 270 250, 255 220, 260 178 Z"
+                  fill="#1E1614"
+                />
+              )}
             </g>
           )}
 

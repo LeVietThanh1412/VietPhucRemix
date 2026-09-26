@@ -42,6 +42,8 @@ import {
   BookmarkCheck
 } from 'lucide-react';
 
+const FEEDBACK_URL = (import.meta.env.VITE_FEEDBACK_URL as string | undefined)?.trim() || '';
+
 export default function App() {
   // Current outfit configuration
   const [config, setConfig] = useState<OutfitConfig>(loadInitialLook);
@@ -160,14 +162,17 @@ export default function App() {
     <div className="min-h-screen bg-[#FBF9F5] text-stone-900 flex flex-col font-sans">
       {/* 1. TOP BAR CONTRACT: Exactly 3 zones (Brand wordmark, clean text nav links, primary actions) */}
       <header className="sticky top-0 z-40 bg-[#FBF9F5]/90 backdrop-blur-md border-b border-stone-200/80 px-4 lg:px-8 py-3.5 transition-all">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
           {/* Zone 1: Single text wordmark */}
-          <a href="#" className="text-xl md:text-2xl font-serif font-bold tracking-tight text-stone-900 hover:text-amber-900 transition-colors">
+          <a href="#" className="shrink-0 text-lg md:text-2xl font-serif font-bold tracking-tight text-stone-900 hover:text-amber-900 transition-colors whitespace-nowrap">
             VIỆT PHỤC REMIX
           </a>
 
-          {/* Zone 2: 4-6 clean text navigation links */}
-          <nav className="hidden lg:flex items-center gap-7 text-xs uppercase tracking-wider font-semibold text-stone-600">
+          {/* Zone 2: nav – only on wide screens to avoid colliding with actions */}
+          <nav className="hidden 2xl:flex items-center gap-6 text-xs uppercase tracking-wider font-semibold text-stone-600 mx-6">
+            <button onClick={() => scrollToSection('tu-do')} className="hover:text-stone-900 transition-colors">
+              Tủ Đồ
+            </button>
             <button onClick={() => scrollToSection('studio-remix')} className="hover:text-stone-900 transition-colors">
               Studio Phối Đồ
             </button>
@@ -185,28 +190,34 @@ export default function App() {
             </button>
           </nav>
 
-          {/* Zone 3: 1-2 primary actions */}
-          <div className="flex items-center gap-2.5">
+          {/* Zone 3: primary actions */}
+          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
             <button
               onClick={() => setIsQuizOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-800/40 bg-amber-50 text-xs font-semibold text-amber-900 hover:bg-amber-100 transition-colors whitespace-nowrap"
+              aria-label="Quiz phong cách"
+              title="Quiz phong cách"
+              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg border border-amber-800/40 bg-amber-50 text-xs font-semibold text-amber-900 hover:bg-amber-100 transition-colors whitespace-nowrap"
             >
               <Wand2 className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Quiz phong cách</span>
             </button>
             <button
               onClick={() => openCompare()}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-medium text-stone-700 hover:bg-stone-100 transition-colors whitespace-nowrap"
+              aria-label="So sánh Look"
+              title="So sánh Look"
+              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-medium text-stone-700 hover:bg-stone-100 transition-colors whitespace-nowrap"
             >
               <ArrowRightLeft className="w-3.5 h-3.5 text-amber-800" />
               <span className="hidden sm:inline">So sánh Look</span>
             </button>
             <button
               onClick={() => setIsLookbookModalOpen(true)}
-              className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-stone-900 text-xs font-semibold text-white hover:bg-stone-800 transition-colors shadow-xs whitespace-nowrap"
+              aria-label="Xuất Lookbook"
+              title="Xuất Lookbook"
+              className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-lg bg-stone-900 text-xs font-semibold text-white hover:bg-stone-800 transition-colors shadow-xs whitespace-nowrap"
             >
               <Download className="w-3.5 h-3.5 text-amber-300" />
-              <span>Xuất Lookbook</span>
+              <span className="hidden sm:inline">Xuất Lookbook</span>
             </button>
           </div>
         </div>
@@ -227,12 +238,12 @@ export default function App() {
               Phối Trang Phục Truyền Thống Đương Đại, Tôn Vinh Chiều Sâu Di Sản
             </h1>
             <p className="text-stone-300 text-sm md:text-base leading-relaxed max-w-2xl">
-              Nền tảng sáng tạo giúp học sinh, sinh viên tự do khám phá vẻ đẹp của Áo Tấc, Áo Ngũ Thân, Áo Tứ Thân, Áo Nhật Bình... Phối cùng phụ kiện hiện đại một cách thời thượng mà vẫn giữ trọn vẹn sự tôn trọng với giá trị văn hóa tiền nhân.
+              Nền tảng giúp học sinh, sinh viên khám phá Áo Dài, Áo Ngũ Thân, Áo Tứ Thân, Áo Bà Ba, Áo Tấc, Áo Nhật Bình... và phối cùng phụ kiện hiện đại, mà vẫn giữ trọn sự tôn trọng với giá trị văn hóa.
             </p>
 
             {/* Quick stats & trust bar */}
             <div className="flex items-center flex-wrap gap-4 pt-2 text-xs text-stone-400">
-              <span>6 Loại Cổ Phục Chuẩn Mực</span>
+              <span>{GARMENTS.length} Loại Trang Phục · 3 Vùng Miền</span>
               <span aria-hidden="true">·</span>
               <span>Bảng Màu Ngũ Hành Di Sản</span>
               <span aria-hidden="true">·</span>
@@ -789,12 +800,20 @@ export default function App() {
             <p className="font-serif text-sm font-semibold text-stone-800">
               Việt Phục Remix · Dự Án Văn Hóa & Phong Cách Trẻ
             </p>
-            <p className="text-[11px] text-stone-400 mt-0.5">
-              Lan tỏa tình yêu cổ phục Việt Nam qua lăng kính thời trang hiện đại văn minh.
+            <p className="text-[11px] text-stone-400 mt-0.5 max-w-xl">
+              Phạm vi phiên bản hiện tại: trang phục truyền thống của người Kinh (Việt). Trang phục của 53 dân tộc anh em khác sẽ
+              được bổ sung khi có tư liệu và sự tham vấn của cộng đồng. Nội dung mang tính giáo dục và đang chờ chuyên gia thẩm định.
             </p>
           </div>
-          <div className="flex items-center gap-4 text-stone-600">
-            <span>Áo Tấc · Ngũ Thân · Tứ Thân · Nhật Bình · Giao Lĩnh</span>
+          <div className="flex flex-col items-center sm:items-end gap-1 text-stone-600">
+            <span>Áo Dài · Ngũ Thân · Tứ Thân · Bà Ba · Áo Tấc · Nhật Bình · Giao Lĩnh</span>
+            {FEEDBACK_URL ? (
+              <a href={FEEDBACK_URL} target="_blank" rel="noopener noreferrer" className="text-amber-800 hover:underline font-medium">
+                Góp ý / báo sai thông tin văn hóa →
+              </a>
+            ) : (
+              <span className="text-[11px] text-stone-400">Góp ý: đặt VITE_FEEDBACK_URL để hiện link biểu mẫu</span>
+            )}
           </div>
         </div>
       </footer>

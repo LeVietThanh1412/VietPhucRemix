@@ -10,6 +10,8 @@ const GARMENT_FORMALITY: Record<OutfitConfig['garmentId'], number> = {
   'ao-giao-linh': 75,
   'ao-ngu-than': 60,
   'ao-dai-tan-thoi': 60,
+  'ao-dai-hien-dai': 75,
+  'ao-ba-ba': 30,
   'ao-tu-than': 50
 };
 const TRADITIONAL_CATS = ['Truyền thống', 'Dân gian', 'Di sản', 'Trí thức xưa', 'Thủ công'];

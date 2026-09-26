@@ -1,5 +1,18 @@
 @import "tailwindcss";
 
+/* Map Tailwind's font-serif / font-sans to the self-hosted fonts (which include the Vietnamese subset).
+   Tailwind's default serif stack falls back to Georgia, which lacks precomposed Vietnamese glyphs,
+   causing detached diacritics ("Phố i", "Truyề n"). */
+@theme {
+  --font-serif: 'Cormorant Garamond', 'Noto Serif', 'Times New Roman', serif;
+  --font-sans: 'Plus Jakarta Sans', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+html,
+body {
+  overflow-x: clip;
+}
+
 @layer base {
   body {
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -8,7 +21,7 @@
   }
 
   h1, h2, h3, .font-serif-title {
-    font-family: 'Cormorant Garamond', Georgia, Cambria, 'Times New Roman', Times, serif;
+    font-family: var(--font-serif);
   }
 }
 

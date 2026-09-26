@@ -4,7 +4,9 @@ export type GarmentId =
   | 'ao-tu-than'
   | 'ao-nhat-binh'
   | 'ao-giao-linh'
-  | 'ao-dai-tan-thoi';
+  | 'ao-dai-tan-thoi'
+  | 'ao-dai-hien-dai'
+  | 'ao-ba-ba';
 
 export type PatternId = 
   | 'plain-silk'
@@ -39,7 +41,8 @@ export type HeadwearId =
   | 'non-quai-thao'
   | 'non-la'
   | 'bom-ngoc-trai'
-  | 'tram-cai-toc';
+  | 'tram-cai-toc'
+  | 'khan-ran';
 
 export type FootwearId = 
   | 'sneaker-trang'
