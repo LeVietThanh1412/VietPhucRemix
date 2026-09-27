@@ -914,3 +914,110 @@ export const IconPatternChuDau: React.FC<VietIconProps> = ({ size = 20, classNam
   </svg>
 );
 
+/**
+ * 26. BIỂU TƯỢNG MÔ HÌNH 3D VIỆT PHỤC (IconViet3D)
+ * Khối đa giác 3D chạm khắc hoa văn Đại Việt.
+ */
+export const IconViet3D: React.FC<VietIconProps> = ({ size = 20, className = '', ...props }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={`inline-block shrink-0 ${className}`}
+    aria-label="Mô hình 3D Việt Phục"
+    {...props}
+  >
+    {/* Isometric 3D Cube with Vietnamese Bronze/Gold Tone */}
+    <path d="M12 2 L21 7 L12 12 L3 7 Z" fill="#FDE68A" stroke="#B45309" strokeWidth="1.2" strokeLinejoin="round" />
+    <path d="M3 7 L12 12 L12 22 L3 17 Z" fill="#D97706" stroke="#92400E" strokeWidth="1.2" strokeLinejoin="round" />
+    <path d="M12 12 L21 7 L21 17 L12 22 Z" fill="#F59E0B" stroke="#B45309" strokeWidth="1.2" strokeLinejoin="round" />
+    {/* Concentric Center Lotus Accent on top face */}
+    <circle cx="12" cy="7" r="1.8" fill="#B45309" />
+    <path d="M12 4 L12 10 M7.5 7 L16.5 7" stroke="#FEF3C7" strokeWidth="0.8" />
+  </svg>
+);
+
+/**
+ * 27. BIỂU TƯỢNG XOAY 360 ĐỘ 3D ORBIT (IconVietOrbit)
+ * Vòng quay hoàng đạo 360 độ xung quanh trục trang phục di sản.
+ */
+export const IconVietOrbit: React.FC<VietIconProps> = ({ size = 20, className = '', ...props }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={`inline-block shrink-0 ${className}`}
+    aria-label="Xoay 360 độ 3D"
+    {...props}
+  >
+    {/* 3D Orbit Ellipse Ring */}
+    <ellipse cx="12" cy="12" rx="9.5" ry="4.5" stroke="#B45309" strokeWidth="1.4" strokeDasharray="3 1.5" />
+    <path d="M21.5 12 L21.5 9.5 L19 12 Z" fill="#B45309" />
+    <path d="M2.5 12 L2.5 14.5 L5 12 Z" fill="#B45309" />
+    {/* Upright Center Axis with Jade Gem */}
+    <line x1="12" y1="3" x2="12" y2="21" stroke="#D97706" strokeWidth="1.2" strokeLinecap="round" />
+    <circle cx="12" cy="12" r="2.8" fill="#FEF3C7" stroke="#78350F" strokeWidth="1" />
+    <circle cx="12" cy="12" r="1.2" fill="#DC2626" />
+  </svg>
+);
+
+/**
+ * 28. BIỂU TƯỢNG ÁNH SÁNG STUDIO 3D (IconVietLighting)
+ * Đèn lồng phố cổ / ánh hoàng hôn chiếu rọi trang phục.
+ */
+export const IconVietLighting: React.FC<VietIconProps> = ({ size = 20, className = '', ...props }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={`inline-block shrink-0 ${className}`}
+    aria-label="Ánh sáng 3D"
+    {...props}
+  >
+    {/* Traditional Lantern / Sun source */}
+    <circle cx="12" cy="10" r="5" fill="#FEF08A" stroke="#B45309" strokeWidth="1.2" />
+    <ellipse cx="12" cy="10" rx="2.5" ry="5" fill="none" stroke="#D97706" strokeWidth="0.8" />
+    {/* Lantern Top/Bottom Mounts */}
+    <rect x="10" y="4" width="4" height="1.5" rx="0.5" fill="#78350F" />
+    <rect x="10" y="14.5" width="4" height="1.5" rx="0.5" fill="#78350F" />
+    {/* Hanging Tassel */}
+    <path d="M12 16 L12 21" stroke="#DC2626" strokeWidth="1.5" strokeLinecap="round" />
+    <circle cx="12" cy="21" r="1.2" fill="#991B1B" />
+    {/* Radiating Light Beams */}
+    <path d="M4 6 L2 4 M20 6 L22 4 M3 10 L1 10 M21 10 L23 10" stroke="#F59E0B" strokeWidth="1.2" strokeLinecap="round" />
+  </svg>
+);
+
+/**
+ * 29. BIỂU TƯỢNG TIÊU ĐIỂM CHI TIẾT 3D (IconVietFocus)
+ * Kính ngắm tiêu điểm soi đường nét hoa văn & sống lưng.
+ */
+export const IconVietFocus: React.FC<VietIconProps> = ({ size = 20, className = '', ...props }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={`inline-block shrink-0 ${className}`}
+    aria-label="Tiêu điểm 3D"
+    {...props}
+  >
+    {/* 4 Corner Crosshairs */}
+    <path d="M4 8 L4 4 L8 4" stroke="#B45309" strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M16 4 L20 4 L20 8" stroke="#B45309" strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M20 16 L20 20 L16 20" stroke="#B45309" strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M8 20 L4 20 L4 16" stroke="#B45309" strokeWidth="1.5" strokeLinecap="round" />
+    {/* Center Target Disc */}
+    <circle cx="12" cy="12" r="3.5" fill="#FEF3C7" stroke="#D97706" strokeWidth="1.2" />
+    <circle cx="12" cy="12" r="1.5" fill="#DC2626" />
+  </svg>
+);
+
+
