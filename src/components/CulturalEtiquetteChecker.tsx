@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { OutfitConfig } from '../types/vietphuc';
 import { GARMENTS, HERITAGE_COLORS } from '../data/heritageData';
 import { checkCulturalEtiquette, culturalRespectScore } from '../utils/culturalRuleChecker';
-import { ShieldCheck, AlertTriangle, Sparkles, BookOpen, ChevronDown, ChevronUp, Info, OctagonAlert } from 'lucide-react';
+import { ShieldCheck, AlertTriangle, Sparkles, BookOpen, ChevronDown, ChevronUp, Info, OctagonAlert, Lightbulb } from 'lucide-react';
 import { AuthenticityBadge } from './AuthenticityBadge';
 
 const SOURCE_TYPE_LABEL = {
@@ -138,8 +138,9 @@ export const CulturalEtiquetteChecker: React.FC<CulturalEtiquetteCheckerProps> =
                     <div className="space-y-1">
                       <p className="font-semibold text-stone-900">{alert.title}</p>
                       <p className="text-stone-700">{alert.message}</p>
-                      <p className="text-stone-500 italic mt-1 font-sans">
-                        💡 Lời khuyên: {alert.guidance}
+                      <p className="text-stone-600 italic mt-1 font-sans flex items-start gap-1.5">
+                        <Lightbulb className="w-3.5 h-3.5 text-amber-700 shrink-0 mt-0.5" />
+                        <span><b>Lời khuyên:</b> {alert.guidance}</span>
                       </p>
                       {alert.basis && (
                         <p className="text-[11px] text-stone-500 flex items-start gap-1 pt-0.5">

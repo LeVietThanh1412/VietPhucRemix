@@ -42,7 +42,8 @@ import {
   ChevronRight,
   Wand2,
   Bookmark,
-  BookmarkCheck
+  BookmarkCheck,
+  Lightbulb
 } from 'lucide-react';
 
 const FEEDBACK_URL = (import.meta.env.VITE_FEEDBACK_URL as string | undefined)?.trim() || '';
@@ -552,7 +553,7 @@ export default function App() {
                       <div
                         key={g.id}
                         onClick={() => setConfig(prev => ({ ...prev, garmentId: g.id }))}
-                        className={`p-3.5 rounded-xl border text-left cursor-pointer transition-all ${
+                        className={`p-3.5 rounded-xl border text-left cursor-pointer transition-all heritage-card-hover ${
                           config.garmentId === g.id
                             ? 'border-amber-800 bg-amber-50/50 ring-1 ring-amber-800 shadow-xs'
                             : 'border-stone-200 hover:border-stone-300 bg-stone-50/30'
@@ -583,8 +584,9 @@ export default function App() {
                             </span>
                           )}
                           {occasionTag !== 'all' && isGarmentMatchingOccasion(g.id, occasionTag) && (
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs">
-                              ✨ Hợp dịp
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs flex items-center gap-1">
+                              <Sparkles className="w-3 h-3 text-emerald-700" />
+                              <span>Hợp dịp</span>
                             </span>
                           )}
                         </div>
@@ -730,7 +732,7 @@ export default function App() {
                       <div
                         key={b.id}
                         onClick={() => setConfig(prev => ({ ...prev, bottomId: b.id }))}
-                        className={`p-3 rounded-xl border text-left cursor-pointer transition-all ${
+                        className={`p-3 rounded-xl border text-left cursor-pointer transition-all heritage-card-hover ${
                           config.bottomId === b.id
                             ? 'border-stone-900 bg-stone-50 ring-1 ring-stone-900 shadow-xs'
                             : 'border-stone-200 hover:border-stone-300 bg-white'
@@ -743,7 +745,10 @@ export default function App() {
                           </span>
                         </div>
                         <p className="text-xs text-stone-600 mt-1">{b.description}</p>
-                        <p className="text-[11px] text-amber-800 mt-1 italic">💡 {b.genzTip}</p>
+                        <p className="text-[11px] text-amber-900 mt-1 italic flex items-center gap-1">
+                          <Lightbulb className="w-3 h-3 text-amber-700 shrink-0" />
+                          <span>{b.genzTip}</span>
+                        </p>
                       </div>
                     ))}
                   </div>
@@ -762,7 +767,7 @@ export default function App() {
                       <div
                         key={h.id}
                         onClick={() => setConfig(prev => ({ ...prev, headwearId: h.id }))}
-                        className={`p-3 rounded-xl border text-left cursor-pointer transition-all ${
+                        className={`p-3 rounded-xl border text-left cursor-pointer transition-all heritage-card-hover ${
                           config.headwearId === h.id
                             ? 'border-stone-900 bg-stone-50 ring-1 ring-stone-900 shadow-xs'
                             : 'border-stone-200 hover:border-stone-300 bg-white'
@@ -775,7 +780,10 @@ export default function App() {
                           </span>
                         </div>
                         <p className="text-xs text-stone-600 mt-1">{h.description}</p>
-                        <p className="text-[11px] text-amber-800 mt-1 italic">💡 {h.genzTip}</p>
+                        <p className="text-[11px] text-amber-900 mt-1 italic flex items-center gap-1">
+                          <Lightbulb className="w-3 h-3 text-amber-700 shrink-0" />
+                          <span>{h.genzTip}</span>
+                        </p>
                       </div>
                     ))}
                   </div>
@@ -794,7 +802,7 @@ export default function App() {
                       <div
                         key={f.id}
                         onClick={() => setConfig(prev => ({ ...prev, footwearId: f.id }))}
-                        className={`p-3 rounded-xl border text-left cursor-pointer transition-all ${
+                        className={`p-3 rounded-xl border text-left cursor-pointer transition-all heritage-card-hover ${
                           config.footwearId === f.id
                             ? 'border-stone-900 bg-stone-50 ring-1 ring-stone-900 shadow-xs'
                             : 'border-stone-200 hover:border-stone-300 bg-white'
@@ -807,7 +815,10 @@ export default function App() {
                           </span>
                         </div>
                         <p className="text-xs text-stone-600 mt-1">{f.description}</p>
-                        <p className="text-[11px] text-amber-800 mt-1 italic">💡 {f.genzTip}</p>
+                        <p className="text-[11px] text-amber-900 mt-1 italic flex items-center gap-1">
+                          <Lightbulb className="w-3 h-3 text-amber-700 shrink-0" />
+                          <span>{f.genzTip}</span>
+                        </p>
                       </div>
                     ))}
                   </div>
@@ -829,7 +840,7 @@ export default function App() {
                         <div
                           key={a.id}
                           onClick={() => handleToggleAccessory(a.id)}
-                          className={`p-3 rounded-xl border text-left cursor-pointer transition-all ${
+                          className={`p-3 rounded-xl border text-left cursor-pointer transition-all heritage-card-hover ${
                             isSelected
                               ? 'border-amber-800 bg-amber-50/50 ring-1 ring-amber-800 shadow-xs'
                               : 'border-stone-200 hover:border-stone-300 bg-white'
@@ -840,11 +851,14 @@ export default function App() {
                             <span className={`w-4 h-4 rounded-full flex items-center justify-center border text-[10px] ${
                               isSelected ? 'bg-amber-800 text-white border-amber-800' : 'border-stone-300'
                             }`}>
-                              {isSelected ? '✓' : ''}
+                              {isSelected && <Check className="w-3 h-3" />}
                             </span>
                           </div>
                           <p className="text-xs text-stone-600 mt-1">{a.description}</p>
-                          <p className="text-[11px] text-amber-800 mt-1 italic">💡 {a.genzTip}</p>
+                          <p className="text-[11px] text-amber-900 mt-1 italic flex items-center gap-1">
+                            <Lightbulb className="w-3 h-3 text-amber-700 shrink-0" />
+                            <span>{a.genzTip}</span>
+                          </p>
                         </div>
                       );
                     })}
@@ -961,7 +975,7 @@ export default function App() {
             {PRESET_LOOKBOOKS.map(preset => (
               <div
                 key={preset.id}
-                className="bg-white rounded-2xl border border-stone-200/90 shadow-xs overflow-hidden flex flex-col hover:border-amber-800/60 transition-all hover:shadow-md group"
+                className="bg-white rounded-2xl border border-stone-200/90 shadow-heritage-card overflow-hidden flex flex-col hover:border-amber-800/60 transition-all heritage-card-hover group"
               >
                 <div className="p-4 bg-stone-50/70 border-b border-stone-100 flex items-center justify-between">
                   <div>

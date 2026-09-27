@@ -4,12 +4,32 @@ import { EVENTS, EVENT_COMBOS } from '../data/heritageData';
 import {
   CITIES,
   LiveWeather,
+  WeatherIconType,
   adviseForWeather,
   describeWeatherCode,
   fetchLiveWeather,
   toWeatherId
 } from '../utils/weatherService';
-import { Calendar, CloudSun, Sparkles, Check, LocateFixed, Loader2, RefreshCw, WifiOff } from 'lucide-react';
+import {
+  Calendar,
+  CloudSun,
+  Cloud,
+  CloudFog,
+  CloudDrizzle,
+  CloudRain,
+  CloudLightning,
+  Sun,
+  Thermometer,
+  Flower2,
+  Leaf,
+  Snowflake,
+  Sparkles,
+  Check,
+  LocateFixed,
+  Loader2,
+  RefreshCw,
+  WifiOff
+} from 'lucide-react';
 
 interface WeatherEventRecommenderProps {
   currentEvent: EventId;
@@ -17,11 +37,11 @@ interface WeatherEventRecommenderProps {
   onApplyRecommendedCombo: (configUpdate: Partial<OutfitConfig>) => void;
 }
 
-const WEATHERS: { id: WeatherId; label: string; temp: string; icon: string; advice: string }[] = [
-  { id: 'xuan-se-lanh', label: 'Xuân Se Lạnh', temp: '19° - 24°C', icon: '🌸', advice: 'Lụa hoặc gấm dệt dày vừa là hợp nhất. Thêm khăn vấn để giữ ấm trán và tạo nét đài các.' },
-  { id: 'ha-oi-nong', label: 'Hạ Nắng Ấm', temp: '29° - 35°C', icon: '☀️', advice: 'Ưu tiên tơ tằm Vạn Phúc thoáng khí, áo tứ thân với yếm lụa, hoặc ngũ thân tay chẽn gọn gàng.' },
-  { id: 'thu-diu-mat', label: 'Thu Dịu Mát', temp: '23° - 27°C', icon: '🍂', advice: 'Mùa đẹp để chụp kỷ yếu và dạo phố. Phối cùng sneaker và kính mắt retro là điểm 10.' },
-  { id: 'dong-lanh-gia', label: 'Đông Rét Mướt', temp: '14° - 18°C', icon: '❄️', advice: 'Chọn áo tấc hoặc ngũ thân lót đôi, kèm boot cổ thấp và một áo len mỏng cổ lọ bên trong.' }
+const WEATHERS = [
+  { id: 'xuan-se-lanh' as WeatherId, label: 'Xuân Se Lạnh', temp: '19° - 24°C', icon: Flower2, iconColor: 'text-rose-500', advice: 'Lụa hoặc gấm dệt dày vừa là hợp nhất. Thêm khăn vấn để giữ ấm trán và tạo nét đài các.' },
+  { id: 'ha-oi-nong' as WeatherId, label: 'Hạ Nắng Ấm', temp: '29° - 35°C', icon: Sun, iconColor: 'text-amber-500', advice: 'Ưu tiên tơ tằm Vạn Phúc thoáng khí, áo tứ thân với yếm lụa, hoặc ngũ thân tay chẽn gọn gàng.' },
+  { id: 'thu-diu-mat' as WeatherId, label: 'Thu Dịu Mát', temp: '23° - 27°C', icon: Leaf, iconColor: 'text-amber-700', advice: 'Mùa đẹp để chụp kỷ yếu và dạo phố. Phối cùng sneaker và kính mắt retro là điểm 10.' },
+  { id: 'dong-lanh-gia' as WeatherId, label: 'Đông Rét Mướt', temp: '14° - 18°C', icon: Snowflake, iconColor: 'text-sky-500', advice: 'Chọn áo tấc hoặc ngũ thân lót đôi, kèm boot cổ thấp và một áo len mỏng cổ lọ bên trong.' }
 ];
 
 const CITY_KEY = 'vietphuc-remix:city';
@@ -172,7 +192,16 @@ export const WeatherEventRecommender: React.FC<WeatherEventRecommenderProps> = (
 
         {live && liveDesc && (
           <div className="p-3 rounded-lg border border-sky-100 bg-sky-50/50 text-xs flex items-center gap-3 flex-wrap">
-            <span className="text-2xl" aria-hidden>{liveDesc.icon}</span>
+            <div className="p-2 rounded-lg bg-white border border-sky-200/60 shadow-2xs">
+              {liveDesc.iconType === 'sun' && <Sun className="w-6 h-6 text-amber-500" />}
+              {liveDesc.iconType === 'cloud-sun' && <CloudSun className="w-6 h-6 text-amber-500" />}
+              {liveDesc.iconType === 'cloud' && <Cloud className="w-6 h-6 text-stone-500" />}
+              {liveDesc.iconType === 'cloud-fog' && <CloudFog className="w-6 h-6 text-stone-400" />}
+              {liveDesc.iconType === 'cloud-drizzle' && <CloudDrizzle className="w-6 h-6 text-sky-500" />}
+              {liveDesc.iconType === 'cloud-rain' && <CloudRain className="w-6 h-6 text-sky-600" />}
+              {liveDesc.iconType === 'cloud-lightning' && <CloudLightning className="w-6 h-6 text-indigo-600" />}
+              {liveDesc.iconType === 'thermometer' && <Thermometer className="w-6 h-6 text-rose-500" />}
+            </div>
             <div className="flex-1 min-w-[140px]">
               <div className="font-semibold text-stone-900">
                 {live.placeName}: {live.temperature}°C · {liveDesc.label}
@@ -186,23 +215,26 @@ export const WeatherEventRecommender: React.FC<WeatherEventRecommenderProps> = (
         )}
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          {WEATHERS.map(w => (
-            <button
-              key={w.id}
-              onClick={() => setSelectedWeather(w.id)}
-              className={`p-2 rounded-lg text-left border transition-all text-xs ${
-                selectedWeather === w.id
-                  ? 'border-stone-900 bg-stone-900 text-white font-semibold shadow-xs'
-                  : 'border-stone-200 hover:border-stone-300 bg-stone-50/80 text-stone-700'
-              }`}
-            >
-              <div className="flex items-center gap-1.5">
-                <span>{w.icon}</span>
-                <span className="truncate">{w.label}</span>
-              </div>
-              <span className={`text-[10px] block mt-0.5 ${selectedWeather === w.id ? 'text-stone-300' : 'text-stone-400'}`}>{w.temp}</span>
-            </button>
-          ))}
+          {WEATHERS.map(w => {
+            const WeatherIcon = w.icon;
+            return (
+              <button
+                key={w.id}
+                onClick={() => setSelectedWeather(w.id)}
+                className={`p-2.5 rounded-lg text-left border transition-all text-xs ${
+                  selectedWeather === w.id
+                    ? 'border-stone-900 bg-stone-900 text-white font-semibold shadow-xs'
+                    : 'border-stone-200 hover:border-stone-300 bg-stone-50/80 text-stone-700'
+                }`}
+              >
+                <div className="flex items-center gap-1.5">
+                  <WeatherIcon className={`w-4 h-4 shrink-0 ${selectedWeather === w.id ? 'text-amber-300' : w.iconColor}`} />
+                  <span className="truncate">{w.label}</span>
+                </div>
+                <span className={`text-[10px] block mt-0.5 ${selectedWeather === w.id ? 'text-stone-300' : 'text-stone-400'}`}>{w.temp}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
