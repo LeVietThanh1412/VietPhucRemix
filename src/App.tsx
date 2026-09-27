@@ -33,10 +33,8 @@ import {
   IconPatternHacMayLe,
   IconPatternBatBuu,
   IconPatternChuTho,
-  IconPatternChuDau,
-  IconViet3D
+  IconPatternChuDau
 } from './components/VietIcons';
-import { MannequinVisualizer3D, AIActionDirective } from './components/MannequinVisualizer3D';
 
 // UI/UX Pro Max React Performance Rule #7: Lazy load heavy modals with Canvas/HTML-to-image to optimize initial bundle
 const LookbookCardModal = React.lazy(() => import('./components/LookbookCardModal').then(m => ({ default: m.LookbookCardModal })));
@@ -88,8 +86,6 @@ export default function App() {
   const [garmentGenderFilter, setGarmentGenderFilter] = useState<'all' | 'female' | 'male' | 'both'>('all');
   const [garmentDynastyFilter, setGarmentDynastyFilter] = useState<'all' | 'ly-tran' | 'hau-le' | 'nguyen' | 'can-hien-dai'>('all');
   const [patternDynastyFilter, setPatternDynastyFilter] = useState<'all' | 'ly-tran' | 'le-so' | 'nguyen' | 'gom-dan-gian'>('all');
-  const [is3DMode, setIs3DMode] = useState(true);
-  const [aiDirective, setAiDirective] = useState<AIActionDirective | null>(null);
   const [isZoomed, setIsZoomed] = useState(false);
   const [isLookbookModalOpen, setIsLookbookModalOpen] = useState(false);
   const [isComparisonModalOpen, setIsComparisonModalOpen] = useState(false);
@@ -406,37 +402,14 @@ export default function App() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            {/* LEFT: Mannequin Visualizer & Avatar Controls (5 cols) */}
+            {/* LEFT: Mannequin Visualizer & Controls (5 cols) */}
             <div className="lg:col-span-5 space-y-4">
-              {/* Mannequin Stage: Switchable between 2D Classic & 3D Interactive Studio */}
+              {/* Mannequin Stage: High Fidelity 2D Heritage Visualizer */}
               <div className="relative group">
-                {is3DMode ? (
-                  <MannequinVisualizer3D
-                    config={config}
-                    isZoomed={isZoomed}
-                    aiDirective={aiDirective}
-                    onClearDirective={() => setAiDirective(null)}
-                    onUpdateConfig={patch => setConfig(prev => ({ ...prev, ...patch }))}
-                  />
-                ) : (
-                  <MannequinVisualizer config={config} isZoomed={isZoomed} />
-                )}
+                <MannequinVisualizer config={config} isZoomed={isZoomed} />
 
                 {/* Floating Canvas Controls */}
                 <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-white/85 backdrop-blur-md p-1 rounded-lg border border-stone-200/80 shadow-xs z-30">
-                  {/* 2D / 3D Toggle Pill */}
-                  <button
-                    onClick={() => setIs3DMode(!is3DMode)}
-                    className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
-                      is3DMode
-                        ? 'bg-amber-800 text-white shadow-2xs'
-                        : 'bg-stone-100 hover:bg-stone-200 text-stone-700'
-                    }`}
-                    title={is3DMode ? 'Chuyển về góc nhìn 2D di sản' : 'Bật Avatar 3D đa giác thực tế (Three.js WebGL & Ready Player Me)'}
-                  >
-                    <IconViet3D size={14} className={is3DMode ? 'text-amber-300' : 'text-stone-700'} />
-                    <span>{is3DMode ? 'Avatar 3D Thật' : '2D Chuẩn'}</span>
-                  </button>
                   <button
                     onClick={() => setIsZoomed(!isZoomed)}
                     className="p-1.5 rounded-md hover:bg-stone-100 text-stone-700 transition-colors"
@@ -1211,12 +1184,6 @@ export default function App() {
           <AIStylistConsultant
             config={config}
             onApplyConfig={patch => setConfig(prev => ({ ...prev, ...patch }))}
-            onTrigger3DAction={action => {
-              setIs3DMode(true);
-              setAiDirective(action);
-            }}
-            is3DMode={is3DMode}
-            onToggle3DMode={setIs3DMode}
           />
         </section>
 
