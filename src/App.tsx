@@ -432,10 +432,10 @@ export default function App() {
                         ? 'bg-amber-800 text-white shadow-2xs'
                         : 'bg-stone-100 hover:bg-stone-200 text-stone-700'
                     }`}
-                    title={is3DMode ? 'Chuyển về góc nhìn 2D tĩnh' : 'Bật mô hình 3D xoay 360 độ tương tác với AI Stylist'}
+                    title={is3DMode ? 'Chuyển về góc nhìn 2D di sản' : 'Bật Avatar 3D đa giác thực tế (Three.js WebGL & Ready Player Me)'}
                   >
                     <IconViet3D size={14} className={is3DMode ? 'text-amber-300' : 'text-stone-700'} />
-                    <span>{is3DMode ? '3D Xoay 360°' : '2D Chuẩn'}</span>
+                    <span>{is3DMode ? 'Avatar 3D Thật' : '2D Chuẩn'}</span>
                   </button>
                   <button
                     onClick={() => setIsZoomed(!isZoomed)}
@@ -767,7 +767,7 @@ export default function App() {
                     {HERITAGE_COLORS.map(c => (
                       <button
                         key={c.id}
-                        onClick={() => setConfig(prev => ({ ...prev, colorId: c.id }))}
+                        onClick={() => setConfig(prev => ({ ...prev, colorId: c.id, customColorHex: undefined }))}
                         className={`p-3 rounded-xl border text-left transition-all flex items-start gap-2.5 ${
                           config.colorId === c.id
                             ? 'border-stone-900 bg-stone-50 ring-1 ring-stone-900 shadow-xs'
