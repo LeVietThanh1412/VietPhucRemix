@@ -48,15 +48,32 @@ export const AIStylistConsultant: React.FC<AIStylistConsultantProps> = ({
 
   const quickPrompts = [
     { label: 'Gợi ý tạo dáng 3D tôn vinh tà áo (45°)', prompt: 'Gợi ý cách tạo dáng 3D chụp ảnh tôn vinh tà áo' },
-    { label: 'Xoay 3D kiểm tra sống lưng di sản', prompt: 'Xoay 3D kiểm tra chi tiết nẹp sống lưng và tà sau' },
-    { label: 'Phối phong cách Vương Triều Lý - Trần (3D)', prompt: 'Gợi ý bản phối Vương triều Lý - Trần với Áo Viên Lĩnh' },
-    { label: 'Thẩm định gu phối đồ Gen Z hiện tại', prompt: 'Thẩm định gu phối đồ này theo góc nhìn Gen Z' }
+    { label: 'Xoay 3D kiểm tra sống lưng di sản (180°)', prompt: 'Xoay 3D kiểm tra chi tiết nẹp sống lưng và tà sau' },
+    { label: 'Kính lúp: Soi cổ áo & 5 khuy Ngũ Thường', prompt: 'Soi chi tiết cổ áo và nẹp 5 khuy cúc hữu nhậm chuẩn Việt' },
+    { label: 'Phối phong cách Vương Triều Lý - Trần (3D)', prompt: 'Gợi ý bản phối Vương triều Lý - Trần với Áo Viên Lĩnh' }
   ];
 
   // Helper to build tailored fallback responses with direct 3D actions
   const buildFallback = (query: string): { reply: string; actions: ParsedAction[] } => {
     const issues = checkCulturalEtiquette(config).filter(a => a.level === 'critical' || a.level === 'warning');
     const actions: ParsedAction[] = [];
+
+    // Case 0: Inspect Collar & Buttons
+    if (query.toLowerCase().includes('cổ áo') || query.toLowerCase().includes('khuy') || query.toLowerCase().includes('hữu nhậm')) {
+      actions.push({
+        label: 'Kính Lúp: Soi Cổ Áo & 5 Khuy Ngũ Thường',
+        action: { type: 'focus', value: 'collar', message: 'Kính Lúp Di Sản đang phóng to vào cổ áo và hàng 5 khuy cúc cài nách hữu nhậm.' }
+      });
+      actions.push({
+        label: 'Xoay góc chính diện 0°',
+        action: { type: 'rotate', value: 0, message: 'Quan sát chính diện cấu trúc nẹp áo chuẩn Việt.' }
+      });
+
+      return {
+        reply: `Cấu trúc cổ áo và hàng khuy là "chứng minh thư văn hóa" của Cổ Phục Việt! Khác với Hán phục vạt chéo bè rộng hay Kimono thẳng đứng, trang phục Việt (như Áo Ngũ Thân, Áo Tấc) định hình cổ đứng Lập Lĩnh với nẹp áo lượn cánh cung sang nách phải, cài đúng 5 cúc khuy tượng trưng cho Ngũ Thường: Nhân, Nghĩa, Lễ, Trí, Tín.\n\nBấm nút bên dưới để bật Kính Lúp Di Sản phóng to cận cảnh chi tiết may đo này!`,
+        actions
+      };
+    }
 
     // Case 1: Check back seam / sống lưng
     if (query.toLowerCase().includes('sống lưng') || query.toLowerCase().includes('xoay 3d') || query.toLowerCase().includes('mặt sau')) {

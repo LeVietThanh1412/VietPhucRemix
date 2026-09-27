@@ -890,11 +890,19 @@ export const MannequinVisualizer: React.FC<MannequinVisualizerProps> = ({
               <path d="M284 238 L316 238 L318 255 L282 255 Z" fill={primaryHex} stroke={strokeColor} strokeWidth="1.5" />
               <path d="M284 238 L316 238" stroke="#FAF7EE" strokeWidth="2.2" />
 
-              {/* 5 Cúc Khuy Áo Tấc (Ngũ Thường) */}
-              {[258, 286, 318, 354, 396].map((y, idx) => (
-                <g key={idx}>
-                  <circle cx="310" cy={y} r="3.6" fill="#FBBF24" stroke="#78350F" strokeWidth="0.8" />
-                  <path d="M303 cy={y} L310 cy={y}" stroke="#78350F" strokeWidth="1" />
+              {/* 5 Cúc Khuy Áo Tấc (Ngũ Thường: Nhân, Nghĩa, Lễ, Trí, Tín - Lượn Cánh Cung Hữu Nhậm Chuẩn Cổ Phục) */}
+              <path d="M298 252 C 316 260, 324 278, 324 300 L 324 535" stroke={strokeColor} strokeWidth="1.2" strokeDasharray="3 2" fill="none" opacity="0.6" />
+              {[
+                { cx: 304, cy: 248, label: 'Nhân' },
+                { cx: 318, cy: 268, label: 'Nghĩa' },
+                { cx: 324, cy: 300, label: 'Lễ' },
+                { cx: 324, cy: 342, label: 'Trí' },
+                { cx: 324, cy: 390, label: 'Tín' }
+              ].map((btn, idx) => (
+                <g key={idx} id={`btn-tac-${btn.label.toLowerCase()}`}>
+                  <circle cx={btn.cx} cy={btn.cy} r="3.6" fill="#FBBF24" stroke="#78350F" strokeWidth="0.9" />
+                  <circle cx={btn.cx} cy={btn.cy} r="1.5" fill="#FEF08A" />
+                  <line x1={btn.cx - 5} y1={btn.cy} x2={btn.cx} y2={btn.cy} stroke="#78350F" strokeWidth="1" />
                 </g>
               ))}
 
@@ -967,14 +975,22 @@ export const MannequinVisualizer: React.FC<MannequinVisualizerProps> = ({
                 fill={`url(#${uid}silk-sheen)`}
               />
 
-              {/* Lapel curve (Vạt nách cong đặc trưng ngũ thân) */}
-              <path d="M300 255 Q 324 275 320 315 L 320 535" stroke={strokeColor} strokeWidth="1.5" fill="none" />
+              {/* Lapel curve (Vạt nách cong cánh cung đặc trưng ngũ thân Việt Nam) */}
+              <path d="M298 252 C 316 260, 324 278, 324 300 L 324 535" stroke={strokeColor} strokeWidth="1.5" fill="none" />
 
-              {/* Cổ đứng & 5 khuy cúc đồng */}
+              {/* Cổ đứng & 5 khuy cúc đồng (Ngũ Thường: Nhân, Nghĩa, Lễ, Trí, Tín) */}
               <path d="M284 238 L316 238 L318 254 L282 254 Z" fill={primaryHex} stroke={strokeColor} strokeWidth="1.5" />
-              {[256, 280, 310, 346, 388].map((y, idx) => (
-                <g key={idx}>
-                  <circle cx="318" cy={y} r="3.2" fill="#F59E0B" stroke="#78350F" strokeWidth="0.8" />
+              {[
+                { cx: 304, cy: 247, label: 'Nhân' },
+                { cx: 318, cy: 268, label: 'Nghĩa' },
+                { cx: 324, cy: 300, label: 'Lễ' },
+                { cx: 324, cy: 342, label: 'Trí' },
+                { cx: 324, cy: 390, label: 'Tín' }
+              ].map((btn, idx) => (
+                <g key={idx} id={`btn-nguthan-${btn.label.toLowerCase()}`}>
+                  <circle cx={btn.cx} cy={btn.cy} r="3.2" fill="#F59E0B" stroke="#78350F" strokeWidth="0.8" />
+                  <circle cx={btn.cx} cy={btn.cy} r="1.3" fill="#FEF08A" />
+                  <line x1={btn.cx - 4} y1={btn.cy} x2={btn.cx} y2={btn.cy} stroke="#78350F" strokeWidth="0.8" />
                 </g>
               ))}
 
@@ -1211,14 +1227,28 @@ export const MannequinVisualizer: React.FC<MannequinVisualizerProps> = ({
                 fill={`url(#${uid}silk-sheen)`}
               />
 
-              {/* Crossed Collar (Hữu nhậm: Vạt trái đè lên vạt phải) */}
-              <path d="M270 240 L332 355 L315 355 L256 248 Z" fill="#FDFBF7" stroke="#D1D5DB" strokeWidth="1.5" />
-              <path d="M330 240 L268 355 L285 355 L344 248 Z" fill={primaryHex} stroke={strokeColor} strokeWidth="1.5" />
-              <line x1="270" y1="240" x2="332" y2="355" stroke={strokeColor} strokeWidth="2.2" />
+              {/* Crossed Collar (Hữu nhậm chuẩn Đại Việt: Vạt trái người mặc đè lên vạt phải) */}
+              {/* Inner White Collar (Cổ lót bạch la thanh nhã) */}
+              <path d="M276 240 L324 350 L316 350 L268 244 Z" fill="#FAF8F5" stroke="#E2E8F0" strokeWidth="1.2" />
+              {/* Outer Lapel Crossing (Nẹp vạt áo thanh mảnh, đường cắt tao nhã) */}
+              <path d="M324 240 L268 352 L280 352 L336 246 Z" fill={primaryHex} stroke={strokeColor} strokeWidth="1.4" />
+              <line x1="276" y1="240" x2="324" y2="350" stroke={strokeColor} strokeWidth="1.8" />
+              <line x1="324" y1="240" x2="268" y2="352" stroke={strokeColor} strokeWidth="1.8" />
 
-              {/* Waist Sash (Đai thắt lưng vải) */}
-              <rect x="256" y="350" width="88" height="20" rx="2" fill="#292524" stroke="#44403C" strokeWidth="1.2" />
-              <path d="M290 370 L285 475 L297 475 L301 370 Z" fill="#292524" />
+              {/* Bao Sái Lụa Thắt Eo & Dải Buông Truyền Thống (Vietnamese Silk Sash & Jade Pendant) */}
+              <g id="giaolinh-sash">
+                <rect x="254" y="348" width="92" height="18" rx="2" fill="#1C1917" stroke="#44403C" strokeWidth="1.2" />
+                <line x1="254" y1="357" x2="346" y2="357" stroke="#D97706" strokeWidth="0.8" opacity="0.7" />
+                {/* Center Sash Knot (Nút thắt lụa đôi) */}
+                <ellipse cx="298" cy="357" rx="7" ry="6" fill="#292524" stroke="#44403C" strokeWidth="1" />
+                <circle cx="298" cy="357" r="3" fill="#D97706" />
+                {/* Twin Flowing Silk Streamers */}
+                <path d="M293 366 L287 485 L296 485 L299 366 Z" fill="#1C1917" stroke="#44403C" strokeWidth="0.8" />
+                <path d="M299 366 L305 478 L313 478 L305 366 Z" fill="#78350F" stroke="#B45309" strokeWidth="0.8" />
+                {/* Traditional Vietnamese Jade Pendant (Khánh ngọc bích hộ thân) */}
+                <circle cx="291" cy="488" r="3.8" fill="#A7F3D0" stroke="#059669" strokeWidth="0.8" />
+                <circle cx="309" cy="482" r="3" fill="#FDE68A" stroke="#D97706" strokeWidth="0.8" />
+              </g>
             </g>
           )}
 
