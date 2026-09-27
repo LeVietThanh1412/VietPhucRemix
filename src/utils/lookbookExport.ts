@@ -458,6 +458,7 @@ const GARMENT_TAG: Record<OutfitConfig['garmentId'], string> = {
   'ao-ngu-than': '#AoNguThan',
   'ao-tu-than': '#AoTuThan',
   'ao-nhat-binh': '#AoNhatBinh',
+  'ao-vien-linh': '#AoVienLinh',
   'ao-giao-linh': '#AoGiaoLinh',
   'ao-dai-tan-thoi': '#AoDaiLemur',
   'ao-dai-hien-dai': '#AoDai',

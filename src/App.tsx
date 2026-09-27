@@ -21,7 +21,20 @@ import { AuthenticityBadge } from './components/AuthenticityBadge';
 import { SavedLooksPanel } from './components/SavedLooksPanel';
 import { useSavedLooks } from './hooks/useSavedLooks';
 import { OccasionFilterBar, OccasionTag } from './components/OccasionFilterBar';
-import { IconVietGenderMale, IconVietGenderFemale, IconVietGenderUnisex } from './components/VietIcons';
+import { 
+  IconVietGenderMale, 
+  IconVietGenderFemale, 
+  IconVietGenderUnisex,
+  IconVietVienLinh,
+  IconVietGarment,
+  IconPatternPlainSilk,
+  IconPatternCucDayLy,
+  IconPatternRongTran,
+  IconPatternHacMayLe,
+  IconPatternBatBuu,
+  IconPatternChuTho,
+  IconPatternChuDau
+} from './components/VietIcons';
 
 // UI/UX Pro Max React Performance Rule #7: Lazy load heavy modals with Canvas/HTML-to-image to optimize initial bundle
 const LookbookCardModal = React.lazy(() => import('./components/LookbookCardModal').then(m => ({ default: m.LookbookCardModal })));
@@ -71,6 +84,8 @@ export default function App() {
   // UI state
   const [activeTab, setActiveTab] = useState<'garment' | 'color' | 'pattern' | 'bottom' | 'headwear' | 'footwear' | 'accessories'>('garment');
   const [garmentGenderFilter, setGarmentGenderFilter] = useState<'all' | 'female' | 'male' | 'both'>('all');
+  const [garmentDynastyFilter, setGarmentDynastyFilter] = useState<'all' | 'ly-tran' | 'hau-le' | 'nguyen' | 'can-hien-dai'>('all');
+  const [patternDynastyFilter, setPatternDynastyFilter] = useState<'all' | 'ly-tran' | 'le-so' | 'nguyen' | 'gom-dan-gian'>('all');
   const [isZoomed, setIsZoomed] = useState(false);
   const [isLookbookModalOpen, setIsLookbookModalOpen] = useState(false);
   const [isComparisonModalOpen, setIsComparisonModalOpen] = useState(false);
@@ -82,21 +97,57 @@ export default function App() {
 
   const isGarmentMatchingOccasion = (garmentId: GarmentId, tag: OccasionTag): boolean => {
     if (tag === 'all') return true;
-    if (tag === 'tet') return ['ao-tac', 'ao-ngu-than', 'ao-dai-tan-thoi', 'ao-nhat-binh'].includes(garmentId);
+    if (tag === 'tet') return ['ao-tac', 'ao-ngu-than', 'ao-dai-tan-thoi', 'ao-nhat-binh', 'ao-vien-linh'].includes(garmentId);
     if (tag === 'quan-ho') return ['ao-tu-than', 'ao-giao-linh'].includes(garmentId);
-    if (tag === 'cung-dinh') return ['ao-tac', 'ao-nhat-binh'].includes(garmentId);
+    if (tag === 'cung-dinh') return ['ao-tac', 'ao-nhat-binh', 'ao-vien-linh'].includes(garmentId);
     if (tag === 'dao-pho') return ['ao-ngu-than', 'ao-tu-than', 'ao-ba-ba', 'ao-dai-hien-dai'].includes(garmentId);
-    if (tag === 'tam-linh') return ['ao-giao-linh', 'ao-tac', 'ao-ngu-than'].includes(garmentId);
+    if (tag === 'tam-linh') return ['ao-giao-linh', 'ao-tac', 'ao-ngu-than', 'ao-vien-linh'].includes(garmentId);
     if (tag === 'hoc-duong') return ['ao-ngu-than', 'ao-giao-linh', 'ao-dai-tan-thoi', 'ao-dai-hien-dai'].includes(garmentId);
     return true;
   };
 
   const filteredGarments = React.useMemo(() => {
-    if (garmentGenderFilter === 'all') return GARMENTS;
-    if (garmentGenderFilter === 'female') return GARMENTS.filter(g => g.targetGender === 'female' || g.targetGender === 'both');
-    if (garmentGenderFilter === 'male') return GARMENTS.filter(g => g.targetGender === 'male' || g.targetGender === 'both');
-    return GARMENTS.filter(g => g.targetGender === 'both');
-  }, [garmentGenderFilter]);
+    let list = GARMENTS;
+    if (garmentGenderFilter === 'female') list = list.filter(g => g.targetGender === 'female' || g.targetGender === 'both');
+    else if (garmentGenderFilter === 'male') list = list.filter(g => g.targetGender === 'male' || g.targetGender === 'both');
+    else if (garmentGenderFilter === 'both') list = list.filter(g => g.targetGender === 'both');
+
+    if (garmentDynastyFilter === 'ly-tran') list = list.filter(g => g.id === 'ao-vien-linh');
+    else if (garmentDynastyFilter === 'hau-le') list = list.filter(g => ['ao-giao-linh', 'ao-tu-than'].includes(g.id));
+    else if (garmentDynastyFilter === 'nguyen') list = list.filter(g => ['ao-tac', 'ao-ngu-than', 'ao-nhat-binh'].includes(g.id));
+    else if (garmentDynastyFilter === 'can-hien-dai') list = list.filter(g => ['ao-dai-tan-thoi', 'ao-dai-hien-dai', 'ao-ba-ba'].includes(g.id));
+
+    return list;
+  }, [garmentGenderFilter, garmentDynastyFilter]);
+
+  const filteredPatterns = React.useMemo(() => {
+    if (patternDynastyFilter === 'all') return PATTERNS;
+    if (patternDynastyFilter === 'ly-tran') return PATTERNS.filter(p => p.id === 'cuc-day-ly' || p.id === 'rong-thoi-tran');
+    if (patternDynastyFilter === 'le-so') return PATTERNS.filter(p => p.id === 'hac-may-le');
+    if (patternDynastyFilter === 'nguyen') return PATTERNS.filter(p => p.id === 'bat-buu' || p.id === 'chu-tho');
+    if (patternDynastyFilter === 'gom-dan-gian') return PATTERNS.filter(p => p.id === 'chu-dau' || p.id === 'plain-silk');
+    return PATTERNS;
+  }, [patternDynastyFilter]);
+
+  const getPatternIcon = (patternId: PatternId, size = 24) => {
+    switch (patternId) {
+      case 'cuc-day-ly':
+        return <IconPatternCucDayLy size={size} />;
+      case 'rong-thoi-tran':
+        return <IconPatternRongTran size={size} />;
+      case 'hac-may-le':
+        return <IconPatternHacMayLe size={size} />;
+      case 'bat-buu':
+        return <IconPatternBatBuu size={size} />;
+      case 'chu-tho':
+        return <IconPatternChuTho size={size} />;
+      case 'chu-dau':
+        return <IconPatternChuDau size={size} />;
+      case 'plain-silk':
+      default:
+        return <IconPatternPlainSilk size={size} />;
+    }
+  };
 
   const femaleGarmentCount = GARMENTS.filter(g => g.targetGender === 'female' || g.targetGender === 'both').length;
   const maleGarmentCount = GARMENTS.filter(g => g.targetGender === 'male' || g.targetGender === 'both').length;
@@ -545,6 +596,61 @@ export default function App() {
                     </button>
                   </div>
 
+                  {/* Dynasty Historical Era Filter Bar (UI/UX Pro Max Faceted Navigation) */}
+                  <div className="flex items-center gap-1.5 p-1 bg-stone-100/80 rounded-xl overflow-x-auto text-xs no-scrollbar">
+                    <span className="text-[11px] font-semibold text-stone-500 pl-2 pr-1 shrink-0">Triều đại:</span>
+                    <button
+                      onClick={() => setGarmentDynastyFilter('all')}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all shrink-0 ${
+                        garmentDynastyFilter === 'all'
+                          ? 'bg-amber-800 text-white shadow-2xs font-semibold'
+                          : 'text-stone-600 hover:text-stone-900 bg-white/70'
+                      }`}
+                    >
+                      Mọi thời kỳ
+                    </button>
+                    <button
+                      onClick={() => setGarmentDynastyFilter('ly-tran')}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all shrink-0 ${
+                        garmentDynastyFilter === 'ly-tran'
+                          ? 'bg-amber-800 text-white shadow-2xs font-semibold'
+                          : 'text-stone-600 hover:text-stone-900 bg-white/70'
+                      }`}
+                    >
+                      Lý - Trần (TK 11-14)
+                    </button>
+                    <button
+                      onClick={() => setGarmentDynastyFilter('hau-le')}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all shrink-0 ${
+                        garmentDynastyFilter === 'hau-le'
+                          ? 'bg-amber-800 text-white shadow-2xs font-semibold'
+                          : 'text-stone-600 hover:text-stone-900 bg-white/70'
+                      }`}
+                    >
+                      Hậu Lê (TK 15-18)
+                    </button>
+                    <button
+                      onClick={() => setGarmentDynastyFilter('nguyen')}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all shrink-0 ${
+                        garmentDynastyFilter === 'nguyen'
+                          ? 'bg-amber-800 text-white shadow-2xs font-semibold'
+                          : 'text-stone-600 hover:text-stone-900 bg-white/70'
+                      }`}
+                    >
+                      Triều Nguyễn (TK 19-20)
+                    </button>
+                    <button
+                      onClick={() => setGarmentDynastyFilter('can-hien-dai')}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all shrink-0 ${
+                        garmentDynastyFilter === 'can-hien-dai'
+                          ? 'bg-amber-800 text-white shadow-2xs font-semibold'
+                          : 'text-stone-600 hover:text-stone-900 bg-white/70'
+                      }`}
+                    >
+                      Tân thời & Đương đại
+                    </button>
+                  </div>
+
                   {/* Contextual guidance if male mannequin currently has female-only garment selected */}
                   {config.modelGender === 'male' && selectedGarment.targetGender === 'female' && (
                     <div className="p-3 rounded-xl bg-amber-50/90 border border-amber-200/90 text-xs text-amber-900 flex items-start gap-2.5">
@@ -552,7 +658,7 @@ export default function App() {
                       <div>
                         <p className="font-semibold">Lưu ý phân định giới tính di sản:</p>
                         <p className="text-[11px] text-amber-800 leading-relaxed mt-0.5">
-                          <b>{selectedGarment.name}</b> theo lịch sử là trang phục thiết kế dành cho nữ giới. Bạn có thể đổi sang người mẫu Nữ hoặc chọn áo truyền thống của Nam như <b>Áo Tấc</b>, <b>Áo Ngũ Thân</b>, <b>Áo Giao Lĩnh</b>, <b>Áo Dài nam</b>, <b>Áo Bà Ba</b>.
+                          <b>{selectedGarment.name}</b> theo lịch sử là trang phục thiết kế dành cho nữ giới. Bạn có thể đổi sang người mẫu Nữ hoặc chọn áo truyền thống của Nam như <b>Áo Tấc</b>, <b>Áo Ngũ Thân</b>, <b>Áo Giao Lĩnh</b>, <b>Áo Dài nam</b>, <b>Áo Bà Ba</b>, <b>Áo Viên Lĩnh</b>.
                         </p>
                       </div>
                     </div>
@@ -570,7 +676,14 @@ export default function App() {
                         }`}
                       >
                         <div className="flex items-center justify-between gap-1">
-                          <h4 className="font-serif font-bold text-stone-900 text-sm">{g.name}</h4>
+                          <div className="flex items-center gap-2">
+                            {g.id === 'ao-vien-linh' ? (
+                              <IconVietVienLinh size={22} className="text-amber-800" />
+                            ) : (
+                              <IconVietGarment size={22} className="text-amber-800" />
+                            )}
+                            <h4 className="font-serif font-bold text-stone-900 text-sm">{g.name}</h4>
+                          </div>
                           {config.garmentId === g.id && (
                             <span className="w-5 h-5 rounded-full bg-amber-800 text-white flex items-center justify-center shrink-0">
                               <Check className="w-3 h-3" />
@@ -700,32 +813,138 @@ export default function App() {
                 </div>
               )}
 
-              {/* TAB 3: Pattern */}
+              {/* TAB 3: Pattern (Kho Hoa Văn Cổ & Đồ Án Điêu Khắc Đại Việt) */}
               {activeTab === 'pattern' && (
                 <div className="space-y-4">
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="font-semibold text-stone-700">Họa tiết dệt & thêu truyền thống:</span>
+                  <div className="flex justify-between items-center text-xs flex-wrap gap-2">
+                    <div>
+                      <span className="font-semibold text-stone-800">Kho hoa văn & đồ án điêu khắc cổ truyền:</span>
+                      <p className="text-[11px] text-stone-500 mt-0.5">Khảo cổ từ vương triều Lý, Trần, Lê sơ đến triều Nguyễn & gốm cổ</p>
+                    </div>
+                    <span className="text-amber-800 font-medium bg-amber-50 px-2 py-1 rounded-lg border border-amber-200">
+                      Hiện tại: {PATTERNS.find(p => p.id === config.patternId)?.name || 'Lụa Trơn'}
+                    </span>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {PATTERNS.map(p => (
-                      <div
-                        key={p.id}
-                        onClick={() => setConfig(prev => ({ ...prev, patternId: p.id }))}
-                        className={`p-3.5 rounded-xl border text-left cursor-pointer transition-all ${
-                          config.patternId === p.id
-                            ? 'border-amber-800 bg-amber-50/50 ring-1 ring-amber-800 shadow-xs'
-                            : 'border-stone-200 hover:border-stone-300 bg-white'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <h4 className="font-semibold text-stone-900 text-xs">{p.name}</h4>
-                          {config.patternId === p.id && <Check className="w-4 h-4 text-amber-800" />}
+                  {/* Dynasty Historical Era Faceted Filter Bar (UI/UX Pro Max) */}
+                  <div className="flex items-center gap-1.5 p-1 bg-stone-100/80 rounded-xl overflow-x-auto text-xs no-scrollbar">
+                    <span className="text-[11px] font-semibold text-stone-500 pl-2 pr-1 shrink-0">Triều đại:</span>
+                    <button
+                      onClick={() => setPatternDynastyFilter('all')}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all shrink-0 ${
+                        patternDynastyFilter === 'all'
+                          ? 'bg-amber-800 text-white shadow-2xs font-semibold'
+                          : 'text-stone-600 hover:text-stone-900 bg-white/70'
+                      }`}
+                    >
+                      Tất cả ({PATTERNS.length})
+                    </button>
+                    <button
+                      onClick={() => setPatternDynastyFilter('ly-tran')}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all shrink-0 ${
+                        patternDynastyFilter === 'ly-tran'
+                          ? 'bg-amber-800 text-white shadow-2xs font-semibold'
+                          : 'text-stone-600 hover:text-stone-900 bg-white/70'
+                      }`}
+                    >
+                      Lý - Trần (2)
+                    </button>
+                    <button
+                      onClick={() => setPatternDynastyFilter('le-so')}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all shrink-0 ${
+                        patternDynastyFilter === 'le-so'
+                          ? 'bg-amber-800 text-white shadow-2xs font-semibold'
+                          : 'text-stone-600 hover:text-stone-900 bg-white/70'
+                      }`}
+                    >
+                      Lê sơ (1)
+                    </button>
+                    <button
+                      onClick={() => setPatternDynastyFilter('nguyen')}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all shrink-0 ${
+                        patternDynastyFilter === 'nguyen'
+                          ? 'bg-amber-800 text-white shadow-2xs font-semibold'
+                          : 'text-stone-600 hover:text-stone-900 bg-white/70'
+                      }`}
+                    >
+                      Triều Nguyễn (2)
+                    </button>
+                    <button
+                      onClick={() => setPatternDynastyFilter('gom-dan-gian')}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all shrink-0 ${
+                        patternDynastyFilter === 'gom-dan-gian'
+                          ? 'bg-amber-800 text-white shadow-2xs font-semibold'
+                          : 'text-stone-600 hover:text-stone-900 bg-white/70'
+                      }`}
+                    >
+                      Gốm & Dệt Mộc (2)
+                    </button>
+                  </div>
+
+                  {/* Pattern Cards Grid with Vector Previews & Heritage Badges */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    {filteredPatterns.map(p => {
+                      const isSelected = config.patternId === p.id;
+                      return (
+                        <div
+                          key={p.id}
+                          onClick={() => setConfig(prev => ({ ...prev, patternId: p.id }))}
+                          className={`p-3.5 rounded-xl border text-left cursor-pointer transition-all heritage-card-hover ${
+                            isSelected
+                              ? 'border-amber-800 bg-amber-50/60 ring-1 ring-amber-800 shadow-xs'
+                              : 'border-stone-200 hover:border-stone-300 bg-white'
+                          }`}
+                        >
+                          <div className="flex items-start gap-3">
+                            {/* Cultural Vector Icon Preview Box */}
+                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border transition-transform duration-200 ${
+                              isSelected
+                                ? 'bg-amber-100/90 border-amber-300 shadow-2xs scale-105'
+                                : 'bg-stone-50 border-stone-200 group-hover:bg-amber-50/50'
+                            }`}>
+                              {getPatternIcon(p.id, 26)}
+                            </div>
+
+                            {/* Card Content & Metadata */}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between gap-1">
+                                <h4 className="font-serif font-bold text-stone-900 text-sm truncate">{p.name}</h4>
+                                {isSelected && (
+                                  <span className="w-5 h-5 rounded-full bg-amber-800 text-white flex items-center justify-center shrink-0">
+                                    <Check className="w-3 h-3" />
+                                  </span>
+                                )}
+                              </div>
+
+                              {/* Dynasty & Origin Badges */}
+                              <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                                {p.dynasty && (
+                                  <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-900 border border-amber-200">
+                                    {p.dynasty}
+                                  </span>
+                                )}
+                                <span className="text-[10px] text-stone-500 font-medium bg-stone-100 px-1.5 py-0.5 rounded">
+                                  {p.culturalOrigin}
+                                </span>
+                              </div>
+
+                              {/* Archaeological & Cultural Symbolism */}
+                              <p className="text-xs text-stone-600 line-clamp-2 mt-1.5 leading-relaxed">
+                                {p.description}
+                              </p>
+
+                              {/* Visual State Cue */}
+                              {isSelected && (
+                                <div className="flex items-center gap-1.5 mt-2.5 text-[11px] font-semibold text-amber-900 bg-amber-100/80 px-2 py-0.5 rounded-md border border-amber-300/80 w-fit">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-amber-700 animate-pulse" />
+                                  <span>Đang dệt / thêu lên áo</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                        <p className="text-[11px] text-stone-500 mt-0.5">{p.culturalOrigin}</p>
-                        <p className="text-xs text-stone-600 mt-1">{p.description}</p>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}

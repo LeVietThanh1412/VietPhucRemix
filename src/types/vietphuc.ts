@@ -4,6 +4,7 @@ export type GarmentId =
   | 'ao-tu-than'
   | 'ao-nhat-binh'
   | 'ao-giao-linh'
+  | 'ao-vien-linh'
   | 'ao-dai-tan-thoi'
   | 'ao-dai-hien-dai'
   | 'ao-ba-ba';
@@ -14,7 +15,10 @@ export type PatternId =
   | 'hoa-sen'
   | 'bat-buu'
   | 'chu-tho'
-  | 'chu-dau';
+  | 'chu-dau'
+  | 'cuc-day-ly'
+  | 'rong-thoi-tran'
+  | 'hac-may-le';
 
 export type ColorId = 
   | 'do-chu-sa'
@@ -126,6 +130,7 @@ export interface PatternDefinition {
   description: string;
   culturalOrigin: string;
   symbolism: string;
+  dynasty?: string;
 }
 
 export interface ItemOption<T extends string> {

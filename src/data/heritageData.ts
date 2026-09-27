@@ -240,6 +240,33 @@ export const GARMENTS: GarmentDefinition[] = [
     ],
     targetGender: 'both',
     genderNote: 'Cả Nam & Nữ: Thường phục Nam Bộ cho cả hai giới; Nam mặc phóng khoáng thuận tiện lao động, Nữ mặc chít eo nhẹ nhàng tôn nét duyên quê.'
+  },
+  {
+    id: 'ao-vien-linh',
+    name: 'Áo Viên Lĩnh (Cổ Tròn)',
+    dynasty: 'Thời Lý - Trần (Thế kỷ 11 - 14)',
+    shortDesc: 'Áo cổ tròn viền khép kín, thân thụng rộng tay áo buông rủ tôn nghiêm, trang phục quy chuẩn của quan lại và quý tộc Đại Việt thời Lý - Trần.',
+    culturalSignificance: 'Viên Lĩnh (cổ tròn viền kín khép bằng khuy bên vai phải) là dạng thức phục trang trang trọng bậc nhất thời Lý - Trần, phản ánh sự định hình độc lập của hệ thống lễ phục Đại Việt đỉnh cao văn hiến.',
+    features: [
+      'Cổ áo tròn khít quanh chân cổ, cài khuy bên vai phải (hữu nhậm)',
+      'Tay áo thụng dài che kín mu bàn tay, tạo dáng chấp tay trang nghiêm uy phong',
+      'Thân áo dài qua gối, kết hợp đai lưng thắt thao đính ngọc hoặc lụa dệt'
+    ],
+    traditionalOccasions: ['Triều hội cung đình Thăng Long thời Lý - Trần', 'Đại lễ tế giao và hội thề Đồng Cổ', 'Sinh hoạt quý tộc hoàng gia Đại Việt'],
+    modernVibe: 'Imperial Minimalist / Royal Classic: phối cùng kiềng chạm bạc cổ, giày oxford hoặc guốc mộc, mang vẻ đẹp hoàng gia cổ kính trầm tĩnh.',
+    recommendedColors: ['hoang-yen', 'do-chu-sa', 'lam-cham', 'trang-nga', 'ngoc-bich'],
+    etiquetteNotes: [
+      'Cổ tròn phải cài khuy kín đáo bên vai phải, vạt áo suông thẳng thể hiện phong thái ngay thẳng uy nghiêm.',
+      'Khi tạo dáng, hai tay nên chấp trước ngực hoặc đặt ngang bụng để tôn vinh phom tay áo thụng thời Lý - Trần.'
+    ],
+    authenticity: 'reconstructed',
+    verificationNote: 'Được nghiên cứu và phỏng dựng dựa trên tượng quan lại thời Lý (chùa Phật Tích), tượng đá thời Trần (lăng miếu An Sinh, Thái Lăng) và thư tịch "Đại Việt sử ký toàn thư", "An Nam chí lược".',
+    sources: [
+      { title: 'Ngàn năm áo mũ', author: 'Trần Quang Đức', publisher: 'Nhã Nam & NXB Thế Giới', year: '2013', type: 'book', note: 'Chương khảo sát y phục thời Lý - Trần' },
+      { title: 'Tượng đá quan hầu thời Lý - Trần', publisher: 'Bảo tàng Lịch sử Quốc gia & Di tích Chùa Phật Tích', type: 'museum' }
+    ],
+    targetGender: 'both',
+    genderNote: 'Cả Nam & Nữ: Trang phục tôn nghiêm cho quan lại, tôn thất nam giới và nữ quý tộc thời Lý - Trần; phom dáng đoan trang kín đáo.'
   }
 ];
 
@@ -324,42 +351,72 @@ export const PATTERNS: PatternDefinition[] = [
     name: 'Lụa Trơn Vạn Phúc (Mộc)',
     description: 'Chất liệu lụa dệt mịn óng tự nhiên, không hoa văn cầu kỳ, tôn vinh phom dáng nguyên bản.',
     culturalOrigin: 'Làng lụa Vạn Phúc - Hà Đông hơn 1000 năm lịch sử.',
-    symbolism: 'Vẻ đẹp chân phương "hữu xạ tự nhiên hương" của người thanh nhã.'
+    symbolism: 'Vẻ đẹp chân phương "hữu xạ tự nhiên hương" của người thanh nhã.',
+    dynasty: 'Cổ truyền'
   },
   {
-    id: 'van-may',
-    name: 'Vân Mây Ngũ Sắc Triều Nguyễn',
-    description: 'Đường mây cuộn uyển chuyển đan xen hình sóng nước thể hiện sự hanh thông, cát tường.',
-    culturalOrigin: 'Hoa văn cung đình Huế thế kỷ 19.',
-    symbolism: 'Mưa thuận gió hòa, vạn sự hanh thông và che chở từ đất trời.'
+    id: 'cuc-day-ly',
+    name: 'Hoa Cúc Dây Thời Lý (Uốn Lượn Hình Sin)',
+    description: 'Đồ án hoa cúc dây uốn lượn nhịp nhàng theo dải hình sin mềm mại, đặc trưng đỉnh cao mỹ thuật Đại Việt thế kỷ 11-12.',
+    culturalOrigin: 'Bảo vật quốc gia Chùa Phật Tích & Chùa Dạm (Bắc Ninh).',
+    symbolism: 'Sự trường tồn bất diệt, trí tuệ thanh cao của Phật giáo Trúc Lâm và vẻ đẹp uyển chuyển thuần Việt.',
+    dynasty: 'Thời Lý (TK 11 - 12)'
+  },
+  {
+    id: 'rong-thoi-tran',
+    name: 'Rồng Thời Trần (Khí Phách Đông A)',
+    description: 'Thân rồng mập mạp lượn khúc khỏe khoắn, móng vuốt dũng mãnh, toát lên tinh thần quật cường chống giặc Nguyên Mông.',
+    culturalOrigin: 'Chạm khắc đá lăng miếu Trần Thái Lăng & Di tích Hoàng thành Thăng Long.',
+    symbolism: 'Hào khí Đông A, ý chí độc lập quật khởi, sức mạnh bảo vệ giang sơn bờ cõi.',
+    dynasty: 'Thời Trần (TK 13 - 14)'
+  },
+  {
+    id: 'hac-may-le',
+    name: 'Hạc Mây Thời Lê Sơ (Thanh Khiết Tiên Tung)',
+    description: 'Hạc tiên sải cánh vươn cao giữa ngàn tầng mây lượn bồng bềnh, đồ án kinh điển trên gấm thêu và gốm ngự dụng thế kỷ 15.',
+    culturalOrigin: 'Di chỉ Hoàng thành Thăng Long và văn bia Tiến sĩ Văn Miếu Quốc Tử Giám.',
+    symbolism: 'Phẩm tiết thanh cao của bậc nho sĩ, sự thăng tiến thi cử đỗ đạt và tuổi thọ bách niên.',
+    dynasty: 'Thời Lê Sơ (TK 15 - 16)'
   },
   {
     id: 'hoa-sen',
     name: 'Hoa Sen Khắc Chìm (Thời Lý - Trần)',
     description: 'Cánh sen tỏa đều cách điệu theo phong cách mỹ thuật Phật giáo Đại Việt thế kỷ 11-13.',
     culturalOrigin: 'Chùa Phật Tích & Di tích Hoàng thành Thăng Long.',
-    symbolism: 'Sự thanh tịnh, khí phách kiên cường "gần bùn mà chẳng hôi tanh mùi bùn".'
+    symbolism: 'Sự thanh tịnh, khí phách kiên cường "gần bùn mà chẳng hôi tanh mùi bùn".',
+    dynasty: 'Thời Lý - Trần (TK 11 - 13)'
+  },
+  {
+    id: 'van-may',
+    name: 'Vân Mây Ngũ Sắc Triều Nguyễn',
+    description: 'Đường mây cuộn uyển chuyển đan xen hình sóng nước thể hiện sự hanh thông, cát tường.',
+    culturalOrigin: 'Hoa văn cung đình Huế thế kỷ 19.',
+    symbolism: 'Mưa thuận gió hòa, vạn sự hanh thông và che chở từ đất trời.',
+    dynasty: 'Triều Nguyễn (TK 19)'
   },
   {
     id: 'bat-buu',
     name: 'Bát Bửu Cát Tường',
     description: 'Tám món báu vật quý (quạt lông, kiếm báu, bầu rượu, ống sáo...) dệt ẩn trên nền gấm.',
     culturalOrigin: 'Mỹ thuật trang trí cung đình và đền miếu cổ truyền.',
-    symbolism: 'Hộ trì bình an, may mắn và trí tuệ cho người mang trên mình.'
+    symbolism: 'Hộ trì bình an, may mắn và trí tuệ cho người mang trên mình.',
+    dynasty: 'Cung đình Nguyễn'
   },
   {
     id: 'chu-tho',
     name: 'Chữ Thọ Cách Điệu Hoa Lá',
     description: 'Chữ Thọ triện tròn kết hợp dây leo uốn lượn thêu thủ công tinh xảo.',
     culturalOrigin: 'Trang phục quan viên và các cụ bô lão trong các dịp mừng thượng thọ.',
-    symbolism: 'Sức khỏe trường tồn, phúc lộc song toàn và đạo hiếu vẹn tròn.'
+    symbolism: 'Sức khỏe trường tồn, phúc lộc song toàn và đạo hiếu vẹn tròn.',
+    dynasty: 'Dân gian & Cung đình'
   },
   {
     id: 'chu-dau',
     name: 'Họa Tiết Gốm Hoa Lam Chu Đậu',
     description: 'Họa tiết chim thiên nga và sóng nước đặc trưng của dòng gốm bác học thế kỷ 15.',
     culturalOrigin: 'Di chỉ khảo cổ gốm Chu Đậu (Hải Dương).',
-    symbolism: 'Nét tinh tế, tài hoa và vẻ đẹp thuần Việt vươn tầm thế giới.'
+    symbolism: 'Nét tinh tế, tài hoa và vẻ đẹp thuần Việt vươn tầm thế giới.',
+    dynasty: 'Thời Lê Sơ (TK 15)'
   }
 ];
 

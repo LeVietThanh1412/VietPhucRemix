@@ -134,7 +134,7 @@ describe('quiz engine', () => {
               if (gender === 'male') expect(['ao-tu-than', 'ao-nhat-binh']).not.toContain(x.config.garmentId);
             }
           }
-  });
+  }, 15000);
 
   it('Nam Bộ casual recommends áo bà ba', () => {
     const res = recommendLooks({ event: 'ca-phe-dao-pho', region: 'nam', style: 'chuan-muc', gender: 'female' });

@@ -146,6 +146,121 @@ export const MannequinVisualizer: React.FC<MannequinVisualizerProps> = ({
             <path d="M 0 26 Q 10 16 20 26 T 40 26" fill="none" stroke={isDarkGarment ? 'rgba(255,255,255,0.14)' : 'rgba(0,0,0,0.07)'} strokeWidth="1" />
           </pattern>
 
+          {/* Pattern: Hoa Cúc Dây Thời Lý (Hình sin mềm mại, bông tỏa tròn đa tầng cánh) */}
+          <pattern id={`${uid}pattern-cuc-day-ly`} width="54" height="54" patternUnits="userSpaceOnUse">
+            {/* Đường dây lượn hình sin đặc trưng mỹ thuật Lý */}
+            <path
+              d="M 0 27 C 14 9, 40 45, 54 27"
+              fill="none"
+              stroke={isDarkGarment ? 'rgba(255,255,255,0.28)' : 'rgba(0,0,0,0.18)'}
+              strokeWidth="1.5"
+            />
+            <path
+              d="M 0 27 C 14 45, 40 9, 54 27"
+              fill="none"
+              stroke={isDarkGarment ? 'rgba(255,255,255,0.16)' : 'rgba(0,0,0,0.10)'}
+              strokeWidth="1.1"
+              strokeDasharray="2,2"
+            />
+            {/* Nhụy cúc tròn tâm */}
+            <circle cx="27" cy="27" r="3.5" fill="none" stroke={isDarkGarment ? 'rgba(255,255,255,0.32)' : 'rgba(0,0,0,0.22)'} strokeWidth="1.3" />
+            <circle cx="27" cy="27" r="1.5" fill={isDarkGarment ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.16)'} />
+            {/* Cánh cúc đa lớp thời Lý xếp tỏa tròn */}
+            <path
+              d="M 27 21 C 24 18 24 15 27 13 C 30 15 30 18 27 21 Z
+                 M 27 33 C 24 36 24 39 27 41 C 30 39 30 36 27 33 Z
+                 M 21 27 C 18 24 15 24 13 27 C 15 30 18 30 21 27 Z
+                 M 33 27 C 36 24 39 24 41 27 C 39 30 36 30 33 27 Z"
+              fill={isDarkGarment ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.08)'}
+              stroke={isDarkGarment ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.2)'}
+              strokeWidth="0.9"
+            />
+            {/* Lá cúc cuộn xoắn ốc đối xứng đặc trưng Lý */}
+            <path
+              d="M 10 16 C 13 12 17 13 16 18 C 15 21 11 20 10 16 Z
+                 M 44 38 C 41 42 37 41 38 36 C 39 33 43 34 44 38 Z"
+              fill="none"
+              stroke={isDarkGarment ? 'rgba(255,255,255,0.22)' : 'rgba(0,0,0,0.14)'}
+              strokeWidth="1.1"
+            />
+          </pattern>
+
+          {/* Pattern: Rồng Thời Trần (Khúc lượn khỏe khoắn hào khí Đông A, vây mào dũng mãnh) */}
+          <pattern id={`${uid}pattern-rong-thoi-tran`} width="68" height="68" patternUnits="userSpaceOnUse">
+            {/* Khúc lượn uốn khúc khỏe khoắn thân rồng Trần */}
+            <path
+              d="M 6 50 C 15 26, 30 58, 46 28 C 54 14, 62 22, 60 36"
+              fill="none"
+              stroke={isDarkGarment ? 'rgba(255,255,255,0.28)' : 'rgba(0,0,0,0.2)'}
+              strokeWidth="2.2"
+              strokeLinecap="round"
+            />
+            {/* Sống lưng vây gai nhọn hào khí Đông A */}
+            <path
+              d="M 16 34 L 20 28 L 24 36 L 30 30 L 34 40 L 42 30 L 46 38"
+              fill="none"
+              stroke={isDarkGarment ? 'rgba(255,255,255,0.32)' : 'rgba(0,0,0,0.22)'}
+              strokeWidth="1.3"
+            />
+            {/* Đầu rồng mào lửa dũng mãnh */}
+            <path
+              d="M 60 36 C 64 30 65 22 59 18 C 54 15 53 22 56 25 Z"
+              fill={isDarkGarment ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.12)'}
+              stroke={isDarkGarment ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.25)'}
+              strokeWidth="1.2"
+            />
+            {/* Móng vuốt rồng Trần */}
+            <path
+              d="M 26 46 L 22 56 M 26 46 L 26 58 M 26 46 L 31 56"
+              stroke={isDarkGarment ? 'rgba(255,255,255,0.28)' : 'rgba(0,0,0,0.18)'}
+              strokeWidth="1.3"
+              strokeLinecap="round"
+            />
+            {/* Mây lửa cuộn quanh */}
+            <path
+              d="M 40 54 C 44 50 50 51 52 55 C 54 59 48 62 43 59 Z"
+              fill="none"
+              stroke={isDarkGarment ? 'rgba(255,255,255,0.22)' : 'rgba(0,0,0,0.14)'}
+              strokeWidth="1.1"
+            />
+          </pattern>
+
+          {/* Pattern: Hạc Mây Thời Lê Sơ (Hạc tiên sải cánh vươn cao, cuộn mây đao lửa Nho gia) */}
+          <pattern id={`${uid}pattern-hac-may-le`} width="62" height="62" patternUnits="userSpaceOnUse">
+            {/* Thân hạc tiên sải cánh vươn cao */}
+            <path
+              d="M 31 33 C 29 25 33 19 37 15 C 38 14 41 15 40 17 C 38 21 35 25 34 31 Z"
+              fill={isDarkGarment ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.15)'}
+              stroke={isDarkGarment ? 'rgba(255,255,255,0.32)' : 'rgba(0,0,0,0.22)'}
+              strokeWidth="1.1"
+            />
+            {/* Mỏ và đầu hạc */}
+            <path d="M 39 15 L 46 12" stroke={isDarkGarment ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.2)'} strokeWidth="1" strokeLinecap="round" />
+            {/* Cánh hạc rộng xòe lông vũ */}
+            <path
+              d="M 32 25 C 21 19 11 23 5 31 C 13 30 21 29 30 32"
+              fill={isDarkGarment ? 'rgba(255,255,255,0.14)' : 'rgba(0,0,0,0.08)'}
+              stroke={isDarkGarment ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.2)'}
+              strokeWidth="1.2"
+            />
+            <path
+              d="M 34 26 C 41 21 51 23 57 31 C 49 30 42 29 35 32"
+              fill={isDarkGarment ? 'rgba(255,255,255,0.14)' : 'rgba(0,0,0,0.08)'}
+              stroke={isDarkGarment ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.2)'}
+              strokeWidth="1.2"
+            />
+            {/* Chân duỗi dài thanh thoát */}
+            <path d="M 31 34 L 24 47 M 33 34 L 27 49" stroke={isDarkGarment ? 'rgba(255,255,255,0.28)' : 'rgba(0,0,0,0.18)'} strokeWidth="1" strokeLinecap="round" />
+            {/* Cụm mây đao lửa hình xoắn tam sơn thời Lê */}
+            <path
+              d="M 11 50 C 15 46 21 48 23 52 C 25 56 19 60 13 57 C 9 55 9 52 11 50 Z"
+              fill="none"
+              stroke={isDarkGarment ? 'rgba(255,255,255,0.22)' : 'rgba(0,0,0,0.14)'}
+              strokeWidth="1.1"
+            />
+            <path d="M 23 52 Q 31 50 37 54" stroke={isDarkGarment ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.12)'} strokeWidth="1" fill="none" />
+          </pattern>
+
           {/* Silver Chrome Gradient (Kiềng Bạc Chạm Hoa Mai) */}
           <linearGradient id={`${uid}silver-kieng`} x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#94A3B8" />
@@ -596,6 +711,139 @@ export const MannequinVisualizer: React.FC<MannequinVisualizerProps> = ({
           <g id="main-garment">
           {/* Inner White Collar (Cổ lót trắng truyền thống) */}
           <path d="M286 244 L300 255 L314 244" stroke="#FFFFFF" strokeWidth="3.2" fill="none" strokeLinecap="round" />
+
+          {/* CASE 0: Áo Viên Lĩnh (Cổ Tròn Thời Lý - Trần, Tay Thụng, Đai Ngọc) */}
+          {config.garmentId === 'ao-vien-linh' && (
+            <g id="garment-ao-vien-linh">
+              {/* Wide Flowing Sleeves (Ống tay thụng lớn thời Lý - Trần uốn lượn uy nghi) */}
+              {/* Left Sleeve */}
+              <path
+                d={isMale ? "M238 255 L118 335 C 102 445, 145 545, 202 562 L234 445 Z" : "M248 255 L135 335 C 122 435, 158 535, 208 550 L238 438 Z"}
+                fill={primaryHex}
+                stroke={strokeColor}
+                strokeWidth="1.5"
+              />
+              {/* White Sleeve Lining Accent */}
+              <path
+                d={isMale ? "M118 335 C 110 375, 125 435, 145 470" : "M135 335 C 128 375, 140 430, 158 465"}
+                stroke="#FAF7EE"
+                strokeWidth="1.5"
+                fill="none"
+                opacity="0.8"
+              />
+
+              {/* Right Sleeve */}
+              <path
+                d={isMale ? "M362 255 L482 335 C 498 445, 455 545, 398 562 L366 445 Z" : "M352 255 L465 335 C 478 435, 442 535, 392 550 L362 438 Z"}
+                fill={primaryHex}
+                stroke={strokeColor}
+                strokeWidth="1.5"
+              />
+              {/* White Sleeve Lining Accent */}
+              <path
+                d={isMale ? "M482 335 C 490 375, 475 435, 455 470" : "M465 335 C 472 375, 460 430, 442 465"}
+                stroke="#FAF7EE"
+                strokeWidth="1.5"
+                fill="none"
+                opacity="0.8"
+              />
+
+              {/* Main Body (Thân Áo Viên Lĩnh Trường Bào Buông Dài) */}
+              <path
+                d={isMale ? "M238 250 L362 250 L378 572 Q 300 588 222 572 Z" : "M248 250 L352 250 L366 565 Q 300 578 234 565 Z"}
+                fill={primaryHex}
+                stroke={strokeColor}
+                strokeWidth="1.5"
+              />
+
+              {/* Pattern Texture Overlay */}
+              {config.patternId !== 'plain-silk' && (
+                <path
+                  d={isMale ? "M238 250 L362 250 L378 572 Q 300 588 222 572 Z" : "M248 250 L352 250 L366 565 Q 300 578 234 565 Z"}
+                  fill={`url(#${uid}pattern-${config.patternId})`}
+                  opacity="0.8"
+                />
+              )}
+              {/* Silk Sheen Overlay */}
+              <path
+                d={isMale ? "M238 250 L362 250 L378 572 Q 300 588 222 572 Z" : "M248 250 L352 250 L366 565 Q 300 578 234 565 Z"}
+                fill={`url(#${uid}silk-sheen)`}
+              />
+
+              {/* Cổ Viên Lĩnh (Cổ tròn khép kín viền ngọc/lụa, ôm sát chân cổ) */}
+              <path
+                d="M278 236 C 278 260, 322 260, 322 236 L 318 236 C 318 256, 282 256, 282 236 Z"
+                fill={primaryHex}
+                stroke={strokeColor}
+                strokeWidth="1.5"
+              />
+              <path
+                d="M279 236 C 279 258, 321 258, 321 236"
+                fill="none"
+                stroke="#FAF7EE"
+                strokeWidth="2.2"
+              />
+
+              {/* Đường vạt cài chéo sang vai phải (Đặc trưng Viên Lĩnh cài khuy bên nách/vai phải) */}
+              <path d="M318 244 Q 334 260 346 288" stroke={strokeColor} strokeWidth="1.6" fill="none" />
+              <path d="M318 244 Q 334 260 346 288" stroke="#FAF7EE" strokeWidth="0.8" strokeDasharray="2,2" fill="none" opacity="0.6" />
+
+              {/* Cúc cài vai phải (Kim loại đồng / Ngọc chạm khắc) */}
+              <circle cx="320" cy="245" r="3.2" fill="#F59E0B" stroke="#78350F" strokeWidth="0.8" />
+              <circle cx="334" cy="265" r="3" fill="#F59E0B" stroke="#78350F" strokeWidth="0.8" />
+              <circle cx="346" cy="288" r="3" fill="#F59E0B" stroke="#78350F" strokeWidth="0.8" />
+
+              {/* Đai Thao Gắn Ngọc Triều Lý - Trần (Jade & Leather Sash Belt) */}
+              <g id="dai-ngoc-ly-tran">
+                {/* Bản đai da/lụa tối màu ngang eo */}
+                <rect
+                  x={isMale ? "248" : "256"}
+                  y="354"
+                  width={isMale ? "104" : "88"}
+                  height="18"
+                  rx="2.5"
+                  fill="#1C1917"
+                  stroke="#44403C"
+                  strokeWidth="1.2"
+                />
+                {/* Viền chỉ vàng trên đai */}
+                <line x1={isMale ? "248" : "256"} y1="357" x2={isMale ? "352" : "344"} y2="357" stroke="#D97706" strokeWidth="0.8" opacity="0.8" />
+                <line x1={isMale ? "248" : "256"} y1="369" x2={isMale ? "352" : "344"} y2="369" stroke="#D97706" strokeWidth="0.8" opacity="0.8" />
+
+                {/* Các phiến ngọc trắng hình chữ nhật đính dọc thân đai */}
+                {(isMale ? [256, 272, 318, 334] : [264, 278, 314, 328]).map((px, pidx) => (
+                  <g key={pidx}>
+                    <rect x={px} y="357" width="11" height="12" rx="1.5" fill="#E2E8F0" stroke="#94A3B8" strokeWidth="0.8" />
+                    <rect x={px + 2} y="359" width="7" height="8" rx="1" fill="#FFFFFF" />
+                  </g>
+                ))}
+
+                {/* Khóa đai chính giữa chạm hoa sen Lý - Trần thời cổ */}
+                <rect x="290" y="351" width="20" height="24" rx="3.5" fill="#D97706" stroke="#78350F" strokeWidth="1.2" />
+                <circle cx="300" cy="363" r="6" fill="#FCD34D" stroke="#B45309" strokeWidth="0.8" />
+                {/* Cánh sen chạm lộng trên khóa */}
+                <path d="M300 359 C297 361 297 365 300 367 C303 365 303 361 300 359 Z" fill="#DC2626" />
+
+                {/* Dải Thao Lụa Đỏ & Vàng Buông Rủ Phía Trước */}
+                <path d="M296 375 L292 485 L300 485 L299 375 Z" fill="#991B1B" stroke="#7F1D1D" strokeWidth="0.8" />
+                <path d="M301 375 L305 480 L311 480 L304 375 Z" fill="#D97706" stroke="#B45309" strokeWidth="0.8" />
+                {/* Ngọc khánh & ngọc bội bội sức treo đuôi dải thao */}
+                <circle cx="296" cy="488" r="3.5" fill="#A7F3D0" stroke="#059669" strokeWidth="0.8" />
+                <circle cx="308" cy="483" r="3" fill="#FEF08A" stroke="#CA8A04" strokeWidth="0.8" />
+              </g>
+
+              {/* Vạt xẻ tà bên hông áo */}
+              <path d="M246 430 L228 570" stroke={strokeColor} strokeWidth="1.5" />
+              <path d="M354 430 L372 570" stroke={strokeColor} strokeWidth="1.5" />
+
+              {/* Clasped Hands in wide sleeves (Chắp tay trong tay áo thụng thời Lý - Trần) */}
+              {isMale && (
+                <g id="vienlinh-clasped-hands" opacity="0.95">
+                  <path d="M260 415 Q 300 435 340 415 L 335 435 Q 300 450 265 435 Z" fill={`url(#${uid}skin-male)`} stroke="#B8866E" strokeWidth="1" />
+                </g>
+              )}
+            </g>
+          )}
 
           {/* CASE A: Áo Tấc (Áo Thụng Tay Rộng Triều Nguyễn) */}
           {config.garmentId === 'ao-tac' && (
@@ -1141,7 +1389,7 @@ export const MannequinVisualizer: React.FC<MannequinVisualizerProps> = ({
         )}
 
         {/* 6. Articulated Model Hands (Bàn Tay Tự Nhiên & Cầm Phụ Kiện) */}
-        {showBody && !(config.garmentId === 'ao-tac' && isMale) && (
+        {showBody && !(config.garmentId === 'ao-tac' && isMale) && !(config.garmentId === 'ao-vien-linh' && isMale) && (
           <g id="model-hands">
             {/* Left Hand: Grasps bag strap if present, otherwise rests gracefully */}
             <g id="left-hand">

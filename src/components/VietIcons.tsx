@@ -664,3 +664,253 @@ export const IconVietAllOccasions: React.FC<VietIconProps> = ({ size = 20, class
     <path d="M16 12 L20 12" stroke="#D97706" strokeWidth="1.4" strokeLinecap="round" />
   </svg>
 );
+
+/**
+ * 18. BIỂU TƯỢNG ÁO VIÊN LĨNH THỜI LÝ - TRẦN (IconVietVienLinh)
+ * Cổ áo tròn khép kín quanh cổ, tay áo thụng rộng và đai lưng ngọc tôn nghiêm.
+ */
+export const IconVietVienLinh: React.FC<VietIconProps> = ({ size = 24, className = '', ...props }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={`inline-block shrink-0 ${className}`}
+    aria-label="Áo Viên Lĩnh Cổ Tròn"
+    {...props}
+  >
+    <rect width="48" height="48" rx="10" fill="#FEF3C7" fillOpacity="0.4" />
+    {/* Wide Flowing Ly-Tran Sleeves */}
+    <path d="M16 18 L5 23 C 4 30, 7 38, 14 39 L17 31 Z" fill="#D97706" stroke="#78350F" strokeWidth="1.5" />
+    <path d="M32 18 L43 23 C 44 30, 41 38, 34 39 L31 31 Z" fill="#D97706" stroke="#78350F" strokeWidth="1.5" />
+    {/* Body Robe */}
+    <path d="M16 17 L32 17 L34 41 C 29 43, 19 43, 14 41 Z" fill="#D97706" stroke="#78350F" strokeWidth="1.5" />
+    {/* Round Collar (Viên Lĩnh) */}
+    <ellipse cx="24" cy="17" rx="6" ry="4" fill="#FEF3C7" stroke="#78350F" strokeWidth="1.6" />
+    <ellipse cx="24" cy="17" rx="4" ry="2.5" fill="none" stroke="#F59E0B" strokeWidth="1" />
+    {/* Right shoulder placket button */}
+    <circle cx="28" cy="18" r="1.5" fill="#78350F" />
+    {/* Imperial Jade Sash */}
+    <rect x="18" y="27" width="12" height="4" rx="1" fill="#451A03" stroke="#78350F" strokeWidth="0.8" />
+    <circle cx="21" cy="29" r="1" fill="#A7F3D0" />
+    <circle cx="24" cy="29" r="1" fill="#A7F3D0" />
+    <circle cx="27" cy="29" r="1" fill="#A7F3D0" />
+  </svg>
+);
+
+/**
+ * 19. BIỂU TƯỢNG HOA CÚC DÂY THỜI LÝ (IconPatternCucDayLy)
+ * Đường lượn hình sin kinh điển của mỹ thuật Phật giáo Đại Việt thế kỷ 11-12.
+ */
+export const IconPatternCucDayLy: React.FC<VietIconProps> = ({ size = 20, className = '', ...props }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={`inline-block shrink-0 ${className}`}
+    aria-label="Hoa Cúc Dây Thời Lý"
+    {...props}
+  >
+    {/* Sinusoidal wave vine */}
+    <path d="M2 12 Q 7 4 12 12 T 22 12" stroke="#D97706" strokeWidth="1.8" strokeLinecap="round" fill="none" />
+    {/* Chrysanthemum flower head in upper wave */}
+    <circle cx="7" cy="8" r="3.5" fill="#FEF3C7" stroke="#B45309" strokeWidth="1.2" />
+    <circle cx="7" cy="8" r="1.2" fill="#B45309" />
+    {/* Chrysanthemum flower head in lower wave */}
+    <circle cx="17" cy="16" r="3.5" fill="#FEF3C7" stroke="#B45309" strokeWidth="1.2" />
+    <circle cx="17" cy="16" r="1.2" fill="#B45309" />
+  </svg>
+);
+
+/**
+ * 20. BIỂU TƯỢNG RỒNG THỜI TRẦN (IconPatternRongTran)
+ * Thân rồng khúc lượn dũng mãnh, biểu tượng hào khí Đông A quật cường thế kỷ 13-14.
+ */
+export const IconPatternRongTran: React.FC<VietIconProps> = ({ size = 20, className = '', ...props }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={`inline-block shrink-0 ${className}`}
+    aria-label="Rồng Thời Trần"
+    {...props}
+  >
+    {/* Undulating robust dragon body */}
+    <path
+      d="M3 18 C 6 10, 10 20, 14 11 C 17 4, 21 11, 23 7"
+      stroke="#B45309"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      fill="none"
+    />
+    {/* Dragon head crest & horn */}
+    <path d="M3 18 L2 14 L5 16 Z" fill="#B45309" />
+    {/* Sharp talons / claws */}
+    <path d="M10 16 L8 20 M11 17 L11 21" stroke="#D97706" strokeWidth="1.4" strokeLinecap="round" />
+    {/* Flame fin */}
+    <path d="M16 8 Q 18 5 20 8" stroke="#D97706" strokeWidth="1.2" fill="none" />
+  </svg>
+);
+
+/**
+ * 21. BIỂU TƯỢNG HẠC MÂY THỜI LÊ SƠ (IconPatternHacMayLe)
+ * Hạc tiên tung cánh giữa ngàn mây bồng bềnh thế kỷ 15.
+ */
+export const IconPatternHacMayLe: React.FC<VietIconProps> = ({ size = 20, className = '', ...props }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={`inline-block shrink-0 ${className}`}
+    aria-label="Hạc Mây Thời Lê Sơ"
+    {...props}
+  >
+    {/* Soaring Crane wings & body */}
+    <path
+      d="M12 7 L10 11 L4 9 L8 12 L10 14 L8 20 L11 15 L12 20 L13 14 L17 12 L21 9 L15 11 Z"
+      fill="#FEF3C7"
+      stroke="#B45309"
+      strokeWidth="1.2"
+      strokeLinejoin="round"
+    />
+    {/* Crane head & beak */}
+    <circle cx="12" cy="5" r="1.2" fill="#B45309" />
+    {/* Cloud swirls */}
+    <path d="M2 17 Q 5 15 8 17" stroke="#D97706" strokeWidth="1" strokeLinecap="round" fill="none" />
+    <path d="M16 6 Q 19 4 22 6" stroke="#D97706" strokeWidth="1" strokeLinecap="round" fill="none" />
+  </svg>
+);
+
+/**
+ * 22. BIỂU TƯỢNG LỤA TRƠN DỆT MỘC (IconPatternPlainSilk)
+ * Ống thoi gỗ dệt lụa tơ tằm truyền thống Vạn Phúc / Nha Xá.
+ */
+export const IconPatternPlainSilk: React.FC<VietIconProps> = ({ size = 20, className = '', ...props }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={`inline-block shrink-0 ${className}`}
+    aria-label="Lụa Trơn Dệt Mộc"
+    {...props}
+  >
+    {/* Weaving Shuttle (Con thoi dệt lụa gỗ) */}
+    <path
+      d="M3 12 C 5 7, 19 7, 21 12 C 19 17, 5 17, 3 12 Z"
+      fill="#FEF3C7"
+      stroke="#B45309"
+      strokeWidth="1.2"
+    />
+    {/* Bobbin thread roll in center */}
+    <rect x="9" y="10" width="6" height="4" rx="1" fill="#D97706" />
+    <line x1="8" y1="12" x2="16" y2="12" stroke="#FFFFFF" strokeWidth="0.8" />
+    {/* Flowing silk threads */}
+    <path d="M15 12 Q 18 10 20 6" stroke="#D97706" strokeWidth="1" strokeLinecap="round" fill="none" />
+    <path d="M9 12 Q 6 14 4 18" stroke="#D97706" strokeWidth="1" strokeLinecap="round" fill="none" />
+  </svg>
+);
+
+/**
+ * 23. BIỂU TƯỢNG BÁT BỬU CÁT TƯỜNG (IconPatternBatBuu)
+ * Bát bửu cung đình triều Nguyễn: Pháp luân, Hoa sen, Nút thắt cát tường.
+ */
+export const IconPatternBatBuu: React.FC<VietIconProps> = ({ size = 20, className = '', ...props }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={`inline-block shrink-0 ${className}`}
+    aria-label="Bát Bửu Cát Tường"
+    {...props}
+  >
+    {/* Concentric auspicious circle */}
+    <circle cx="12" cy="12" r="8.5" fill="#FEF3C7" stroke="#B45309" strokeWidth="1.2" />
+    {/* Central Endless Knot / Dharmachakra cross */}
+    <rect x="9.5" y="9.5" width="5" height="5" rx="1" fill="#D97706" stroke="#78350F" strokeWidth="0.8" />
+    {/* 4 cardinal auspicious points */}
+    <circle cx="12" cy="5.5" r="1.4" fill="#DC2626" />
+    <circle cx="12" cy="18.5" r="1.4" fill="#DC2626" />
+    <circle cx="5.5" cy="12" r="1.4" fill="#DC2626" />
+    <circle cx="18.5" cy="12" r="1.4" fill="#DC2626" />
+    {/* Diagonal petal lines */}
+    <line x1="7.5" y1="7.5" x2="16.5" y2="16.5" stroke="#B45309" strokeWidth="0.9" />
+    <line x1="7.5" y1="16.5" x2="16.5" y2="7.5" stroke="#B45309" strokeWidth="0.9" />
+  </svg>
+);
+
+/**
+ * 24. BIỂU TƯỢNG CHỮ THỌ TRIỀU NGUYỄN (IconPatternChuTho)
+ * Chữ Thọ tròn chạm khắc trên ngai vàng, cung điện hoàng gia Huế.
+ */
+export const IconPatternChuTho: React.FC<VietIconProps> = ({ size = 20, className = '', ...props }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={`inline-block shrink-0 ${className}`}
+    aria-label="Chữ Thọ Triều Nguyễn"
+    {...props}
+  >
+    {/* Circular Medallion */}
+    <circle cx="12" cy="12" r="9" fill="#FEF3C7" stroke="#B45309" strokeWidth="1.3" />
+    {/* Horizontal bars of Shou character */}
+    <line x1="6.5" y1="9" x2="17.5" y2="9" stroke="#78350F" strokeWidth="1.2" strokeLinecap="round" />
+    <line x1="7" y1="12" x2="17" y2="12" stroke="#78350F" strokeWidth="1.2" strokeLinecap="round" />
+    <line x1="6.5" y1="15" x2="17.5" y2="15" stroke="#78350F" strokeWidth="1.2" strokeLinecap="round" />
+    {/* Vertical central stem */}
+    <line x1="12" y1="6" x2="12" y2="18" stroke="#78350F" strokeWidth="1.4" strokeLinecap="round" />
+    {/* Top crown dot */}
+    <circle cx="12" cy="4.5" r="0.8" fill="#B45309" />
+  </svg>
+);
+
+/**
+ * 25. BIỂU TƯỢNG GỐM CHU ĐẬU (IconPatternChuDau)
+ * Đồ án cúc phù dung lam chàm trên gốm sứ Chu Đậu thế kỷ 15-16.
+ */
+export const IconPatternChuDau: React.FC<VietIconProps> = ({ size = 20, className = '', ...props }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={`inline-block shrink-0 ${className}`}
+    aria-label="Gốm Chu Đậu"
+    {...props}
+  >
+    {/* Porcelain ceramic vase body outline */}
+    <path
+      d="M7 6 C 6 10, 5 15, 7 19 L 17 19 C 19 15, 18 10, 17 6 Z"
+      fill="#E0F2FE"
+      stroke="#0284C7"
+      strokeWidth="1.2"
+    />
+    <ellipse cx="12" cy="6" rx="5" ry="1.5" fill="#BAE6FD" stroke="#0284C7" strokeWidth="1" />
+    {/* Cobalt Blue Chrysanthemum Petals (Men Lam Chàm) */}
+    <path
+      d="M12 9 C 10 11, 10 13, 12 15 C 14 13, 14 11, 12 9 Z"
+      fill="#0369A1"
+    />
+    <path
+      d="M9 12 C 11 10, 13 10, 15 12 C 13 14, 11 14, 9 12 Z"
+      fill="#0284C7"
+      opacity="0.8"
+    />
+    <circle cx="12" cy="12" r="1.2" fill="#38BDF8" />
+  </svg>
+);
+

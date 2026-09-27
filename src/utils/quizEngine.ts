@@ -43,9 +43,9 @@ export const REGIONS: { id: RegionId; label: string; desc: string; icon: string;
     desc: 'Kinh Bắc, Thăng Long: tứ thân, quai thao, gốm Chu Đậu',
     icon: '🏮',
     affinity: {
-      garments: ['ao-tu-than', 'ao-giao-linh', 'ao-dai-tan-thoi', 'ao-dai-hien-dai'],
+      garments: ['ao-vien-linh', 'ao-tu-than', 'ao-giao-linh', 'ao-dai-tan-thoi', 'ao-dai-hien-dai'],
       colors: ['canh-sen', 'cam-bat-trang', 'lam-cham', 'trang-nga'],
-      patterns: ['chu-dau', 'hoa-sen', 'plain-silk'],
+      patterns: ['cuc-day-ly', 'rong-thoi-tran', 'hac-may-le', 'chu-dau', 'hoa-sen', 'plain-silk'],
       headwear: ['non-quai-thao', 'khan-van'],
       accessories: ['dai-ngu-sac', 'tui-coi-dan'],
       backdrop: 'pho-co'
@@ -93,7 +93,7 @@ export const STYLES: { id: StyleId; label: string; desc: string; icon: string; a
       headwear: ['khan-van', 'khan-dong', 'non-quai-thao', 'tram-cai-toc'],
       footwear: ['guoc-moc', 'giay-oxford'],
       accessories: ['kieng-bac', 'quat-giay-do', 'dai-ngu-sac'],
-      patterns: ['van-may', 'hoa-sen', 'bat-buu']
+      patterns: ['cuc-day-ly', 'rong-thoi-tran', 'hac-may-le', 'van-may', 'hoa-sen', 'bat-buu']
     }
   },
   {
@@ -116,13 +116,13 @@ export const STYLES: { id: StyleId; label: string; desc: string; icon: string; a
     desc: 'Dark academia kiểu sĩ tử: tông trầm, kính gọng tròn',
     icon: '📚',
     affinity: {
-      garments: ['ao-giao-linh', 'ao-ngu-than'],
+      garments: ['ao-giao-linh', 'ao-ngu-than', 'ao-vien-linh'],
       colors: ['lam-cham', 'den-mun', 'trang-nga', 'ngoc-bich'],
       bottoms: ['quan-lua-den', 'quan-lua-trang', 'quan-palazzo'],
       headwear: ['khan-dong', 'khan-van', 'none'],
       footwear: ['giay-oxford'],
       accessories: ['kinh-gong-tron', 'tui-tote-cham', 'quat-giay-do'],
-      patterns: ['plain-silk', 'chu-dau', 'hoa-sen']
+      patterns: ['plain-silk', 'cuc-day-ly', 'hac-may-le', 'chu-dau', 'hoa-sen']
     }
   },
   {
@@ -131,13 +131,13 @@ export const STYLES: { id: StyleId; label: string; desc: string; icon: string; a
     desc: 'Lộng lẫy, hoa văn cát tường, trang sức cao quý',
     icon: '👑',
     affinity: {
-      garments: ['ao-nhat-binh', 'ao-tac'],
+      garments: ['ao-vien-linh', 'ao-nhat-binh', 'ao-tac'],
       colors: ['do-chu-sa', 'hoang-yen', 'tim-hue'],
       bottoms: ['quan-lua-trang', 'quan-lua-den'],
       headwear: ['khan-van', 'tram-cai-toc', 'bom-ngoc-trai'],
       footwear: ['guoc-moc', 'giay-oxford'],
       accessories: ['kieng-bac', 'choker-ngoc-trai', 'quat-giay-do'],
-      patterns: ['bat-buu', 'van-may']
+      patterns: ['rong-thoi-tran', 'cuc-day-ly', 'hac-may-le', 'bat-buu', 'van-may']
     }
   }
 ];

@@ -7,6 +7,7 @@ const FORMALITY_VALUE = { formal: 100, 'semi-formal': 60, casual: 20 } as const;
 const GARMENT_FORMALITY: Record<OutfitConfig['garmentId'], number> = {
   'ao-tac': 100,
   'ao-nhat-binh': 100,
+  'ao-vien-linh': 100,
   'ao-giao-linh': 75,
   'ao-ngu-than': 60,
   'ao-dai-tan-thoi': 60,
