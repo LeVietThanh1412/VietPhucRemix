@@ -40,7 +40,9 @@ function sanitize(raw: unknown): OutfitConfig | null {
       : DEFAULT_LOOK.modelGender,
     backdrop: ['hoang-thanh', 'pho-co', 'studio-zen', 'hieu-anh'].includes(r.backdrop as string)
       ? (r.backdrop as OutfitConfig['backdrop'])
-      : DEFAULT_LOOK.backdrop
+      : DEFAULT_LOOK.backdrop,
+    customColorHex: typeof r.customColorHex === 'string' && /^#[0-9a-fA-F]{3,8}$/.test(r.customColorHex) ? r.customColorHex : undefined,
+    layerVisibility: r.layerVisibility && typeof r.layerVisibility === 'object' ? (r.layerVisibility as OutfitConfig['layerVisibility']) : undefined
   };
 }
 

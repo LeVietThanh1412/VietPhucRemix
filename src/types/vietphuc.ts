@@ -137,6 +137,16 @@ export interface ItemOption<T extends string> {
   formality: 'formal' | 'semi-formal' | 'casual';
 }
 
+export interface LayerVisibility {
+  backdrop?: boolean;
+  body?: boolean;
+  bottom?: boolean;
+  footwear?: boolean;
+  garment?: boolean;
+  accessories?: boolean;
+  headwear?: boolean;
+}
+
 export interface OutfitConfig {
   garmentId: GarmentId;
   colorId: ColorId;
@@ -148,6 +158,8 @@ export interface OutfitConfig {
   targetEvent: EventId;
   modelGender: ModelGender;
   backdrop: 'hoang-thanh' | 'pho-co' | 'studio-zen' | 'hieu-anh';
+  customColorHex?: string;
+  layerVisibility?: LayerVisibility;
 }
 
 export type AlertLevel = 'critical' | 'warning' | 'info' | 'kudos';

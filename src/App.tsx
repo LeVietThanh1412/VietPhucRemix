@@ -23,6 +23,9 @@ import { AuthenticityBadge } from './components/AuthenticityBadge';
 import { StyleQuizModal } from './components/StyleQuizModal';
 import { SavedLooksPanel } from './components/SavedLooksPanel';
 import { useSavedLooks } from './hooks/useSavedLooks';
+import { LayerInspectorModal } from './components/LayerInspectorModal';
+import { OccasionFilterBar, OccasionTag } from './components/OccasionFilterBar';
+import { IconVietGenderMale, IconVietGenderFemale, IconVietGenderUnisex } from './components/VietIcons';
 import { 
   Sparkles, 
   ArrowRightLeft, 
@@ -71,6 +74,19 @@ export default function App() {
   const [compareSelection, setCompareSelection] = useState<string[] | undefined>(undefined);
   const saved = useSavedLooks();
   const [saveFlash, setSaveFlash] = useState<string | null>(null);
+  const [isLayerModalOpen, setIsLayerModalOpen] = useState(false);
+  const [occasionTag, setOccasionTag] = useState<OccasionTag>('all');
+
+  const isGarmentMatchingOccasion = (garmentId: GarmentId, tag: OccasionTag): boolean => {
+    if (tag === 'all') return true;
+    if (tag === 'tet') return ['ao-tac', 'ao-ngu-than', 'ao-dai-tan-thoi', 'ao-nhat-binh'].includes(garmentId);
+    if (tag === 'quan-ho') return ['ao-tu-than', 'ao-giao-linh'].includes(garmentId);
+    if (tag === 'cung-dinh') return ['ao-tac', 'ao-nhat-binh'].includes(garmentId);
+    if (tag === 'dao-pho') return ['ao-ngu-than', 'ao-tu-than', 'ao-ba-ba', 'ao-dai-hien-dai'].includes(garmentId);
+    if (tag === 'tam-linh') return ['ao-giao-linh', 'ao-tac', 'ao-ngu-than'].includes(garmentId);
+    if (tag === 'hoc-duong') return ['ao-ngu-than', 'ao-giao-linh', 'ao-dai-tan-thoi', 'ao-dai-hien-dai'].includes(garmentId);
+    return true;
+  };
 
   const filteredGarments = React.useMemo(() => {
     if (garmentGenderFilter === 'all') return GARMENTS;
@@ -339,6 +355,14 @@ export default function App() {
                   >
                     {isZoomed ? <ZoomOut className="w-4 h-4" /> : <ZoomIn className="w-4 h-4" />}
                   </button>
+                  <button
+                    onClick={() => setIsLayerModalOpen(true)}
+                    className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-semibold border border-amber-300 transition-colors shadow-2xs"
+                    title="Cơ chế Layering (Mặt -> Áo -> Quần -> Phụ kiện) & Đổi màu Hex"
+                  >
+                    <Layers className="w-3.5 h-3.5 text-amber-800" />
+                    <span>Lớp & Hex</span>
+                  </button>
                 </div>
               </div>
 
@@ -364,18 +388,21 @@ export default function App() {
                 </div>
 
                 {config.modelGender === 'male' && (
-                  <p className="text-[11px] text-sky-900 bg-sky-50 px-2.5 py-1.5 rounded-lg border border-sky-200/60 leading-relaxed">
-                    👔 <b>Dáng Nam:</b> Bờ vai vuông rộng, tư thế đĩnh đạc, búi tóc củ hành. Áo truyền thống chuẩn nam: Áo Tấc, Áo Ngũ Thân, Áo Giao Lĩnh, Áo Dài nam, Áo Bà Ba.
+                  <p className="text-[11px] text-sky-900 bg-sky-50 px-2.5 py-1.5 rounded-lg border border-sky-200/60 leading-relaxed flex items-center gap-1.5">
+                    <IconVietGenderMale size={16} />
+                    <span><b>Dáng Nam:</b> Bờ vai vuông rộng, tư thế đĩnh đạc, búi tóc củ hành. Áo truyền thống chuẩn nam: Áo Tấc, Áo Ngũ Thân, Áo Giao Lĩnh, Áo Dài nam, Áo Bà Ba.</span>
                   </p>
                 )}
                 {config.modelGender === 'female' && (
-                  <p className="text-[11px] text-rose-900 bg-rose-50 px-2.5 py-1.5 rounded-lg border border-rose-200/60 leading-relaxed">
-                    🌸 <b>Dáng Nữ:</b> Cổ kiêu thanh tú, bờ vai mềm mại, hoa tai ngọc, búi tóc cung đình đoan trang. Phù hợp trọn vẹn 7 mẫu áo truyền thống của phái nữ.
+                  <p className="text-[11px] text-rose-900 bg-rose-50 px-2.5 py-1.5 rounded-lg border border-rose-200/60 leading-relaxed flex items-center gap-1.5">
+                    <IconVietGenderFemale size={16} />
+                    <span><b>Dáng Nữ:</b> Cổ kiêu thanh tú, bờ vai mềm mại, hoa tai ngọc, búi tóc cung đình đoan trang. Phù hợp trọn vẹn 7 mẫu áo truyền thống của phái nữ.</span>
                   </p>
                 )}
                 {config.modelGender === 'unisex' && (
-                  <p className="text-[11px] text-amber-900 bg-amber-50 px-2.5 py-1.5 rounded-lg border border-amber-200/60 leading-relaxed">
-                    ✨ <b>Dáng Unisex:</b> Tỷ lệ thanh lịch đương đại, tôn vinh trọn vẹn nét hài hòa của cổ phục Việt.
+                  <p className="text-[11px] text-amber-900 bg-amber-50 px-2.5 py-1.5 rounded-lg border border-amber-200/60 leading-relaxed flex items-center gap-1.5">
+                    <IconVietGenderUnisex size={16} />
+                    <span><b>Dáng Unisex:</b> Tỷ lệ thanh lịch đương đại, tôn vinh trọn vẹn nét hài hòa của cổ phục Việt.</span>
                   </p>
                 )}
 
@@ -407,6 +434,22 @@ export default function App() {
 
             {/* RIGHT: Wardrobe & Palette Customizer Tabs (7 cols) */}
             <div className="lg:col-span-7 bg-white rounded-2xl border border-stone-200/90 shadow-sm p-5 md:p-6 space-y-5">
+              {/* Occasion & Event Filter Capsule Bar (Digital Wardrobe Workflow) */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-stone-700 flex items-center gap-1.5">
+                    <Compass className="w-3.5 h-3.5 text-amber-800" />
+                    <span>Lọc Theo Mùa & Dịp (Digital Wardrobe):</span>
+                  </span>
+                  <span className="text-[11px] text-stone-400">Gợi ý trang phục theo bối cảnh</span>
+                </div>
+                <OccasionFilterBar
+                  selectedTag={occasionTag}
+                  onSelectTag={setOccasionTag}
+                  onApplyPresetLook={patch => setConfig(prev => ({ ...prev, ...patch }))}
+                />
+              </div>
+
               {/* Category Segmented Tabs */}
               <div className="flex items-center gap-1.5 p-1 bg-stone-100 rounded-xl overflow-x-auto text-xs font-medium no-scrollbar">
                 {[
@@ -455,35 +498,38 @@ export default function App() {
                     </button>
                     <button
                       onClick={() => setGarmentGenderFilter('female')}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all shrink-0 flex items-center gap-1 ${
+                      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all shrink-0 flex items-center gap-1.5 ${
                         garmentGenderFilter === 'female'
                           ? 'bg-rose-50 text-rose-900 border border-rose-200 shadow-2xs font-semibold'
                           : 'text-stone-600 hover:text-stone-900'
                       }`}
                     >
-                      <span>🌸 Dành cho Nữ</span>
+                      <IconVietGenderFemale size={14} />
+                      <span>Dành cho Nữ</span>
                       <span className="text-[10px] opacity-75">({femaleGarmentCount})</span>
                     </button>
                     <button
                       onClick={() => setGarmentGenderFilter('male')}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all shrink-0 flex items-center gap-1 ${
+                      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all shrink-0 flex items-center gap-1.5 ${
                         garmentGenderFilter === 'male'
                           ? 'bg-sky-50 text-sky-900 border border-sky-200 shadow-2xs font-semibold'
                           : 'text-stone-600 hover:text-stone-900'
                       }`}
                     >
-                      <span>👔 Dành cho Nam</span>
+                      <IconVietGenderMale size={14} />
+                      <span>Dành cho Nam</span>
                       <span className="text-[10px] opacity-75">({maleGarmentCount})</span>
                     </button>
                     <button
                       onClick={() => setGarmentGenderFilter('both')}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all shrink-0 flex items-center gap-1 ${
+                      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all shrink-0 flex items-center gap-1.5 ${
                         garmentGenderFilter === 'both'
                           ? 'bg-amber-50 text-amber-900 border border-amber-200 shadow-2xs font-semibold'
                           : 'text-stone-600 hover:text-stone-900'
                       }`}
                     >
-                      <span>🔷 Cả Nam & Nữ</span>
+                      <IconVietGenderUnisex size={14} />
+                      <span>Cả Nam & Nữ</span>
                       <span className="text-[10px] opacity-75">({bothGarmentCount})</span>
                     </button>
                   </div>
@@ -491,7 +537,7 @@ export default function App() {
                   {/* Contextual guidance if male mannequin currently has female-only garment selected */}
                   {config.modelGender === 'male' && selectedGarment.targetGender === 'female' && (
                     <div className="p-3 rounded-xl bg-amber-50/90 border border-amber-200/90 text-xs text-amber-900 flex items-start gap-2.5">
-                      <span className="text-base shrink-0">🌸</span>
+                      <IconVietGenderFemale size={22} className="shrink-0 mt-0.5" />
                       <div>
                         <p className="font-semibold">Lưu ý phân định giới tính di sản:</p>
                         <p className="text-[11px] text-amber-800 leading-relaxed mt-0.5">
@@ -521,17 +567,24 @@ export default function App() {
                           )}
                         </div>
 
-                        {/* Dynasty + Authenticity + Gender Badge */}
+                        {/* Dynasty + Authenticity + Gender Badge + Occasion Match */}
                         <div className="flex items-center gap-1.5 mt-1 flex-wrap">
                           <p className="text-[11px] text-stone-500 font-medium">{g.dynasty}</p>
                           <AuthenticityBadge level={g.authenticity} />
                           {g.targetGender === 'female' ? (
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">
-                              🌸 Nữ giới
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200 flex items-center gap-1">
+                              <IconVietGenderFemale size={12} />
+                              <span>Nữ giới</span>
                             </span>
                           ) : (
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
-                              🔷 Nam & Nữ
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-200 flex items-center gap-1">
+                              <IconVietGenderUnisex size={12} />
+                              <span>Nam & Nữ</span>
+                            </span>
+                          )}
+                          {occasionTag !== 'all' && isGarmentMatchingOccasion(g.id, occasionTag) && (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs">
+                              ✨ Hợp dịp
                             </span>
                           )}
                         </div>
@@ -584,6 +637,53 @@ export default function App() {
                         </div>
                       </button>
                     ))}
+                  </div>
+
+                  {/* Custom Hex Color Customizer (Avatar Generator Workflow) */}
+                  <div className="p-3.5 rounded-xl border border-stone-200 bg-stone-50/70 space-y-2.5">
+                    <div className="flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-1.5 font-semibold text-stone-800">
+                        <Palette className="w-3.5 h-3.5 text-amber-800" />
+                        <span>Đổi màu tự do theo mã Hex (Avatar Generator Props):</span>
+                      </div>
+                      {config.customColorHex && (
+                        <button
+                          onClick={() => {
+                            const { customColorHex, ...rest } = config;
+                            setConfig(rest as OutfitConfig);
+                          }}
+                          className="text-[11px] text-stone-500 hover:text-stone-800 underline flex items-center gap-1"
+                        >
+                          <RotateCcw className="w-3 h-3" /> Trở về màu gốc
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="color"
+                        value={config.customColorHex || selectedColor.hex}
+                        onChange={e => setConfig(prev => ({ ...prev, customColorHex: e.target.value }))}
+                        className="w-9 h-9 rounded-lg cursor-pointer border border-stone-300 p-0.5 bg-white shadow-2xs"
+                        title="Chọn màu tự do"
+                      />
+                      <div className="relative w-36">
+                        <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-stone-400 font-mono text-xs">#</span>
+                        <input
+                          type="text"
+                          value={(config.customColorHex || selectedColor.hex).replace('#', '')}
+                          onChange={e => {
+                            const val = '#' + e.target.value.replace(/[^0-9a-fA-F]/g, '').slice(0, 6);
+                            setConfig(prev => ({ ...prev, customColorHex: val }));
+                          }}
+                          maxLength={6}
+                          className="w-full pl-6 pr-2.5 py-1.5 border border-stone-300 rounded-lg font-mono text-xs uppercase bg-white"
+                        />
+                      </div>
+                      <span className="text-[11px] text-stone-500">
+                        {config.customColorHex ? 'Đang áp dụng màu Hex tùy chỉnh lên toàn bộ tà và tay áo' : 'Chọn ô màu để tùy biến mã Hex bất kỳ'}
+                      </span>
+                    </div>
                   </div>
                 </div>
               )}
@@ -951,6 +1051,13 @@ export default function App() {
         savedLooks={saved.looks}
         initialSelection={compareSelection}
         onApplyLook={newConfig => setConfig(newConfig)}
+      />
+
+      <LayerInspectorModal
+        isOpen={isLayerModalOpen}
+        onClose={() => setIsLayerModalOpen(false)}
+        config={config}
+        onChangeConfig={newConfig => setConfig(newConfig)}
       />
     </div>
   );

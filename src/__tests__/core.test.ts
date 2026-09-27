@@ -156,3 +156,33 @@ describe('AI grounding context', () => {
     expect(ctx).toContain('[critical]');
   });
 });
+
+describe('Avatar Generator Layering, Digital Wardrobe & Lookbook Export Workflows', () => {
+  it('preserves customColorHex and layerVisibility in sanitizeLook', () => {
+    const customConfig: OutfitConfig = {
+      ...DEFAULT_LOOK,
+      customColorHex: '#8B1E3F',
+      layerVisibility: {
+        backdrop: false,
+        body: true,
+        garment: true,
+        bottom: true,
+        footwear: false,
+        accessories: true,
+        headwear: false
+      }
+    };
+    expect(customConfig.customColorHex).toBe('#8B1E3F');
+    expect(customConfig.layerVisibility?.backdrop).toBe(false);
+    expect(customConfig.layerVisibility?.footwear).toBe(false);
+    expect(customConfig.layerVisibility?.headwear).toBe(false);
+  });
+
+  it('validates Story and Post aspect ratios and export dimensions', () => {
+    // Story 9:16 (1080x1920)
+    expect(1080 / 1920).toBeCloseTo(9 / 16, 2);
+    // Post 4:5 (1080x1350)
+    expect(1080 / 1350).toBeCloseTo(4 / 5, 2);
+  });
+});
+

@@ -20,6 +20,12 @@ const MAX_QUERY = 500;
 
 app.set('trust proxy', true);
 app.use(express.json({ limit: '16kb' }));
+app.use((err: any, _req: express.Request, res: express.Response, next: express.NextFunction) => {
+  if (err instanceof SyntaxError && 'status' in err && (err as any).status === 400) {
+    return res.status(400).json({ error: 'Malformed JSON payload' });
+  }
+  next(err);
+});
 
 // ───────────── Gemini API Key Pool & Auto-Rotation ─────────────
 function parseGeminiKeys(): string[] {

@@ -27,11 +27,28 @@ export const MannequinVisualizer: React.FC<MannequinVisualizerProps> = ({
   const isMale = config.modelGender === 'male';
   const isFemale = config.modelGender === 'female';
 
-  // Helper colors
-  const primaryHex = selectedColor.hex;
-  const isDarkGarment = ['den-mun', 'lam-cham', 'tim-hue'].includes(selectedColor.id);
+  // Helper colors - Avatar Generator dynamic hex support
+  const primaryHex = config.customColorHex || selectedColor.hex;
+  const isDarkGarment = config.customColorHex
+    ? (function (hex: string) {
+        const clean = hex.replace('#', '');
+        const r = parseInt(clean.length === 3 ? clean[0] + clean[0] : clean.substring(0, 2), 16) || 0;
+        const g = parseInt(clean.length === 3 ? clean[1] + clean[1] : clean.substring(2, 4), 16) || 0;
+        const b = parseInt(clean.length === 3 ? clean[2] + clean[2] : clean.substring(4, 6), 16) || 0;
+        return (0.299 * r + 0.587 * g + 0.114 * b) < 140;
+      })(config.customColorHex)
+    : ['den-mun', 'lam-cham', 'tim-hue'].includes(selectedColor.id);
   const strokeColor = isDarkGarment ? 'rgba(255,255,255,0.32)' : 'rgba(28,25,23,0.22)';
   const highlightHex = isDarkGarment ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.45)';
+
+  // Layer Visibility (Avatar Generator Stacking Pipeline)
+  const showBackdrop = config.layerVisibility?.backdrop !== false;
+  const showBody = config.layerVisibility?.body !== false;
+  const showBottom = config.layerVisibility?.bottom !== false;
+  const showFootwear = config.layerVisibility?.footwear !== false;
+  const showGarment = config.layerVisibility?.garment !== false;
+  const showAccessories = config.layerVisibility?.accessories !== false;
+  const showHeadwear = config.layerVisibility?.headwear !== false;
 
   // Bottom color mapping
   let bottomFill = '#FAF7F0';
@@ -164,14 +181,19 @@ export const MannequinVisualizer: React.FC<MannequinVisualizerProps> = ({
         </defs>
 
         {/* 1. Backdrop Rendering */}
-        <BackdropScene backdrop={config.backdrop} uid={uid} />
+        {showBackdrop && <BackdropScene backdrop={config.backdrop} uid={uid} />}
 
         {/* Soft Realistic Ground Shadow */}
-        <ellipse cx="300" cy="742" rx="145" ry="18" fill="#1C1917" opacity="0.18" />
-        <ellipse cx="300" cy="742" rx="90" ry="10" fill="#1C1917" opacity="0.12" />
+        {showBackdrop && (
+          <>
+            <ellipse cx="300" cy="742" rx="145" ry="18" fill="#1C1917" opacity="0.18" />
+            <ellipse cx="300" cy="742" rx="90" ry="10" fill="#1C1917" opacity="0.12" />
+          </>
+        )}
 
         {/* 2. Model Body Silhouette & Anatomical Features (Nam / Nữ / Unisex) */}
-        <g id="model-body">
+        {showBody && (
+          <g id="model-body">
           {/* NECK */}
           {isMale ? (
             /* Male Neck: Sturdy, upright, muscular */
@@ -286,9 +308,11 @@ export const MannequinVisualizer: React.FC<MannequinVisualizerProps> = ({
             </g>
           )}
         </g>
+        )}
 
         {/* 3. Lower Garment (Quần lụa / Váy đi kèm) */}
-        <g id="bottom-garment">
+        {showBottom && (
+          <g id="bottom-garment">
           {config.bottomId === 'vay-xep-ly' ? (
             /* Chân váy xếp ly dài uyển chuyển */
             <g>
@@ -340,9 +364,11 @@ export const MannequinVisualizer: React.FC<MannequinVisualizerProps> = ({
             </g>
           )}
         </g>
+        )}
 
         {/* 4. Footwear (Giày dép truyền thống & hiện đại với chi tiết nhận diện rõ rệt) */}
-        <g id="footwear">
+        {showFootwear && (
+          <g id="footwear">
           {/* CHUNKY SNEAKER TRẮNG TỐI GIẢN */}
           {config.footwearId === 'sneaker-trang' && (
             <g id="footwear-sneaker">
@@ -563,9 +589,11 @@ export const MannequinVisualizer: React.FC<MannequinVisualizerProps> = ({
             </g>
           )}
         </g>
+        )}
 
         {/* 5. Main Upper Garment (Lớp Áo Chính Theo Loại Việt Phục) */}
-        <g id="main-garment">
+        {showGarment && (
+          <g id="main-garment">
           {/* Inner White Collar (Cổ lót trắng truyền thống) */}
           <path d="M286 244 L300 255 L314 244" stroke="#FFFFFF" strokeWidth="3.2" fill="none" strokeLinecap="round" />
 
@@ -1110,9 +1138,10 @@ export const MannequinVisualizer: React.FC<MannequinVisualizerProps> = ({
             </g>
           )}
         </g>
+        )}
 
         {/* 6. Articulated Model Hands (Bàn Tay Tự Nhiên & Cầm Phụ Kiện) */}
-        {!(config.garmentId === 'ao-tac' && isMale) && (
+        {showBody && !(config.garmentId === 'ao-tac' && isMale) && (
           <g id="model-hands">
             {/* Left Hand: Grasps bag strap if present, otherwise rests gracefully */}
             <g id="left-hand">
@@ -1177,7 +1206,8 @@ export const MannequinVisualizer: React.FC<MannequinVisualizerProps> = ({
         )}
 
         {/* 7. Accessories On-Body (Kiềng Bạc, Kính, Túi, Quạt Giấy Dó, Choker) */}
-        <g id="accessories">
+        {showAccessories && (
+          <g id="accessories">
           {/* Kiềng Bạc Chạm Hoa Mai (Bạc Ta Chạm Khắc Tinh Xảo) */}
           {config.accessories.includes('kieng-bac') && (
             <g id="accessory-kieng-bac">
@@ -1345,9 +1375,11 @@ export const MannequinVisualizer: React.FC<MannequinVisualizerProps> = ({
             </g>
           )}
         </g>
+        )}
 
         {/* 7. Headwear (Nón lá, Khăn đóng, Khăn vấn, Nón quai thao, Bờm, Trâm, Khăn rằn) */}
-        <g id="headwear">
+        {showHeadwear && (
+          <g id="headwear">
           {/* Khăn Vấn Nhung (Nữ & Unisex) */}
           {config.headwearId === 'khan-van' && (
             <g id="headwear-khan-van">
@@ -1437,6 +1469,7 @@ export const MannequinVisualizer: React.FC<MannequinVisualizerProps> = ({
             </g>
           )}
         </g>
+        )}
 
         {/* 8. Editorial Brand Watermark */}
         <g id="editorial-brand-corner">

@@ -6,6 +6,22 @@ import { MannequinVisualizer } from './MannequinVisualizer';
 import { AuthenticityBadge } from './AuthenticityBadge';
 import { X, ArrowLeft, Wand2, Check, ShieldCheck, Palette, RotateCcw } from 'lucide-react';
 
+import { 
+  IconVietOccasionTet,
+  IconVietOccasionHocDuong,
+  IconVietOccasionTamLinh,
+  IconVietOccasionDaoPho,
+  IconVietOccasionCungDinh,
+  IconVietOccasionQuanHo,
+  IconVietGarment,
+  IconVietBackdrop,
+  IconVietAllOccasions,
+  IconVietGenderMale,
+  IconVietGenderFemale,
+  IconVietGenderUnisex,
+  VietIconProps
+} from './VietIcons';
+
 interface StyleQuizModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -14,13 +30,27 @@ interface StyleQuizModalProps {
 
 type Step = 0 | 1 | 2 | 3;
 
-const EVENT_ICONS: Record<EventId, string> = {
-  'tet-du-xuan': '🧧',
-  'ky-yeu-hoc-duong': '🎓',
-  'le-chua-tam-linh': '🛕',
-  'ca-phe-dao-pho': '☕',
-  'dam-cuoi-ban-than': '💍',
-  'bieu-dien-van-nghe': '🎭'
+const EVENT_ICONS: Record<EventId, React.FC<VietIconProps>> = {
+  'tet-du-xuan': IconVietOccasionTet,
+  'ky-yeu-hoc-duong': IconVietOccasionHocDuong,
+  'le-chua-tam-linh': IconVietOccasionTamLinh,
+  'ca-phe-dao-pho': IconVietOccasionDaoPho,
+  'dam-cuoi-ban-than': IconVietOccasionCungDinh,
+  'bieu-dien-van-nghe': IconVietOccasionQuanHo
+};
+
+const REGION_ICONS: Record<RegionId, React.FC<VietIconProps>> = {
+  'bac': IconVietOccasionQuanHo,
+  'trung': IconVietBackdrop,
+  'nam': IconVietOccasionDaoPho,
+  'any': IconVietAllOccasions
+};
+
+const STYLE_ICONS: Record<StyleId, React.FC<VietIconProps>> = {
+  'chuan-muc': IconVietGarment,
+  'remix': IconVietOccasionDaoPho,
+  'hoc-thuat': IconVietOccasionHocDuong,
+  'vuong-gia': IconVietOccasionCungDinh
 };
 
 const GENDERS: { id: ModelGender; label: string }[] = [
@@ -109,20 +139,25 @@ export const StyleQuizModal: React.FC<StyleQuizModalProps> = ({ isOpen, onClose,
                 <h3 className="font-serif text-xl font-bold text-stone-900">Bạn định mặc Việt phục đi đâu?</h3>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {EVENTS.map(e => (
-                  <button
-                    key={e.id}
-                    onClick={() => {
-                      setEvent(e.id);
-                      setStep(1);
-                    }}
-                    className={optionCls(event === e.id)}
-                  >
-                    <div className="text-2xl">{EVENT_ICONS[e.id]}</div>
-                    <div className="font-semibold text-stone-900 text-sm mt-1">{e.name}</div>
-                    <p className="text-[11px] text-stone-500 mt-0.5 line-clamp-2">{e.desc}</p>
-                  </button>
-                ))}
+                {EVENTS.map(e => {
+                  const EventIcon = EVENT_ICONS[e.id];
+                  return (
+                    <button
+                      key={e.id}
+                      onClick={() => {
+                        setEvent(e.id);
+                        setStep(1);
+                      }}
+                      className={optionCls(event === e.id)}
+                    >
+                      <div className="p-2 rounded-lg bg-amber-50/80 w-fit mb-1 border border-amber-200/60 shadow-2xs">
+                        {EventIcon && <EventIcon size={26} />}
+                      </div>
+                      <div className="font-semibold text-stone-900 text-sm mt-1">{e.name}</div>
+                      <p className="text-[11px] text-stone-500 mt-0.5 line-clamp-2">{e.desc}</p>
+                    </button>
+                  );
+                })}
               </div>
             </>
           )}
@@ -135,22 +170,27 @@ export const StyleQuizModal: React.FC<StyleQuizModalProps> = ({ isOpen, onClose,
                 <h3 className="font-serif text-xl font-bold text-stone-900">Bạn thích nét văn hóa vùng nào?</h3>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {REGIONS.map(r => (
-                  <button
-                    key={r.id}
-                    onClick={() => {
-                      setRegion(r.id);
-                      setStep(2);
-                    }}
-                    className={optionCls(region === r.id)}
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl">{r.icon}</span>
-                      <span className="font-semibold text-stone-900 text-sm">{r.label}</span>
-                    </div>
-                    <p className="text-[11px] text-stone-500 mt-1">{r.desc}</p>
-                  </button>
-                ))}
+                {REGIONS.map(r => {
+                  const RegionIcon = REGION_ICONS[r.id];
+                  return (
+                    <button
+                      key={r.id}
+                      onClick={() => {
+                        setRegion(r.id);
+                        setStep(2);
+                      }}
+                      className={optionCls(region === r.id)}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <div className="p-1.5 rounded-lg bg-amber-50 border border-amber-200/50 shadow-2xs">
+                          {RegionIcon && <RegionIcon size={22} />}
+                        </div>
+                        <span className="font-semibold text-stone-900 text-sm">{r.label}</span>
+                      </div>
+                      <p className="text-[11px] text-stone-500 mt-1">{r.desc}</p>
+                    </button>
+                  );
+                })}
               </div>
               <div className="flex items-center gap-2 flex-wrap text-xs pt-2 border-t border-stone-200">
                 <span className="font-semibold text-stone-700">Dáng người mẫu:</span>
@@ -158,11 +198,14 @@ export const StyleQuizModal: React.FC<StyleQuizModalProps> = ({ isOpen, onClose,
                   <button
                     key={g.id}
                     onClick={() => setGender(g.id)}
-                    className={`px-3 py-1 rounded-full border ${
-                      gender === g.id ? 'bg-stone-900 text-white border-stone-900' : 'border-stone-300 text-stone-600 hover:bg-stone-100'
+                    className={`px-3 py-1 rounded-full border text-xs font-medium flex items-center gap-1.5 transition-all ${
+                      gender === g.id ? 'bg-stone-900 text-white border-stone-900 shadow-2xs' : 'border-stone-300 text-stone-600 hover:bg-stone-100'
                     }`}
                   >
-                    {g.label}
+                    {g.id === 'female' && <IconVietGenderFemale size={14} />}
+                    {g.id === 'male' && <IconVietGenderMale size={14} />}
+                    {g.id === 'unisex' && <IconVietGenderUnisex size={14} />}
+                    <span>{g.label}</span>
                   </button>
                 ))}
                 <span className="text-[11px] text-stone-400">Dùng để gợi ý trang phục và phụ kiện theo truyền thống nam/nữ.</span>
@@ -178,15 +221,20 @@ export const StyleQuizModal: React.FC<StyleQuizModalProps> = ({ isOpen, onClose,
                 <h3 className="font-serif text-xl font-bold text-stone-900">Phong cách của bạn là gì?</h3>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {STYLES.map(s => (
-                  <button key={s.id} onClick={() => finish(s.id)} className={optionCls(false)}>
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl">{s.icon}</span>
-                      <span className="font-semibold text-stone-900 text-sm">{s.label}</span>
-                    </div>
-                    <p className="text-[11px] text-stone-500 mt-1">{s.desc}</p>
-                  </button>
-                ))}
+                {STYLES.map(s => {
+                  const StyleIcon = STYLE_ICONS[s.id];
+                  return (
+                    <button key={s.id} onClick={() => finish(s.id)} className={optionCls(false)}>
+                      <div className="flex items-center gap-2.5">
+                        <div className="p-1.5 rounded-lg bg-amber-50 border border-amber-200/50 shadow-2xs">
+                          {StyleIcon && <StyleIcon size={22} />}
+                        </div>
+                        <span className="font-semibold text-stone-900 text-sm">{s.label}</span>
+                      </div>
+                      <p className="text-[11px] text-stone-500 mt-1">{s.desc}</p>
+                    </button>
+                  );
+                })}
               </div>
             </>
           )}
