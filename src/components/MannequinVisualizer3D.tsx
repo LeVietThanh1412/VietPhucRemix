@@ -12,6 +12,7 @@ import {
   IconVietFocus,
   IconVietGarment
 } from './VietIcons';
+import { buildVietGarment3D, updateVietGarmentColors } from './VietGarment3DBuilder';
 import { Bot, Sparkles, RotateCw, ZoomIn, ZoomOut, Check, Compass, Eye, Sun, Moon, Flame, Maximize2, ShieldCheck, UserPlus, RefreshCw } from 'lucide-react';
 
 export type LightingMode = 'studio' | 'sunset' | 'lantern' | 'moonlight';
@@ -99,6 +100,7 @@ export const MannequinVisualizer3D: React.FC<MannequinVisualizer3DProps> = ({
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const controlsRef = useRef<OrbitControls | null>(null);
   const avatarModelRef = useRef<THREE.Group | null>(null);
+  const vietGarmentRef = useRef<THREE.Group | null>(null);
   const pedestalGroupRef = useRef<THREE.Group | null>(null);
   const lightsRef = useRef<{
     dirLight: THREE.DirectionalLight;
@@ -236,7 +238,11 @@ export const MannequinVisualizer3D: React.FC<MannequinVisualizer3DProps> = ({
       // Subtle breathing motion
       if (avatarModelRef.current) {
         const time = Date.now() * 0.0018;
-        avatarModelRef.current.position.y = Math.sin(time) * 0.002;
+        const breathY = Math.sin(time) * 0.002;
+        avatarModelRef.current.position.y = breathY;
+        if (vietGarmentRef.current) {
+          vietGarmentRef.current.position.y = breathY;
+        }
       }
 
       renderer.render(scene, camera);
@@ -276,40 +282,25 @@ export const MannequinVisualizer3D: React.FC<MannequinVisualizer3DProps> = ({
         // Position avatar feet directly onto the Bronze Drum pedestal top (Y = 0)
         model.position.set(0, 0, 0);
 
-        // Enable shadows, hide modern accessories, and apply PBR Silk shader to garments
+        // Hide modern sportswear so the avatar wears the authentic 3D Vietnamese costume!
         model.traverse((child) => {
           if ((child as THREE.Mesh).isMesh) {
             const mesh = child as THREE.Mesh;
             mesh.castShadow = true;
             mesh.receiveShadow = true;
 
-            // Hide modern accessories like glasses
-            if (mesh.name === 'Wolf3D_Glasses') {
+            // Hide modern accessories & tight sportswear
+            if (
+              mesh.name === 'Wolf3D_Glasses' ||
+              mesh.name === 'Wolf3D_Outfit_Top' ||
+              mesh.name === 'Wolf3D_Outfit_Bottom' ||
+              mesh.name === 'Wolf3D_Outfit_Footwear'
+            ) {
               mesh.visible = false;
               return;
             }
 
-            // Upper Garment (Áo Cổ Phục / Top Outfit)
-            if (mesh.name === 'Wolf3D_Outfit_Top') {
-              const silkMat = new THREE.MeshStandardMaterial({
-                color: new THREE.Color(primaryHex),
-                roughness: 0.42,
-                metalness: 0.08,
-                map: (mesh.material as any)?.map || null,
-              });
-              mesh.material = silkMat;
-              mesh.material.needsUpdate = true;
-            } else if (mesh.name === 'Wolf3D_Outfit_Bottom') {
-              // Traditional White/Cream Silk Trousers (Quần Bạch La)
-              const lowerMat = new THREE.MeshStandardMaterial({
-                color: new THREE.Color(0xf5f5f4),
-                roughness: 0.48,
-                metalness: 0.04,
-                map: (mesh.material as any)?.map || null,
-              });
-              mesh.material = lowerMat;
-              mesh.material.needsUpdate = true;
-            } else if (mesh.material) {
+            if (mesh.material) {
               // Natural Skin / Hair / Eyes - preserve photo textures
               const mat = mesh.material as THREE.MeshStandardMaterial;
               mat.roughness = 0.55;
@@ -332,9 +323,23 @@ export const MannequinVisualizer3D: React.FC<MannequinVisualizer3DProps> = ({
         setIsLoadingModel(false);
       }
     );
-  }, [avatarUrl, primaryHex]);
+  }, [avatarUrl]);
 
-  // 3. Update Heritage Lighting & Dynamic Garment Colors
+  // 3. Build & Mount 3D Vietnamese Traditional Garment
+  useEffect(() => {
+    if (!sceneRef.current) return;
+
+    if (vietGarmentRef.current) {
+      sceneRef.current.remove(vietGarmentRef.current);
+      vietGarmentRef.current = null;
+    }
+
+    const garment3D = buildVietGarment3D(config);
+    vietGarmentRef.current = garment3D;
+    sceneRef.current.add(garment3D);
+  }, [config.garmentId, config.bottomId, config.headwearId, config.patternId, config.colorId, config.customColorHex]);
+
+  // 4. Update Heritage Lighting & Dynamic Garment Colors
   useEffect(() => {
     if (!lightsRef.current) return;
     const { dirLight, ambientLight, rimLight, pointLight1, pointLight2, hemiLight } = lightsRef.current;
@@ -344,17 +349,8 @@ export const MannequinVisualizer3D: React.FC<MannequinVisualizer3DProps> = ({
     pointLight1.color.set(primaryHex);
 
     // Dynamically update upper garment color when user selects another heritage shade
-    if (avatarModelRef.current) {
-      avatarModelRef.current.traverse((child) => {
-        if ((child as THREE.Mesh).isMesh && child.name === 'Wolf3D_Outfit_Top') {
-          const mesh = child as THREE.Mesh;
-          const mat = mesh.material as THREE.MeshStandardMaterial;
-          if (mat && mat.color) {
-            mat.color.set(primaryHex);
-            mat.needsUpdate = true;
-          }
-        }
-      });
+    if (vietGarmentRef.current) {
+      updateVietGarmentColors(vietGarmentRef.current, primaryHex, config.patternId || 'plain-silk');
     }
 
     switch (lightingMode) {
