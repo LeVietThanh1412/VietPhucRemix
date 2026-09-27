@@ -17,15 +17,17 @@ import { CulturalEtiquetteChecker } from './components/CulturalEtiquetteChecker'
 import { ColorHarmonyEngine } from './components/ColorHarmonyEngine';
 import { WeatherEventRecommender } from './components/WeatherEventRecommender';
 import { AIStylistConsultant } from './components/AIStylistConsultant';
-import { LookbookCardModal } from './components/LookbookCardModal';
-import { LookComparisonModal } from './components/LookComparisonModal';
 import { AuthenticityBadge } from './components/AuthenticityBadge';
-import { StyleQuizModal } from './components/StyleQuizModal';
 import { SavedLooksPanel } from './components/SavedLooksPanel';
 import { useSavedLooks } from './hooks/useSavedLooks';
-import { LayerInspectorModal } from './components/LayerInspectorModal';
 import { OccasionFilterBar, OccasionTag } from './components/OccasionFilterBar';
 import { IconVietGenderMale, IconVietGenderFemale, IconVietGenderUnisex } from './components/VietIcons';
+
+// UI/UX Pro Max React Performance Rule #7: Lazy load heavy modals with Canvas/HTML-to-image to optimize initial bundle
+const LookbookCardModal = React.lazy(() => import('./components/LookbookCardModal').then(m => ({ default: m.LookbookCardModal })));
+const LookComparisonModal = React.lazy(() => import('./components/LookComparisonModal').then(m => ({ default: m.LookComparisonModal })));
+const StyleQuizModal = React.lazy(() => import('./components/StyleQuizModal').then(m => ({ default: m.StyleQuizModal })));
+const LayerInspectorModal = React.lazy(() => import('./components/LayerInspectorModal').then(m => ({ default: m.LayerInspectorModal })));
 import { 
   Sparkles, 
   ArrowRightLeft, 
@@ -189,6 +191,14 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#FBF9F5] text-stone-900 flex flex-col font-sans">
+      {/* UI/UX Pro Max Accessibility Rule #45: Keyboard Skip-to-content Link */}
+      <a
+        href="#studio-remix"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:px-4 focus:py-2.5 focus:bg-stone-900 focus:text-amber-300 focus:font-semibold focus:text-xs focus:rounded-xl focus:shadow-2xl focus:ring-2 focus:ring-amber-500 focus:outline-none transition-all"
+      >
+        Nhảy đến phòng thử đồ (Skip to content)
+      </a>
+
       {/* 1. TOP BAR CONTRACT: Exactly 3 zones (Brand wordmark, clean text nav links, primary actions) */}
       <header className="sticky top-0 z-40 bg-[#FBF9F5]/90 backdrop-blur-md border-b border-stone-200/80 px-4 lg:px-8 py-3.5 transition-all">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
@@ -225,7 +235,7 @@ export default function App() {
               onClick={() => setIsQuizOpen(true)}
               aria-label="Quiz phong cách"
               title="Quiz phong cách"
-              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg border border-amber-800/40 bg-amber-50 text-xs font-semibold text-amber-900 hover:bg-amber-100 transition-colors whitespace-nowrap"
+              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg border border-amber-800/40 bg-amber-50 text-xs font-semibold text-amber-900 hover:bg-amber-100 active:scale-[0.98] transition-all whitespace-nowrap"
             >
               <Wand2 className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Quiz phong cách</span>
@@ -234,7 +244,7 @@ export default function App() {
               onClick={() => openCompare()}
               aria-label="So sánh Look"
               title="So sánh Look"
-              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-medium text-stone-700 hover:bg-stone-100 transition-colors whitespace-nowrap"
+              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-medium text-stone-700 hover:bg-stone-100 active:scale-[0.98] transition-all whitespace-nowrap"
             >
               <ArrowRightLeft className="w-3.5 h-3.5 text-amber-800" />
               <span className="hidden sm:inline">So sánh Look</span>
@@ -243,7 +253,7 @@ export default function App() {
               onClick={() => setIsLookbookModalOpen(true)}
               aria-label="Xuất Lookbook"
               title="Xuất Lookbook"
-              className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-lg bg-stone-900 text-xs font-semibold text-white hover:bg-stone-800 transition-colors shadow-xs whitespace-nowrap"
+              className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-lg bg-stone-900 text-xs font-semibold text-white hover:bg-stone-800 active:scale-[0.98] transition-all shadow-xs whitespace-nowrap"
             >
               <Download className="w-3.5 h-3.5 text-amber-300" />
               <span className="hidden sm:inline">Xuất Lookbook</span>
@@ -282,7 +292,7 @@ export default function App() {
             <div className="pt-3">
               <button
                 onClick={() => setIsQuizOpen(true)}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-stone-900 text-sm font-bold shadow-md transition-colors"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 active:scale-[0.98] text-stone-900 text-sm font-bold shadow-md transition-all"
               >
                 <Wand2 className="w-4 h-4" />
                 Trả lời 3 câu để nhận gợi ý phối đồ
@@ -1040,39 +1050,49 @@ export default function App() {
         </div>
       </footer>
 
-      {/* Modal Dialogs */}
-      <LookbookCardModal
-        isOpen={isLookbookModalOpen}
-        onClose={() => setIsLookbookModalOpen(false)}
-        config={config}
-        onSave={(c, name) => saved.save(c, name)}
-        isSaved={saved.isSaved(config)}
-      />
+      {/* Modal Dialogs wrapped in Suspense for optimal bundle loading */}
+      <React.Suspense fallback={null}>
+        {isLookbookModalOpen && (
+          <LookbookCardModal
+            isOpen={isLookbookModalOpen}
+            onClose={() => setIsLookbookModalOpen(false)}
+            config={config}
+            onSave={(c, name) => saved.save(c, name)}
+            isSaved={saved.isSaved(config)}
+          />
+        )}
 
-      <StyleQuizModal
-        isOpen={isQuizOpen}
-        onClose={closeQuiz}
-        onApply={newConfig => {
-          setConfig(newConfig);
-          setTimeout(() => scrollToSection('studio-remix'), 50);
-        }}
-      />
+        {isQuizOpen && (
+          <StyleQuizModal
+            isOpen={isQuizOpen}
+            onClose={closeQuiz}
+            onApply={newConfig => {
+              setConfig(newConfig);
+              setTimeout(() => scrollToSection('studio-remix'), 50);
+            }}
+          />
+        )}
 
-      <LookComparisonModal
-        isOpen={isComparisonModalOpen}
-        onClose={() => setIsComparisonModalOpen(false)}
-        currentLook={config}
-        savedLooks={saved.looks}
-        initialSelection={compareSelection}
-        onApplyLook={newConfig => setConfig(newConfig)}
-      />
+        {isComparisonModalOpen && (
+          <LookComparisonModal
+            isOpen={isComparisonModalOpen}
+            onClose={() => setIsComparisonModalOpen(false)}
+            currentLook={config}
+            savedLooks={saved.looks}
+            initialSelection={compareSelection}
+            onApplyLook={newConfig => setConfig(newConfig)}
+          />
+        )}
 
-      <LayerInspectorModal
-        isOpen={isLayerModalOpen}
-        onClose={() => setIsLayerModalOpen(false)}
-        config={config}
-        onChangeConfig={newConfig => setConfig(newConfig)}
-      />
+        {isLayerModalOpen && (
+          <LayerInspectorModal
+            isOpen={isLayerModalOpen}
+            onClose={() => setIsLayerModalOpen(false)}
+            config={config}
+            onChangeConfig={newConfig => setConfig(newConfig)}
+          />
+        )}
+      </React.Suspense>
     </div>
   );
 }
