@@ -15,7 +15,7 @@ const hasAcc = (...ids: OutfitConfig['accessories']) => (c: OutfitConfig) => ids
 const all = (...fns: ((c: OutfitConfig) => boolean)[]) => (c: OutfitConfig) => fns.every(f => f(c));
 const not = (fn: (c: OutfitConfig) => boolean) => (c: OutfitConfig) => !fn(c);
 
-const CEREMONIAL = is('garmentId', 'ao-tac', 'ao-nhat-binh');
+const CEREMONIAL = is('garmentId', 'ao-tac', 'ao-nhat-binh', 'ao-vien-linh');
 const SACRED = is('targetEvent', 'le-chua-tam-linh');
 
 export const CULTURAL_RULES: CulturalRule[] = [
@@ -39,6 +39,16 @@ export const CULTURAL_RULES: CulturalRule[] = [
     message: 'Áo Tấc (áo thụng) dùng trong tế lễ, gia tiên, cưới hỏi. Phối denim khiến bộ lễ phục trông như trang phục hóa trang.',
     guidance: 'Nếu muốn phong cách đời thường, hãy chọn Áo Ngũ Thân tay chẽn thay cho Áo Tấc.',
     basis: 'Áo tay thụng có tay rộng, dùng cho nghi lễ; áo tay chẽn dùng cho sinh hoạt thường ngày.'
+  },
+  {
+    id: 'vien-linh-denim',
+    level: 'critical',
+    category: 'tang-lop',
+    when: all(is('garmentId', 'ao-vien-linh'), is('bottomId', 'quan-jeans-suong')),
+    title: 'Lệch chuẩn trang phục triều hội Lý - Trần',
+    message: 'Áo Viên Lĩnh là trang phục tôn nghiêm của quan lại và quý tộc hoàng triều Thăng Long. Mặc với quần denim làm mất tính nghiêm cẩn của lễ phục.',
+    guidance: 'Đổi sang Quần lụa trắng hoặc Quần lụa đen để giữ trọn vẻ phong nhã vương triều.',
+    basis: 'Quy chế y phục quan chế và đại lễ tế giao thời Lý - Trần.'
   },
   {
     id: 'sacred-denim',
@@ -98,7 +108,7 @@ export const CULTURAL_RULES: CulturalRule[] = [
     category: 'tang-lop',
     when: all(CEREMONIAL, is('footwearId', 'sneaker-trang', 'sandal-toi-gian')),
     title: 'Lễ phục đi cùng giày thể thao/sandal',
-    message: 'Áo Tấc và Nhật Bình là lễ phục nên cần giày dép trang trọng tương xứng.',
+    message: 'Áo Tấc, Nhật Bình và Áo Viên Lĩnh là lễ phục nên cần giày dép trang trọng tương xứng.',
     guidance: 'Chọn Guốc mộc hoặc Giày Oxford. Nếu muốn mang sneaker, hãy đổi sang Áo Ngũ Thân.',
     basis: 'Mức độ trang trọng của giày dép nên tương đương với mức độ trang trọng của áo.'
   },

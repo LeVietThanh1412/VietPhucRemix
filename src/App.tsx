@@ -28,6 +28,8 @@ import {
   IconVietVienLinh,
   IconVietGarment,
   IconPatternPlainSilk,
+  IconPatternHoaSen,
+  IconPatternVanMay,
   IconPatternCucDayLy,
   IconPatternRongTran,
   IconPatternHacMayLe,
@@ -112,7 +114,7 @@ export default function App() {
     else if (garmentGenderFilter === 'male') list = list.filter(g => g.targetGender === 'male' || g.targetGender === 'both');
     else if (garmentGenderFilter === 'both') list = list.filter(g => g.targetGender === 'both');
 
-    if (garmentDynastyFilter === 'ly-tran') list = list.filter(g => g.id === 'ao-vien-linh');
+    if (garmentDynastyFilter === 'ly-tran') list = list.filter(g => ['ao-vien-linh', 'ao-giao-linh'].includes(g.id));
     else if (garmentDynastyFilter === 'hau-le') list = list.filter(g => ['ao-giao-linh', 'ao-tu-than'].includes(g.id));
     else if (garmentDynastyFilter === 'nguyen') list = list.filter(g => ['ao-tac', 'ao-ngu-than', 'ao-nhat-binh'].includes(g.id));
     else if (garmentDynastyFilter === 'can-hien-dai') list = list.filter(g => ['ao-dai-tan-thoi', 'ao-dai-hien-dai', 'ao-ba-ba'].includes(g.id));
@@ -122,9 +124,9 @@ export default function App() {
 
   const filteredPatterns = React.useMemo(() => {
     if (patternDynastyFilter === 'all') return PATTERNS;
-    if (patternDynastyFilter === 'ly-tran') return PATTERNS.filter(p => p.id === 'cuc-day-ly' || p.id === 'rong-thoi-tran');
+    if (patternDynastyFilter === 'ly-tran') return PATTERNS.filter(p => p.id === 'cuc-day-ly' || p.id === 'rong-thoi-tran' || p.id === 'hoa-sen');
     if (patternDynastyFilter === 'le-so') return PATTERNS.filter(p => p.id === 'hac-may-le');
-    if (patternDynastyFilter === 'nguyen') return PATTERNS.filter(p => p.id === 'bat-buu' || p.id === 'chu-tho');
+    if (patternDynastyFilter === 'nguyen') return PATTERNS.filter(p => p.id === 'bat-buu' || p.id === 'chu-tho' || p.id === 'van-may');
     if (patternDynastyFilter === 'gom-dan-gian') return PATTERNS.filter(p => p.id === 'chu-dau' || p.id === 'plain-silk');
     return PATTERNS;
   }, [patternDynastyFilter]);
@@ -137,6 +139,10 @@ export default function App() {
         return <IconPatternRongTran size={size} />;
       case 'hac-may-le':
         return <IconPatternHacMayLe size={size} />;
+      case 'hoa-sen':
+        return <IconPatternHoaSen size={size} />;
+      case 'van-may':
+        return <IconPatternVanMay size={size} />;
       case 'bat-buu':
         return <IconPatternBatBuu size={size} />;
       case 'chu-tho':

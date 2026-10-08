@@ -915,6 +915,91 @@ export const IconPatternChuDau: React.FC<VietIconProps> = ({ size = 20, classNam
 );
 
 /**
+ * 25b. BIỂU TƯỢNG HOA SEN KHẮC CHÌM THỜI LÝ - TRẦN (IconPatternHoaSen)
+ * Cánh sen cách điệu theo phong cách mỹ thuật Phật giáo Đại Việt thế kỷ 11-13.
+ */
+export const IconPatternHoaSen: React.FC<VietIconProps> = ({ size = 20, className = '', ...props }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={`inline-block shrink-0 ${className}`}
+    aria-label="Hoa Sen Thời Lý - Trần"
+    {...props}
+  >
+    {/* Background soft tint */}
+    <circle cx="12" cy="12" r="9.5" fill="#FDF2F8" stroke="#DB2777" strokeWidth="1" strokeOpacity="0.6" />
+    {/* Lotus Central Petal */}
+    <path
+      d="M12 4.5 C10 8.5, 10 13.5, 12 17 C14 13.5, 14 8.5, 12 4.5 Z"
+      fill="#F472B6"
+      stroke="#BE185D"
+      strokeWidth="0.9"
+    />
+    {/* Left Petal */}
+    <path
+      d="M12 9 C8.5 10.5, 6 13, 7 16 C9.5 17, 11 15.5, 12 14"
+      fill="#FBCFE8"
+      stroke="#BE185D"
+      strokeWidth="0.9"
+    />
+    {/* Right Petal */}
+    <path
+      d="M12 9 C15.5 10.5, 18 13, 17 16 C14.5 17, 13 15.5, 12 14"
+      fill="#FBCFE8"
+      stroke="#BE185D"
+      strokeWidth="0.9"
+    />
+    {/* Lotus Base Calyx */}
+    <ellipse cx="12" cy="17" rx="3.5" ry="1.2" fill="#059669" />
+  </svg>
+);
+
+/**
+ * 25c. BIỂU TƯỢNG VÂN MÂY NGŨ SẮC TRIỀU NGUYỄN (IconPatternVanMay)
+ * Đồ án mây cuộn uyển chuyển đan xen hình sóng nước cát tường triều Nguyễn.
+ */
+export const IconPatternVanMay: React.FC<VietIconProps> = ({ size = 20, className = '', ...props }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={`inline-block shrink-0 ${className}`}
+    aria-label="Vân Mây Ngũ Sắc Triều Nguyễn"
+    {...props}
+  >
+    {/* Cloud Swirls */}
+    <path
+      d="M6 14 C4.5 14, 3.5 12.8, 4 11.2 C4.5 9.8, 6.2 9.5, 7.5 10.2 C8.2 8, 11 7, 13 8.5 C14.5 7.5, 17 8.2, 17.5 10 C19.2 10, 20.5 11.2, 20 12.8 C19.5 14.2, 17.8 14.5, 16.5 14 Z"
+      fill="#FEF3C7"
+      stroke="#D97706"
+      strokeWidth="1.1"
+      strokeLinejoin="round"
+    />
+    {/* Inner auspicious swirl line */}
+    <path
+      d="M8 12.5 Q11 10.5 13.5 12 Q15.5 13 17 11.5"
+      stroke="#B45309"
+      strokeWidth="0.9"
+      strokeLinecap="round"
+      fill="none"
+    />
+    {/* Water ripple / tail underneath */}
+    <path
+      d="M5.5 16.5 C8 15.5, 11 17.5, 14 16 C16 15, 18 16.5, 19.5 16"
+      stroke="#DC2626"
+      strokeWidth="1"
+      strokeLinecap="round"
+      fill="none"
+    />
+  </svg>
+);
+
+/**
  * 26. BIỂU TƯỢNG MÔ HÌNH 3D VIỆT PHỤC (IconViet3D)
  * Khối đa giác 3D chạm khắc hoa văn Đại Việt.
  */
