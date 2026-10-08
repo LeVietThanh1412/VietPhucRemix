@@ -1,12 +1,19 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { ACCESSORIES, BOTTOMS, EVENTS, EVENT_COMBOS, FOOTWEAR, GARMENTS, HEADWEAR, HERITAGE_COLORS, PATTERNS, PRESET_LOOKBOOKS } from '../data/heritageData';
 import { CULTURAL_RULES } from '../data/culturalRules';
 import { checkCulturalEtiquette, culturalRespectScore } from '../utils/culturalRuleChecker';
-import { DEFAULT_LOOK, decodeLook, encodeLook, encodeLookLegacy } from '../utils/lookStorage';
+import { DEFAULT_LOOK, decodeLook, encodeLook, encodeLookLegacy, sanitizeLook } from '../utils/lookStorage';
 import { recommendLooks, REGIONS, STYLES } from '../utils/quizEngine';
 import { sameLook } from '../utils/savedLooks';
 import { buildStylistContext } from '../utils/stylistContext';
 import { OutfitConfig } from '../types/vietphuc';
+import { eventCombo } from '../utils/eventRecommendations';
+import { offlineStylist } from '../utils/offlineStylist';
+import { effectiveColor, normalizeHex } from '../utils/outfitColor';
+import { evaluateColorHarmony } from '../utils/harmonyCalculator';
+import { computeLookMetrics } from '../utils/lookMetrics';
+import { adviseForWeather, fetchLiveWeather, LiveWeather } from '../utils/weatherService';
+import { FORMAT_SIZE } from '../utils/lookbookExport';
 
 const bad = (c: OutfitConfig) => checkCulturalEtiquette(c).filter(a => a.level === 'critical' || a.level === 'warning');
 
@@ -172,17 +179,110 @@ describe('Avatar Generator Layering, Digital Wardrobe & Lookbook Export Workflow
         headwear: false
       }
     };
-    expect(customConfig.customColorHex).toBe('#8B1E3F');
-    expect(customConfig.layerVisibility?.backdrop).toBe(false);
-    expect(customConfig.layerVisibility?.footwear).toBe(false);
-    expect(customConfig.layerVisibility?.headwear).toBe(false);
+    const restored = sanitizeLook(customConfig)!;
+    expect(restored.customColorHex).toBe('#8B1E3F');
+    expect(restored.layerVisibility).toEqual(customConfig.layerVisibility);
+    const shared = decodeLook(encodeLook(customConfig))!;
+    expect(sameLook(shared, customConfig)).toBe(true);
+    expect(shared.customColorHex).toBe('#8B1E3F');
+    expect(shared.layerVisibility?.footwear).toBe(false);
   });
 
   it('validates Story and Post aspect ratios and export dimensions', () => {
     // Story 9:16 (1080x1920)
-    expect(1080 / 1920).toBeCloseTo(9 / 16, 2);
+    expect(FORMAT_SIZE.story).toMatchObject({ w: 1080, h: 1920 });
     // Post 4:5 (1080x1350)
-    expect(1080 / 1350).toBeCloseTo(4 / 5, 2);
+    expect(FORMAT_SIZE.post).toMatchObject({ w: 1080, h: 1350 });
   });
 });
 
+describe('regressions: customization, recommendations and offline advice', () => {
+  it('keeps old compact tokens stable', () => {
+    expect(encodeLook(DEFAULT_LOOK)).toBe('1-125010-04-3-2-1');
+    expect(sameLook(decodeLook('1-125010-04-3-2-1')!, DEFAULT_LOOK)).toBe(true);
+  });
+
+  it('round-trips all 128 visibility masks with and without a custom color', () => {
+    const keys = ['backdrop', 'body', 'bottom', 'footwear', 'garment', 'accessories', 'headwear'];
+    for (let mask = 0; mask < 128; mask++) {
+      for (const customColorHex of [undefined, '#123456']) {
+        const c = { ...DEFAULT_LOOK, customColorHex, layerVisibility: Object.fromEntries(keys.map((k, i) => [k, !(mask & (1 << i))])) };
+        expect(sameLook(decodeLook(encodeLook(c))!, c)).toBe(true);
+      }
+    }
+  });
+
+  it('rejects invalid fields instead of silently substituting a different shared look', () => {
+    for (const token of ['1-1z1010-_-3-2-1', '1-121010-z-3-2-1', '1-121010-_-z-2-1', '1-121010-_-3-22-1', '2-121010-_-3-2-1-12345-0', '2-121010-_-3-2-1-FFFFFF-zz']) {
+      expect(decodeLook(token), token).toBeNull();
+    }
+  });
+
+  it('filters untrusted visibility values and duplicate accessories', () => {
+    const c = sanitizeLook({ ...DEFAULT_LOOK, accessories: ['kinh-mat-y2k', 'kinh-mat-y2k', 'unknown', 'quat-giay-do'], layerVisibility: { garment: false, body: 'false', unknown: false }, customColorHex: '#abcd1' })!;
+    expect(c.accessories).toEqual(['kinh-mat-y2k', 'quat-giay-do']);
+    expect(c.layerVisibility).toEqual({ garment: false });
+    expect(c.customColorHex).toBeUndefined();
+    expect(normalizeHex('#abc')).toBe('#AABBCC');
+  });
+
+  it('distinguishes saved looks by color and hidden layers', () => {
+    expect(sameLook(DEFAULT_LOOK, { ...DEFAULT_LOOK, customColorHex: '#123456' })).toBe(false);
+    expect(sameLook(DEFAULT_LOOK, { ...DEFAULT_LOOK, layerVisibility: { garment: false } })).toBe(false);
+    expect(sameLook(DEFAULT_LOOK, { ...DEFAULT_LOOK, layerVisibility: { garment: true } })).toBe(true);
+    expect(sameLook({ ...DEFAULT_LOOK, customColorHex: '#abc' }, { ...DEFAULT_LOOK, customColorHex: '#AABBCC' })).toBe(true);
+  });
+
+  it('event recipes clear inherited accessories and customizations, and respect gender', () => {
+    for (const event of EVENTS) for (const modelGender of ['male', 'female', 'unisex'] as const) {
+      const c = { ...DEFAULT_LOOK, modelGender, customColorHex: '#000000', layerVisibility: { garment: false }, ...eventCombo(event.id, modelGender) };
+      expect(bad(c).map(a => a.id), `${event.id}/${modelGender}`).toEqual([]);
+      expect(c.accessories).toEqual([]);
+      expect(c.customColorHex).toBeUndefined();
+      expect(c.layerVisibility).toBeUndefined();
+      if (modelGender === 'male') expect(GARMENTS.find(g => g.id === c.garmentId)?.targetGender).not.toBe('female');
+    }
+  });
+
+  it('offline advice flags violations and its actions produce safe looks', () => {
+    const c: OutfitConfig = { ...DEFAULT_LOOK, garmentId: 'ao-nhat-binh', bottomId: 'quan-jeans-suong', targetEvent: 'le-chua-tam-linh' };
+    const result = offlineStylist(c, 'Gợi ý phối Áo Nhật Bình');
+    expect(result.reply).toContain('Lệch chuẩn lễ phục cung đình');
+    expect(result.actions.length).toBeGreaterThan(0);
+    for (const action of result.actions) expect(bad({ ...c, ...action.suggestedPatch })).toEqual([]);
+    expect(offlineStylist({ ...c, modelGender: 'male' }, 'Áo Nhật Bình').actions).toEqual([]);
+  });
+
+  it('uses the displayed custom color in metrics, cultural rules and AI context', () => {
+    const c: OutfitConfig = { ...DEFAULT_LOOK, customColorHex: '#000000', colorId: 'do-chu-sa', patternId: 'plain-silk', targetEvent: 'dam-cuoi-ban-than' };
+    expect(effectiveColor(c).id).toBe('den-mun');
+    expect(computeLookMetrics(c).labels.colorHex).toBe('#000000');
+    expect(bad(c).map(a => a.id)).toContain('wedding-mourning-colors');
+    expect(buildStylistContext(c)).toContain('#000000');
+  });
+
+  it('recognizes mutual overcoming when the bottom element overcomes the garment element', () => {
+    expect(evaluateColorHarmony({ ...DEFAULT_LOOK, colorId: 'do-chu-sa', bottomId: 'quan-lua-den' }).elementAnalysis).toContain('Thủy khắc Hỏa');
+  });
+});
+
+describe('weather recommendations', () => {
+  it('rejects incomplete API responses instead of showing NaN temperatures', async () => {
+    const mock = vi.spyOn(globalThis, 'fetch').mockResolvedValue({ ok: true, json: async () => ({ current: {}, daily: {} }) } as Response);
+    try { await expect(fetchLiveWeather(21, 105, 'Test')).rejects.toThrow('Invalid weather data'); }
+    finally { mock.mockRestore(); }
+  });
+  const weather: LiveWeather = { placeName: 'Test', temperature: 15, apparentTemperature: 15, humidity: 90, precipitation: 1, weatherCode: 61, windSpeed: 35, tempMax: 17, tempMin: 13, rainChance: 90, uvMax: 0, fetchedAt: '2026-10-08' };
+  it('keeps all event recommendations safe in cold, rainy and sunny weather', () => {
+    for (const event of EVENTS) for (const gender of ['male', 'female', 'unisex'] as const) {
+      const base = { ...DEFAULT_LOOK, modelGender: gender, ...eventCombo(event.id, gender) };
+      for (const w of [weather, { ...weather, apparentTemperature: 35, precipitation: 0, weatherCode: 0, rainChance: 0, uvMax: 10 }]) {
+        expect(bad({ ...base, ...adviseForWeather(w, base).adjust }), `${event.id}/${gender}`).toEqual([]);
+      }
+    }
+  });
+  it('does not recommend sneakers for ceremonial viên lĩnh in rain', () => {
+    const base = { ...DEFAULT_LOOK, garmentId: 'ao-vien-linh', footwearId: 'guoc-moc' } as OutfitConfig;
+    expect(adviseForWeather(weather, base).adjust.footwearId).toBe('giay-oxford');
+  });
+});

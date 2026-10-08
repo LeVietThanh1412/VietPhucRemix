@@ -1,17 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { OutfitConfig } from '../types/vietphuc';
-import { GARMENTS, HERITAGE_COLORS, BOTTOMS, FOOTWEAR, EVENTS } from '../data/heritageData';
 import { Bot, Sparkles, Send, Loader2, RefreshCw, Wand2, ArrowRight } from 'lucide-react';
-import { checkCulturalEtiquette } from '../utils/culturalRuleChecker';
+import { offlineStylist, StylistAction } from '../utils/offlineStylist';
 
 interface AIStylistConsultantProps {
   config: OutfitConfig;
   onApplyConfig?: (patch: Partial<OutfitConfig>) => void;
-}
-
-interface ParsedAction {
-  label: string;
-  suggestedPatch: Partial<OutfitConfig>;
 }
 
 export const AIStylistConsultant: React.FC<AIStylistConsultantProps> = ({
@@ -20,15 +14,20 @@ export const AIStylistConsultant: React.FC<AIStylistConsultantProps> = ({
 }) => {
   const [promptQuery, setPromptQuery] = useState('');
   const [response, setResponse] = useState<string | null>(null);
-  const [detectedActions, setDetectedActions] = useState<ParsedAction[]>([]);
+  const [detectedActions, setDetectedActions] = useState<StylistAction[]>([]);
   const [loading, setLoading] = useState(false);
   const [source, setSource] = useState<'ai' | 'offline' | null>(null);
 
-  const garment = GARMENTS.find(g => g.id === config.garmentId) || GARMENTS[0];
-  const color = HERITAGE_COLORS.find(c => c.id === config.colorId) || HERITAGE_COLORS[0];
-  const bottom = BOTTOMS.find(b => b.id === config.bottomId) || BOTTOMS[0];
-  const footwear = FOOTWEAR.find(f => f.id === config.footwearId) || FOOTWEAR[0];
-  const event = EVENTS.find(e => e.id === config.targetEvent) || EVENTS[0];
+  const requestRef = useRef<AbortController | null>(null);
+  useEffect(() => {
+    requestRef.current?.abort();
+    requestRef.current = null;
+    setLoading(false);
+    setResponse(null);
+    setDetectedActions([]);
+    setSource(null);
+    return () => requestRef.current?.abort();
+  }, [config]);
 
   const quickPrompts = [
     { label: 'Phối Lễ Phục Áo Tấc & Khăn Đóng', prompt: 'Gợi ý phối Áo Tấc cho dịp trang trọng đúng chuẩn cổ truyền' },
@@ -37,98 +36,46 @@ export const AIStylistConsultant: React.FC<AIStylistConsultantProps> = ({
     { label: 'Phối Áo Giao Lĩnh Sĩ Tử Thanh Lịch', prompt: 'Gợi ý cách phối Áo Giao Lĩnh thư sinh tao nhã' }
   ];
 
-  // Helper to build tailored fallback responses with direct styling patches
-  const buildFallback = (query: string): { reply: string; actions: ParsedAction[] } => {
-    const q = query.toLowerCase();
-    const actions: ParsedAction[] = [];
-
-    if (q.includes('viên lĩnh') || q.includes('lý') || q.includes('trần')) {
-      actions.push({
-        label: 'Áp dụng: Áo Viên Lĩnh + Cúc Dây Lý + Vàng Hoàng Yến',
-        suggestedPatch: { garmentId: 'ao-vien-linh', patternId: 'cuc-day-ly', colorId: 'hoang-yen', bottomId: 'quan-lua-trang' }
-      });
-      return {
-        reply: `Áo Viên Lĩnh (cổ tròn) là dạng thức phục sức uy nghiêm bậc nhất thời Lý - Trần (thế kỷ 11 - 14). Đặc trưng cổ áo tròn ôm khít chân cổ, vạt gài khuy vai phải, kết hợp cùng đai ngọc hoàng triều đính các phiến ngọc chữ nhật tượng trưng cho phong thái quân tử đĩnh đạc. Bản phối đề xuất kết hợp cùng hoa văn Cúc Dây thời Lý và sắc Vàng Hoàng Yến quyền quý.`,
-        actions
-      };
-    }
-
-    if (q.includes('nhật bình') || q.includes('cung đình')) {
-      actions.push({
-        label: 'Áp dụng: Áo Nhật Bình + Đỏ Chu Sa + Hoa Văn Bát Bửu',
-        suggestedPatch: { garmentId: 'ao-nhat-binh', colorId: 'do-chu-sa', patternId: 'bat-buu', bottomId: 'quan-lua-trang' }
-      });
-      return {
-        reply: `Áo Nhật Bình là thường phục cao quý của Hoàng Thái Hậu, Hoàng Hậu, Công Chúa và mệnh phụ triều Nguyễn. Điểm nhấn là nẹp cổ hình chữ nhật chạy quanh cổ và ngực thêu phượng và dải ngũ sắc, tay áo ngũ hành rực rỡ. Phối cùng sắc Đỏ Chu Sa (hành Hỏa may mắn) và hoa văn Bát Bửu triều đình sẽ tôn trọn nét kiêu sa di sản.`,
-        actions
-      };
-    }
-
-    if (q.includes('giao lĩnh') || q.includes('sĩ tử') || q.includes('học sĩ')) {
-      actions.push({
-        label: 'Áp dụng: Áo Giao Lĩnh + Lam Chàm + Quần Lụa Trắng',
-        suggestedPatch: { garmentId: 'ao-giao-linh', colorId: 'lam-cham', bottomId: 'quan-lua-trang', patternId: 'plain-silk' }
-      });
-      return {
-        reply: `Áo Giao Lĩnh vạt chéo hữu nhậm toát lên phong thái tao nhã của danh sĩ Đại Việt. Khi mặc, lớp cổ lót trắng (Bạch la) e ấp lộ ra bên trong cổ chữ V thanh mảnh, thắt lưng lụa mềm buông rủ tha thướt. Tông màu Lam Chàm tĩnh tại là sự lựa chọn hoàn hảo cho phong cách thư sinh nho nhã.`,
-        actions
-      };
-    }
-
-    // Default Áo Tấc
-    actions.push({
-      label: 'Áp dụng: Áo Tấc + Khăn Đóng + Quần Lụa Trắng',
-      suggestedPatch: { garmentId: 'ao-tac', headwearId: 'khan-dong', bottomId: 'quan-lua-trang', footwearId: 'guoc-moc' }
-    });
-    return {
-      reply: `Áo Tấc (Áo Thụ Thụ) là đại diện chuẩn mực cho quốc phục thời Nguyễn với cổ đứng Lập Lĩnh, ống tay thụng rộng 30-50cm và hàng 5 khuy cúc cài nách phải tượng trưng cho Ngũ Thường (Nhân, Nghĩa, Lễ, Trí, Tín). Kết hợp cùng Khăn Đóng truyền thống và Quần Lụa Trắng mang lại vẻ trang trọng tuyệt đối cho các dịp lễ Tết, cưới hỏi hay nghi lễ cung đình.`,
-      actions
-    };
-  };
-
   const handleConsult = async (queryText?: string) => {
-    const query = queryText || promptQuery;
-    if (!query.trim()) return;
-
+    const query = (queryText || promptQuery).trim().slice(0, 500);
+    if (!query || requestRef.current) return;
+    const controller = new AbortController();
+    requestRef.current = controller;
+    const timeout = window.setTimeout(() => controller.abort(), 25_000);
     setLoading(true);
     setResponse(null);
     setDetectedActions([]);
-
+    setSource(null);
+    const fallback = offlineStylist(config, query);
     try {
-      const res = await fetch('/api/stylist/consult', {
+      const res = await fetch('/api/ai-stylist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          query,
-          currentConfig: {
-            garment: garment.name,
-            color: color.name,
-            bottom: bottom.name,
-            footwear: footwear.name,
-            targetEvent: event.name
-          }
-        })
+        body: JSON.stringify({ query, config }),
+        signal: controller.signal
       });
-
-      if (!res.ok) throw new Error('API offline');
+      if (!res.ok) throw new Error('API unavailable');
       const data = await res.json();
-      const replyText = data.reply || '';
-
-      const fb = buildFallback(query);
-      setResponse(replyText.trim() || fb.reply);
-      setDetectedActions(fb.actions);
+      if (typeof data.reply !== 'string' || !data.reply.trim()) throw new Error('Empty response');
+      if (requestRef.current !== controller) return;
+      setResponse(data.reply.trim());
+      setDetectedActions(fallback.actions);
       setSource('ai');
     } catch {
-      const fb = buildFallback(query);
-      setResponse(fb.reply);
-      setDetectedActions(fb.actions);
+      if (requestRef.current !== controller) return;
+      setResponse(fallback.reply);
+      setDetectedActions(fallback.actions);
       setSource('offline');
     } finally {
-      setLoading(false);
+      window.clearTimeout(timeout);
+      if (requestRef.current === controller) {
+        requestRef.current = null;
+        setLoading(false);
+      }
     }
   };
 
-  const executeAction = (actionItem: ParsedAction) => {
+  const executeAction = (actionItem: StylistAction) => {
     if (actionItem.suggestedPatch) {
       onApplyConfig?.(actionItem.suggestedPatch);
     }
@@ -151,7 +98,7 @@ export const AIStylistConsultant: React.FC<AIStylistConsultantProps> = ({
             <h3 className="font-semibold text-stone-900 text-sm md:text-base flex items-center gap-2">
               <span>Trợ Lý Thời Trang Di Sản AI</span>
               <span className="text-[10px] bg-amber-100 text-amber-800 font-medium px-2 py-0.5 rounded-full">
-                {source === 'offline' ? 'Chế độ tri thức di sản' : 'Gemini AI'}
+                {source === 'ai' ? 'Gemini AI' : source === 'offline' ? 'Chế độ tri thức di sản' : 'Tư vấn di sản'}
               </span>
             </h3>
             <p className="text-xs text-stone-500">
@@ -181,6 +128,7 @@ export const AIStylistConsultant: React.FC<AIStylistConsultantProps> = ({
       {/* Input box */}
       <div className="flex gap-2">
         <input
+          maxLength={500}
           type="text"
           value={promptQuery}
           onChange={e => setPromptQuery(e.target.value)}
@@ -211,6 +159,7 @@ export const AIStylistConsultant: React.FC<AIStylistConsultantProps> = ({
               Lời khuyên từ Stylist Di Sản:
             </span>
             <button
+              disabled={loading}
               onClick={() => handleConsult()}
               className="text-stone-400 hover:text-stone-700 p-0.5"
               title="Làm mới lời khuyên"

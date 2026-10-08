@@ -1,3 +1,5 @@
+import { useDialogFocus } from './hooks/useDialogFocus';
+import { HexColorInput } from './components/HexColorInput';
 import React, { useEffect, useState } from 'react';
 import { DEFAULT_LOOK, loadInitialLook, saveLook } from './utils/lookStorage';
 import { OutfitConfig, GarmentId, ColorId, PatternId, BottomId, HeadwearId, FootwearId, AccessoryId, EventId, ModelGender } from './types/vietphuc';
@@ -89,12 +91,25 @@ export default function App() {
   const [garmentDynastyFilter, setGarmentDynastyFilter] = useState<'all' | 'ly-tran' | 'hau-le' | 'nguyen' | 'can-hien-dai'>('all');
   const [patternDynastyFilter, setPatternDynastyFilter] = useState<'all' | 'ly-tran' | 'le-so' | 'nguyen' | 'gom-dan-gian'>('all');
   const [isZoomed, setIsZoomed] = useState(false);
-  const [isLookbookModalOpen, setIsLookbookModalOpen] = useState(false);
-  const [isComparisonModalOpen, setIsComparisonModalOpen] = useState(false);
+  // Auto-open quiz for first-time visitors (not when arriving via a shared link)
+  const [activeModal, setActiveModal] = useState<'quiz' | 'lookbook' | 'comparison' | 'layers' | null>(() => {
+    try {
+      const seen = localStorage.getItem('vietphuc-remix:quiz-seen');
+      const shared = new URLSearchParams(window.location.search).has('look');
+      return !seen && !shared ? 'quiz' : null;
+    } catch {
+      return null;
+    }
+  });
+
+  useDialogFocus(activeModal);
+  const isQuizOpen = activeModal === 'quiz';
+  const isLookbookModalOpen = activeModal === 'lookbook';
+  const isComparisonModalOpen = activeModal === 'comparison';
+  const isLayerModalOpen = activeModal === 'layers';
   const [compareSelection, setCompareSelection] = useState<string[] | undefined>(undefined);
   const saved = useSavedLooks();
   const [saveFlash, setSaveFlash] = useState<string | null>(null);
-  const [isLayerModalOpen, setIsLayerModalOpen] = useState(false);
   const [occasionTag, setOccasionTag] = useState<OccasionTag>('all');
 
   const isGarmentMatchingOccasion = (garmentId: GarmentId, tag: OccasionTag): boolean => {
@@ -159,35 +174,42 @@ export default function App() {
   const maleGarmentCount = GARMENTS.filter(g => g.targetGender === 'male' || g.targetGender === 'both').length;
   const bothGarmentCount = GARMENTS.filter(g => g.targetGender === 'both').length;
 
-  const handleSaveLook = () => {
-    const r = saved.save(config);
-    setSaveFlash(r === 'saved' ? 'Đã lưu vào Tủ đồ' : r === 'duplicate' ? 'Look này đã được lưu' : `Tủ đồ đầy (tối đa ${saved.max})`);
+  const handleSaveLook = async () => {
+    const r = await saved.save(config);
+    setSaveFlash(r === 'saved' ? 'Đã lưu vào Tủ đồ' : r === 'duplicate' ? 'Look này đã được lưu' : r === 'error' ? 'Không lưu được look' : `Tủ đồ đầy (tối đa ${saved.max})`);
     window.setTimeout(() => setSaveFlash(null), 2000);
   };
 
   const openCompare = (keys?: string[]) => {
     setCompareSelection(keys);
-    setIsComparisonModalOpen(true);
+    setActiveModal('comparison');
   };
-  // Auto-open quiz for first-time visitors (not when arriving via a shared link)
-  const [isQuizOpen, setIsQuizOpen] = useState(() => {
-    try {
-      const seen = localStorage.getItem('vietphuc-remix:quiz-seen');
-      const shared = new URLSearchParams(window.location.search).has('look');
-      return !seen && !shared;
-    } catch {
-      return false;
-    }
-  });
-
   const closeQuiz = React.useCallback(() => {
-    setIsQuizOpen(false);
+    setActiveModal(null);
     try {
       localStorage.setItem('vietphuc-remix:quiz-seen', '1');
     } catch {
       /* ignore */
     }
   }, []);
+
+  // Handle Escape while a lazy modal is still loading, and prevent stacked dialogs.
+  useEffect(() => {
+    if (!activeModal) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        if (activeModal === 'quiz') closeQuiz();
+        else setActiveModal(null);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [activeModal, closeQuiz]);
 
   // Active section view for scroll
   const scrollToSection = (id: string) => {
@@ -214,6 +236,7 @@ export default function App() {
       ...prev,
       garmentId: randomGarment.id,
       colorId: randomColor.id,
+      customColorHex: undefined,
       patternId: randomPattern.id,
       bottomId: randomBottom.id,
       headwearId: randomHeadwear.id,
@@ -289,7 +312,7 @@ export default function App() {
           {/* Zone 3: primary actions */}
           <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
             <button
-              onClick={() => setIsQuizOpen(true)}
+              onClick={() => setActiveModal('quiz')}
               aria-label="Quiz phong cách"
               title="Quiz phong cách"
               className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg border border-amber-800/40 bg-amber-50 text-xs font-semibold text-amber-900 hover:bg-amber-100 active:scale-[0.98] transition-all whitespace-nowrap"
@@ -307,7 +330,7 @@ export default function App() {
               <span className="hidden sm:inline">So sánh Look</span>
             </button>
             <button
-              onClick={() => setIsLookbookModalOpen(true)}
+              onClick={() => setActiveModal('lookbook')}
               aria-label="Xuất Lookbook"
               title="Xuất Lookbook"
               className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-lg bg-stone-900 text-xs font-semibold text-white hover:bg-stone-800 active:scale-[0.98] transition-all shadow-xs whitespace-nowrap"
@@ -348,7 +371,7 @@ export default function App() {
 
             <div className="pt-3">
               <button
-                onClick={() => setIsQuizOpen(true)}
+                onClick={() => setActiveModal('quiz')}
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 active:scale-[0.98] text-stone-900 text-sm font-bold shadow-md transition-all"
               >
                 <Wand2 className="w-4 h-4" />
@@ -424,7 +447,7 @@ export default function App() {
                     {isZoomed ? <ZoomOut className="w-4 h-4" /> : <ZoomIn className="w-4 h-4" />}
                   </button>
                   <button
-                    onClick={() => setIsLayerModalOpen(true)}
+                    onClick={() => setActiveModal('layers')}
                     className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-semibold border border-amber-300 transition-colors shadow-2xs"
                     title="Cơ chế Layering (Mặt -> Áo -> Quần -> Phụ kiện) & Đổi màu Hex"
                   >
@@ -513,6 +536,7 @@ export default function App() {
                 </div>
                 <OccasionFilterBar
                   selectedTag={occasionTag}
+                  modelGender={config.modelGender}
                   onSelectTag={setOccasionTag}
                   onApplyPresetLook={patch => setConfig(prev => ({ ...prev, ...patch }))}
                 />
@@ -674,6 +698,10 @@ export default function App() {
                     {filteredGarments.map(g => (
                       <div
                         key={g.id}
+                        role="button"
+                        tabIndex={0}
+                        aria-pressed={config.garmentId === g.id}
+                        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setConfig(prev => ({ ...prev, garmentId: g.id })); } }}
                         onClick={() => setConfig(prev => ({ ...prev, garmentId: g.id }))}
                         className={`p-3.5 rounded-xl border text-left cursor-pointer transition-all heritage-card-hover ${
                           config.garmentId === g.id
@@ -800,16 +828,7 @@ export default function App() {
                       />
                       <div className="relative w-36">
                         <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-stone-400 font-mono text-xs">#</span>
-                        <input
-                          type="text"
-                          value={(config.customColorHex || selectedColor.hex).replace('#', '')}
-                          onChange={e => {
-                            const val = '#' + e.target.value.replace(/[^0-9a-fA-F]/g, '').slice(0, 6);
-                            setConfig(prev => ({ ...prev, customColorHex: val }));
-                          }}
-                          maxLength={6}
-                          className="w-full pl-6 pr-2.5 py-1.5 border border-stone-300 rounded-lg font-mono text-xs uppercase bg-white"
-                        />
+                        <HexColorInput value={config.customColorHex || selectedColor.hex} onChange={hex => setConfig(prev => ({ ...prev, customColorHex: hex }))} className="w-full pl-6 pr-2.5 py-1.5 border border-stone-300 rounded-lg font-mono text-xs uppercase bg-white" />
                       </div>
                       <span className="text-[11px] text-stone-500">
                         {config.customColorHex ? 'Đang áp dụng màu Hex tùy chỉnh lên toàn bộ tà và tay áo' : 'Chọn ô màu để tùy biến mã Hex bất kỳ'}
@@ -1110,6 +1129,7 @@ export default function App() {
             <span className="text-xs uppercase tracking-widest font-semibold text-amber-800 font-sans">MY WARDROBE</span>
             <h2 className="font-serif text-2xl font-bold text-stone-900">Tủ Đồ Của Bạn</h2>
           </div>
+          {saved.error && <p role="alert" className="text-sm text-red-800">{saved.error}</p>}
           <SavedLooksPanel
             looks={saved.looks}
             max={saved.max}
@@ -1168,6 +1188,7 @@ export default function App() {
             </div>
             <WeatherEventRecommender
               currentEvent={config.targetEvent}
+              modelGender={config.modelGender}
               onSelectEvent={evtId => setConfig(prev => ({ ...prev, targetEvent: evtId }))}
               onApplyRecommendedCombo={updates => setConfig(prev => ({ ...prev, ...updates }))}
             />
@@ -1283,7 +1304,7 @@ export default function App() {
         {isLookbookModalOpen && (
           <LookbookCardModal
             isOpen={isLookbookModalOpen}
-            onClose={() => setIsLookbookModalOpen(false)}
+            onClose={() => setActiveModal(null)}
             config={config}
             onSave={(c, name) => saved.save(c, name)}
             isSaved={saved.isSaved(config)}
@@ -1304,7 +1325,7 @@ export default function App() {
         {isComparisonModalOpen && (
           <LookComparisonModal
             isOpen={isComparisonModalOpen}
-            onClose={() => setIsComparisonModalOpen(false)}
+            onClose={() => setActiveModal(null)}
             currentLook={config}
             savedLooks={saved.looks}
             initialSelection={compareSelection}
@@ -1315,7 +1336,7 @@ export default function App() {
         {isLayerModalOpen && (
           <LayerInspectorModal
             isOpen={isLayerModalOpen}
-            onClose={() => setIsLayerModalOpen(false)}
+            onClose={() => setActiveModal(null)}
             config={config}
             onChangeConfig={newConfig => setConfig(newConfig)}
           />

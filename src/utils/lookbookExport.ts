@@ -441,10 +441,10 @@ export function downloadBlob(blob: Blob, filename: string) {
 
 /** Web Share API with image file (mobile). Returns false if unsupported → caller should download. */
 export async function shareImage(blob: Blob, filename: string, text: string, url: string): Promise<boolean> {
-  const file = new File([blob], filename, { type: 'image/png' });
-  const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean };
-  if (!nav.share || !nav.canShare?.({ files: [file] })) return false;
   try {
+    const file = new File([blob], filename, { type: 'image/png' });
+    const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean };
+    if (!nav.share || !nav.canShare?.({ files: [file] })) return false;
     await nav.share({ files: [file], title: 'Việt Phục Remix', text: `${text}\n${url}` });
     return true;
   } catch (e) {

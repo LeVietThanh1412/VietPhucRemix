@@ -1,4 +1,5 @@
 import { CulturalRule, OutfitConfig } from '../types/vietphuc';
+import { effectiveColor } from '../utils/outfitColor';
 
 /**
  * Bộ luật thẩm định văn hóa (data-driven).
@@ -10,7 +11,7 @@ import { CulturalRule, OutfitConfig } from '../types/vietphuc';
  */
 
 const is = <K extends keyof OutfitConfig>(key: K, ...values: OutfitConfig[K][]) =>
-  (c: OutfitConfig) => values.includes(c[key]);
+  (c: OutfitConfig) => values.includes((key === 'colorId' && c.customColorHex ? effectiveColor(c).id : c[key]) as OutfitConfig[K]);
 const hasAcc = (...ids: OutfitConfig['accessories']) => (c: OutfitConfig) => ids.some(id => c.accessories.includes(id));
 const all = (...fns: ((c: OutfitConfig) => boolean)[]) => (c: OutfitConfig) => fns.every(f => f(c));
 const not = (fn: (c: OutfitConfig) => boolean) => (c: OutfitConfig) => !fn(c);

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { OutfitConfig } from '../types/vietphuc';
-import { GARMENTS, HERITAGE_COLORS } from '../data/heritageData';
+import { effectiveColor } from '../utils/outfitColor';
+import { GARMENTS } from '../data/heritageData';
 import { checkCulturalEtiquette, culturalRespectScore } from '../utils/culturalRuleChecker';
 import { ShieldCheck, AlertTriangle, Sparkles, BookOpen, ChevronDown, ChevronUp, Info, OctagonAlert, Lightbulb } from 'lucide-react';
 import { AuthenticityBadge } from './AuthenticityBadge';
@@ -21,7 +22,7 @@ export const CulturalEtiquetteChecker: React.FC<CulturalEtiquetteCheckerProps> =
   const [isExpanded, setIsExpanded] = useState(true);
 
   const garment = GARMENTS.find(g => g.id === config.garmentId) || GARMENTS[0];
-  const color = HERITAGE_COLORS.find(c => c.id === config.colorId) || HERITAGE_COLORS[0];
+  const color = effectiveColor(config);
   const alerts = checkCulturalEtiquette(config);
   const score = culturalRespectScore(config);
 

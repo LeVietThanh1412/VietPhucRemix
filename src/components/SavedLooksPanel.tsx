@@ -18,6 +18,7 @@ interface SavedLooksPanelProps {
 export const SavedLooksPanel: React.FC<SavedLooksPanelProps> = ({ looks, max, currentLook, onApply, onRemove, onRename, onCompare }) => {
   const [picked, setPicked] = React.useState<string[]>([]);
   const [editing, setEditing] = React.useState<string | null>(null);
+  const cancelRename = React.useRef(false);
   const [draft, setDraft] = React.useState('');
 
   // drop picks for deleted looks
@@ -89,12 +90,12 @@ export const SavedLooksPanel: React.FC<SavedLooksPanelProps> = ({ looks, max, cu
                     value={draft}
                     onChange={e => setDraft(e.target.value)}
                     onBlur={() => {
-                      onRename(l.id, draft);
+                      if (!cancelRename.current) onRename(l.id, draft);
                       setEditing(null);
                     }}
                     onKeyDown={e => {
                       if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
-                      if (e.key === 'Escape') setEditing(null);
+                      if (e.key === 'Escape') { cancelRename.current = true; (e.target as HTMLInputElement).blur(); }
                     }}
                     className="w-full text-[11px] px-1.5 py-0.5 border border-stone-300 rounded"
                     maxLength={60}
@@ -118,6 +119,7 @@ export const SavedLooksPanel: React.FC<SavedLooksPanelProps> = ({ looks, max, cu
                   </button>
                   <button
                     onClick={() => {
+                      cancelRename.current = false;
                       setEditing(l.id);
                       setDraft(l.name);
                     }}

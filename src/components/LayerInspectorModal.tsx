@@ -1,3 +1,4 @@
+import { HexColorInput } from './HexColorInput';
 import React from 'react';
 import { OutfitConfig, LayerVisibility } from '../types/vietphuc';
 import { GARMENTS, HERITAGE_COLORS, BOTTOMS, FOOTWEAR, HEADWEAR, ACCESSORIES } from '../data/heritageData';
@@ -49,6 +50,12 @@ export const LayerInspectorModal: React.FC<LayerInspectorModalProps> = ({
   config,
   onChangeConfig
 }) => {
+  React.useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isOpen, onClose]);
   if (!isOpen) return null;
 
   const currentLayers: Required<LayerVisibility> = {
@@ -321,17 +328,7 @@ export const LayerInspectorModal: React.FC<LayerInspectorModalProps> = ({
                   <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-stone-400 font-mono text-xs">
                     #
                   </span>
-                  <input
-                    type="text"
-                    value={activeHex.replace('#', '')}
-                    onChange={e => {
-                      const val = '#' + e.target.value.replace(/[^0-9a-fA-F]/g, '').slice(0, 6);
-                      handleCustomHex(val);
-                    }}
-                    maxLength={6}
-                    placeholder="991B1B"
-                    className="w-full pl-6 pr-2.5 py-1.5 border border-stone-300 rounded-lg font-mono text-xs uppercase bg-white"
-                  />
+                  <HexColorInput value={activeHex} onChange={handleCustomHex} className="w-full pl-6 pr-2.5 py-1.5 border border-stone-300 rounded-lg font-mono text-xs uppercase bg-white" />
                 </div>
               </div>
 

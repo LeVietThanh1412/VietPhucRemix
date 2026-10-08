@@ -2,6 +2,7 @@ import { OutfitConfig } from '../types/vietphuc';
 import { ACCESSORIES, BOTTOMS, EVENTS, FOOTWEAR, GARMENTS, HEADWEAR, HERITAGE_COLORS, PATTERNS } from '../data/heritageData';
 import { checkCulturalEtiquette, culturalRespectScore } from './culturalRuleChecker';
 import { evaluateColorHarmony } from './harmonyCalculator';
+import { effectiveColor } from './outfitColor';
 
 const FORMALITY_VALUE = { formal: 100, 'semi-formal': 60, casual: 20 } as const;
 const GARMENT_FORMALITY: Record<OutfitConfig['garmentId'], number> = {
@@ -46,7 +47,7 @@ export interface LookMetrics {
 
 export function computeLookMetrics(c: OutfitConfig): LookMetrics {
   const g = GARMENTS.find(x => x.id === c.garmentId)!;
-  const color = HERITAGE_COLORS.find(x => x.id === c.colorId)!;
+  const color = effectiveColor(c);
   const bottom = BOTTOMS.find(x => x.id === c.bottomId)!;
   const head = HEADWEAR.find(x => x.id === c.headwearId)!;
   const foot = FOOTWEAR.find(x => x.id === c.footwearId)!;
@@ -55,10 +56,10 @@ export function computeLookMetrics(c: OutfitConfig): LookMetrics {
   const harmony = evaluateColorHarmony(c);
   const alerts = checkCulturalEtiquette(c);
 
-  const items = [bottom, head, foot, ...accs];
+  const items = [bottom, ...(head.id === 'none' ? [] : [head]), foot, ...accs];
   const itemFormality = items.reduce((s, i) => s + FORMALITY_VALUE[i.formality], 0) / items.length;
   const formality = Math.round(GARMENT_FORMALITY[c.garmentId] * 0.5 + itemFormality * 0.5);
-  const traditional = Math.round((items.filter(i => TRADITIONAL_CATS.includes(i.category)).length / items.length) * 100);
+  const traditional = Math.round(((1 + items.filter(i => TRADITIONAL_CATS.includes(i.category)).length) / (1 + items.length)) * 100);
 
   const formalEvents = ['le-chua-tam-linh', 'dam-cuoi-ban-than', 'tet-du-xuan'];
   const targetFormality = formalEvents.includes(c.targetEvent) ? 85 : c.targetEvent === 'ca-phe-dao-pho' ? 40 : 60;
