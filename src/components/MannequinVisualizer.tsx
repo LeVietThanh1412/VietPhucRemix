@@ -10,6 +10,8 @@ interface MannequinVisualizerProps {
   /** Hide the HTML overlay badge (e.g. for compact thumbnails) */
   hideBadge?: boolean;
   svgRef?: React.Ref<SVGSVGElement>;
+  /** Size the full mannequin to a card's available height without cropping it. */
+  fitToContainer?: boolean;
 }
 
 export const MannequinVisualizer: React.FC<MannequinVisualizerProps> = ({
@@ -17,7 +19,8 @@ export const MannequinVisualizer: React.FC<MannequinVisualizerProps> = ({
   className = '',
   isZoomed = false,
   hideBadge = false,
-  svgRef
+  svgRef,
+  fitToContainer = false
 }) => {
   const selectedColor = HERITAGE_COLORS.find(c => c.id === config.colorId) || HERITAGE_COLORS[0];
   const selectedGarment = GARMENTS.find(g => g.id === config.garmentId) || GARMENTS[0];
@@ -68,7 +71,7 @@ export const MannequinVisualizer: React.FC<MannequinVisualizerProps> = ({
   }
 
   return (
-    <div className={`relative w-full aspect-[3/4] max-w-[540px] mx-auto overflow-hidden rounded-2xl shadow-xl border border-stone-200/80 bg-[#FAF7F2] transition-all duration-300 ${className}`}>
+    <div className={`relative ${fitToContainer ? 'h-full w-auto max-w-full shrink-0' : 'w-full max-w-[540px]'} aspect-[3/4] mx-auto overflow-hidden rounded-2xl shadow-xl border border-stone-200/80 bg-[#FAF7F2] transition-all duration-300 ${className}`}>
       <svg
         ref={svgRef}
         xmlns="http://www.w3.org/2000/svg"
@@ -1763,8 +1766,8 @@ export const MannequinVisualizer: React.FC<MannequinVisualizerProps> = ({
       {/* Floating Mode Indicator Badge */}
       {!hideBadge && (
         <div className="absolute bottom-3 left-3 bg-white/92 backdrop-blur-md px-2.5 py-1.2 rounded-md text-[11px] text-stone-700 font-medium border border-stone-200/80 shadow-xs flex items-center gap-1.5 pointer-events-none">
-          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: selectedColor.hex }} />
-          <span>{selectedColor.name.split(' (')[0]}</span>
+          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: primaryHex }} />
+          <span>{(config.customColorHex ? `Màu ${config.customColorHex}` : selectedColor.name).split(' (')[0]}</span>
           <span className="text-stone-300">/</span>
           <span>{selectedGarment.name.split(' (')[0]}</span>
           <span className="text-stone-300">/</span>

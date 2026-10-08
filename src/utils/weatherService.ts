@@ -36,13 +36,13 @@ export type WeatherIconType = 'sun' | 'cloud-sun' | 'cloud' | 'cloud-fog' | 'clo
 /** WMO weather code → Vietnamese label + icon */
 export function describeWeatherCode(code: number): { label: string; icon: string; iconType: WeatherIconType } {
   if (code === 0) return { label: 'Trời quang', icon: '☀️', iconType: 'sun' };
-  if (code <= 2) return { label: 'Ít mây', icon: '🌤️', iconType: 'cloud-sun' };
+  if (code === 1 || code === 2) return { label: 'Ít mây', icon: '🌤️', iconType: 'cloud-sun' };
   if (code === 3) return { label: 'Nhiều mây', icon: '☁️', iconType: 'cloud' };
   if (code === 45 || code === 48) return { label: 'Sương mù', icon: '🌫️', iconType: 'cloud-fog' };
   if (code >= 51 && code <= 57) return { label: 'Mưa phùn', icon: '🌦️', iconType: 'cloud-drizzle' };
   if (code >= 61 && code <= 67) return { label: 'Mưa', icon: '🌧️', iconType: 'cloud-rain' };
   if (code >= 80 && code <= 82) return { label: 'Mưa rào', icon: '🌧️', iconType: 'cloud-rain' };
-  if (code >= 95) return { label: 'Dông', icon: '⛈️', iconType: 'cloud-lightning' };
+  if ([95, 96, 99].includes(code)) return { label: 'Dông', icon: '⛈️', iconType: 'cloud-lightning' };
   return { label: 'Không xác định', icon: '🌡️', iconType: 'thermometer' };
 }
 
@@ -50,6 +50,7 @@ export const isRainy = (w: LiveWeather) =>
   w.precipitation > 0.2 || w.rainChance >= 60 || (w.weatherCode >= 51 && w.weatherCode <= 99 && w.weatherCode !== 45 && w.weatherCode !== 48);
 
 export async function fetchLiveWeather(lat: number, lon: number, placeName: string, signal?: AbortSignal): Promise<LiveWeather> {
+  if (!Number.isFinite(lat) || !Number.isFinite(lon) || Math.abs(lat) > 90 || Math.abs(lon) > 180) throw new Error('Invalid weather coordinates');
   const params = new URLSearchParams({
     latitude: lat.toFixed(4),
     longitude: lon.toFixed(4),
@@ -61,20 +62,24 @@ export async function fetchLiveWeather(lat: number, lon: number, placeName: stri
   const res = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`, { signal });
   if (!res.ok) throw new Error(`Open-Meteo HTTP ${res.status}`);
   const d = await res.json();
-  const c = d.current ?? {};
-  const daily = d.daily ?? {};
+  const c = d?.current ?? {};
+  const daily = d?.daily ?? {};
+  const finite = (v: unknown, fallback = 0): number => typeof v === 'number' && Number.isFinite(v) ? v : fallback;
+  if (![c.temperature_2m, c.apparent_temperature, c.relative_humidity_2m].every(v => typeof v === 'number' && Number.isFinite(v))) {
+    throw new Error('Invalid weather data');
+  }
   return {
     placeName,
     temperature: Math.round(c.temperature_2m),
     apparentTemperature: Math.round(c.apparent_temperature),
-    humidity: Math.round(c.relative_humidity_2m),
-    precipitation: c.precipitation ?? 0,
-    weatherCode: c.weather_code ?? -1,
-    windSpeed: Math.round(c.wind_speed_10m ?? 0),
-    tempMax: Math.round(daily.temperature_2m_max?.[0] ?? c.temperature_2m),
-    tempMin: Math.round(daily.temperature_2m_min?.[0] ?? c.temperature_2m),
-    rainChance: daily.precipitation_probability_max?.[0] ?? 0,
-    uvMax: Math.round(daily.uv_index_max?.[0] ?? 0),
+    humidity: Math.max(0, Math.min(100, Math.round(c.relative_humidity_2m))),
+    precipitation: Math.max(0, finite(c.precipitation)),
+    weatherCode: finite(c.weather_code, -1),
+    windSpeed: Math.max(0, Math.round(finite(c.wind_speed_10m))),
+    tempMax: Math.round(finite(daily.temperature_2m_max?.[0], c.temperature_2m)),
+    tempMin: Math.round(finite(daily.temperature_2m_min?.[0], c.temperature_2m)),
+    rainChance: Math.max(0, Math.min(100, finite(daily.precipitation_probability_max?.[0]))),
+    uvMax: Math.max(0, Math.round(finite(daily.uv_index_max?.[0]))),
     fetchedAt: new Date().toISOString()
   };
 }
@@ -98,14 +103,14 @@ export interface WeatherAdvice {
 export function adviseForWeather(w: LiveWeather, base: Partial<OutfitConfig>): WeatherAdvice {
   const tips: string[] = [];
   const adjust: Partial<OutfitConfig> = {};
-  const ceremonial = base.garmentId === 'ao-tac' || base.garmentId === 'ao-nhat-binh';
+  const ceremonial = ['ao-tac', 'ao-nhat-binh', 'ao-vien-linh'].includes(base.garmentId ?? '');
   const formalEvent = base.targetEvent === 'le-chua-tam-linh' || base.targetEvent === 'dam-cuoi-ban-than';
 
   if (w.apparentTemperature >= 32) {
     tips.push('Trời nóng: chọn lụa tơ tằm, đũi hoặc lanh mỏng, mặc một lớp. Tránh gấm dày và áo lót đôi.');
   } else if (w.apparentTemperature <= 16) {
     tips.push('Trời lạnh: mặc áo lót đôi (có lớp lót) hoặc thêm áo giữ nhiệt mỏng bên trong, nên che kín cổ. Gấm và nhung giữ ấm tốt.');
-    if (!ceremonial && !formalEvent) adjust.footwearId = 'boot-da-co-thap';
+    adjust.footwearId = ceremonial || formalEvent ? 'giay-oxford' : 'boot-da-co-thap';
   } else if (w.apparentTemperature <= 22) {
     tips.push('Trời se lạnh: dùng gấm hoặc lụa dày vừa. Khăn vấn vừa giữ ấm vừa làm đẹp.');
   } else {
@@ -114,7 +119,7 @@ export function adviseForWeather(w: LiveWeather, base: Partial<OutfitConfig>): W
 
   if (isRainy(w)) {
     tips.push(`Khả năng mưa ${w.rainChance}%: tránh lụa màu nhạt dễ ố nước, guốc mộc dễ trơn trượt. Mang giày bít mũi đế chống trơn.`);
-    if (base.footwearId === 'guoc-moc' || base.footwearId === 'sandal-toi-gian') {
+    if (!adjust.footwearId && (base.footwearId === 'guoc-moc' || base.footwearId === 'sandal-toi-gian')) {
       adjust.footwearId = ceremonial || formalEvent ? 'giay-oxford' : 'sneaker-trang';
     }
   }

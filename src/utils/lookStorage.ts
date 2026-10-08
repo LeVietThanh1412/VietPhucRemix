@@ -1,5 +1,8 @@
-import { OutfitConfig } from '../types/vietphuc';
+import { LayerVisibility, OutfitConfig } from '../types/vietphuc';
 import { GARMENTS, HERITAGE_COLORS, PATTERNS, BOTTOMS, HEADWEAR, FOOTWEAR, ACCESSORIES, EVENTS } from '../data/heritageData';
+import { normalizeHex } from './outfitColor';
+
+export const LAYER_KEYS = ['backdrop', 'body', 'bottom', 'footwear', 'garment', 'accessories', 'headwear'] as const;
 
 const STORAGE_KEY = 'vietphuc-remix:current-look';
 const URL_PARAM = 'look';
@@ -21,8 +24,9 @@ const has = (list: { id: string }[], id: unknown) => typeof id === 'string' && l
 
 /** Validate untrusted input (URL / localStorage) against known catalog ids. */
 function sanitize(raw: unknown): OutfitConfig | null {
-  if (!raw || typeof raw !== 'object') return null;
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
   const r = raw as Record<string, unknown>;
+  const layers = r.layerVisibility as Record<string, unknown> | undefined;
   if (!has(GARMENTS, r.garmentId)) return null;
   return {
     garmentId: r.garmentId as OutfitConfig['garmentId'],
@@ -32,7 +36,7 @@ function sanitize(raw: unknown): OutfitConfig | null {
     headwearId: has(HEADWEAR, r.headwearId) ? (r.headwearId as OutfitConfig['headwearId']) : DEFAULT_LOOK.headwearId,
     footwearId: has(FOOTWEAR, r.footwearId) ? (r.footwearId as OutfitConfig['footwearId']) : DEFAULT_LOOK.footwearId,
     accessories: Array.isArray(r.accessories)
-      ? (r.accessories.filter(a => has(ACCESSORIES, a)).slice(0, 3) as OutfitConfig['accessories'])
+      ? ([...new Set(r.accessories.filter(a => has(ACCESSORIES, a)))].slice(0, 3) as OutfitConfig['accessories'])
       : [],
     targetEvent: has(EVENTS, r.targetEvent) ? (r.targetEvent as OutfitConfig['targetEvent']) : DEFAULT_LOOK.targetEvent,
     modelGender: ['female', 'male', 'unisex'].includes(r.modelGender as string)
@@ -41,8 +45,10 @@ function sanitize(raw: unknown): OutfitConfig | null {
     backdrop: ['hoang-thanh', 'pho-co', 'studio-zen', 'hieu-anh'].includes(r.backdrop as string)
       ? (r.backdrop as OutfitConfig['backdrop'])
       : DEFAULT_LOOK.backdrop,
-    customColorHex: typeof r.customColorHex === 'string' && /^#[0-9a-fA-F]{3,8}$/.test(r.customColorHex) ? r.customColorHex : undefined,
-    layerVisibility: r.layerVisibility && typeof r.layerVisibility === 'object' ? (r.layerVisibility as OutfitConfig['layerVisibility']) : undefined
+    customColorHex: normalizeHex(r.customColorHex),
+    layerVisibility: r.layerVisibility && typeof r.layerVisibility === 'object' && !Array.isArray(r.layerVisibility)
+      ? Object.fromEntries(LAYER_KEYS.filter(k => typeof layers?.[k] === 'boolean').map(k => [k, layers?.[k]])) as LayerVisibility
+      : undefined
   };
 }
 
@@ -69,7 +75,7 @@ const BACKDROPS = ['hoang-thanh', 'pho-co', 'studio-zen', 'hieu-anh'] as const;
  */
 export function encodeLook(c: OutfitConfig): string {
   const idx = (list: { id: string }[], id: string) => Math.max(0, list.findIndex(i => i.id === id)).toString(36);
-  return [
+  const parts = [
     '1',
     idx(GARMENTS, c.garmentId) +
       idx(HERITAGE_COLORS, c.colorId) +
@@ -81,15 +87,25 @@ export function encodeLook(c: OutfitConfig): string {
     idx(EVENTS, c.targetEvent),
     Math.max(0, GENDERS.indexOf(c.modelGender)).toString(36),
     Math.max(0, BACKDROPS.indexOf(c.backdrop)).toString(36)
-  ].join('-');
+  ];
+  const hex = normalizeHex(c.customColorHex);
+  const hidden = LAYER_KEYS.reduce((mask, key, i) => c.layerVisibility?.[key] === false ? mask | (1 << i) : mask, 0);
+  // Preserve v1 tokens for ordinary looks and extend only customized looks.
+  if (hex || hidden) {
+    parts[0] = '2';
+    parts.push(hex?.slice(1) || '_', hidden.toString(36));
+  }
+  return parts.join('-');
 }
 
 function decodeCompact(token: string): OutfitConfig | null {
   const parts = token.split('-');
-  if (parts.length !== 6 || parts[0] !== '1' || parts[1].length !== 6) return null;
+  const extended = parts[0] === '2';
+  if (parts.length !== (extended ? 8 : 6) || !['1', '2'].includes(parts[0])) return null;
+  if (!/^[0-9a-z]{6}$/.test(parts[1]) || !/^(?:_|[0-9a-z]{1,3})$/.test(parts[2]) || !parts.slice(3, 6).every(p => /^[0-9a-z]$/.test(p))) return null;
   const at = <T extends { id: string }>(list: T[], ch: string) => list[parseInt(ch, 36)]?.id;
   const core = parts[1];
-  return sanitize({
+  const raw = {
     garmentId: at(GARMENTS, core[0]),
     colorId: at(HERITAGE_COLORS, core[1]),
     patternId: at(PATTERNS, core[2]),
@@ -100,12 +116,18 @@ function decodeCompact(token: string): OutfitConfig | null {
     targetEvent: at(EVENTS, parts[3]),
     modelGender: GENDERS[parseInt(parts[4], 36)],
     backdrop: BACKDROPS[parseInt(parts[5], 36)]
-  });
+  };
+  if (Object.entries(raw).some(([key, value]) => key === 'accessories' ? (value as unknown[]).some(v => !v) : !value)) return null;
+  if (!extended) return sanitize(raw);
+  if (!/^(?:_|[0-9a-fA-F]{6})$/.test(parts[6]) || !/^[0-9a-z]{1,2}$/.test(parts[7])) return null;
+  const mask = parseInt(parts[7], 36);
+  if (mask > 127) return null;
+  return sanitize({ ...raw, customColorHex: parts[6] === '_' ? undefined : '#' + parts[6], layerVisibility: Object.fromEntries(LAYER_KEYS.filter((_, i) => mask & (1 << i)).map(k => [k, false])) });
 }
 
 export function decodeLook(token: string): OutfitConfig | null {
   try {
-    if (token.startsWith('1-')) return decodeCompact(token);
+    if (/^[12]-/.test(token)) return decodeCompact(token);
     // Legacy: base64url JSON
     return sanitize(JSON.parse(fromBase64Url(token)));
   } catch {
@@ -120,19 +142,29 @@ export function encodeLookLegacy(config: OutfitConfig): string {
 
 // ───────────── Public base URL (QR codes must not point to localhost) ─────────────
 const isLocalHost = (h: string) => h === 'localhost' || h === '127.0.0.1' || h === '[::1]' || h === '0.0.0.0';
-let publicBase: string | null = (import.meta.env?.VITE_PUBLIC_URL as string | undefined)?.replace(/\/+$/, '') || null;
+function validPublicUrl(value: unknown): string | null {
+  try {
+    const url = new URL(String(value));
+    if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password) return null;
+    url.search = '';
+    url.hash = '';
+    return url.toString().replace(/\/+$/, '');
+  } catch { return null; }
+}
+let publicBase: string | null = validPublicUrl(import.meta.env?.VITE_PUBLIC_URL);
+let publicBaseRequest: Promise<void> | undefined;
 
 /** Ask the server for APP_URL / LAN address. Call once on app start. */
-export async function initPublicBaseUrl(): Promise<void> {
-  if (publicBase || typeof window === 'undefined' || !isLocalHost(window.location.hostname)) return;
-  try {
-    const r = await fetch('/api/public-url');
-    if (!r.ok) return;
-    const d = (await r.json()) as { url?: string };
-    if (d.url && /^https?:\/\//.test(d.url)) publicBase = d.url.replace(/\/+$/, '');
-  } catch {
-    /* static hosting without server → keep current origin */
-  }
+export function initPublicBaseUrl(): Promise<void> {
+  if (publicBase || typeof window === 'undefined' || !isLocalHost(window.location.hostname)) return Promise.resolve();
+  return publicBaseRequest ??= (async () => {
+    try {
+      const r = await fetch('/api/public-url', { signal: AbortSignal.timeout(5000) });
+      if (!r.ok) return;
+      const d = (await r.json()) as { url?: string };
+      publicBase = validPublicUrl(d.url);
+    } catch { /* static hosting without server → keep current origin */ }
+  })();
 }
 
 /** True when share links would only work on this computer. */
@@ -143,7 +175,7 @@ export function shareLinksAreLocalOnly(): boolean {
 
 export function buildShareUrl(config: OutfitConfig): string {
   const base = publicBase || window.location.origin;
-  const url = new URL(publicBase ? '/' : window.location.pathname, base);
+  const url = publicBase ? new URL(base + '/') : new URL(window.location.pathname, base);
   url.searchParams.set(URL_PARAM, encodeLook(config));
   return url.toString();
 }

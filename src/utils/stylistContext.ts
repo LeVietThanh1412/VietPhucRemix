@@ -2,6 +2,7 @@ import { OutfitConfig } from '../types/vietphuc';
 import { ACCESSORIES, BOTTOMS, EVENTS, FOOTWEAR, GARMENTS, HEADWEAR, HERITAGE_COLORS, PATTERNS } from '../data/heritageData';
 import { checkCulturalEtiquette, culturalRespectScore } from './culturalRuleChecker';
 import { evaluateColorHarmony } from './harmonyCalculator';
+import { effectiveColor } from './outfitColor';
 
 /** Isomorphic (browser + Node) – used by server.ts to ground Gemini on the app's own verified data. */
 
@@ -18,16 +19,11 @@ NGUYÊN TẮC BẮT BUỘC:
 VĂN PHONG: tiếng Việt, trẻ trung (có thể dùng vừa phải "slay", "aesthetic"...), ngắn gọn 120–180 từ, chia 3–4 đoạn ngắn:
 (1) nhận xét tổng thể và điểm mạnh; (2) lưu ý văn hóa nếu có; (3) một gợi ý tạo dáng, phụ kiện hoặc chỉnh sửa cụ thể.
 
-TƯƠNG TÁC MÔ HÌNH 3D:
-Bạn có quyền tương tác trực tiếp với mô hình 3D của phòng thử đồ. Khi đưa ra gợi ý tạo dáng hoặc kiểm tra chi tiết cổ phục, bạn có thể kèm theo thẻ hành động ở cuối câu:
-- [ACTION:rotate:180] (để xoay mô hình ra sau lưng soi sống lưng áo)
-- [ACTION:pose:45] (để tạo dáng 3D góc nghiêng 45 độ nghệ thuật)
-- [ACTION:lighting:sunset] hoặc [ACTION:lighting:lantern] (để đổi ánh sáng 3D Hoàng hôn Cố đô hoặc Đèn lồng Phố cổ)
-- [ACTION:focus:collar] hoặc [ACTION:focus:belt] (để rọi đèn tiêu điểm vào cổ áo hoặc đai ngọc)`;
+Ứng dụng hiển thị mannequin SVG 2D. Chỉ trả lời bằng văn bản; không tạo thẻ hành động xoay, tạo dáng hay đổi ánh sáng vì giao diện không hỗ trợ những thao tác này.`;
 
 export function buildStylistContext(c: OutfitConfig): string {
   const g = GARMENTS.find(x => x.id === c.garmentId)!;
-  const color = HERITAGE_COLORS.find(x => x.id === c.colorId)!;
+  const color = effectiveColor(c);
   const pattern = PATTERNS.find(x => x.id === c.patternId)!;
   const bottom = BOTTOMS.find(x => x.id === c.bottomId)!;
   const head = HEADWEAR.find(x => x.id === c.headwearId)!;
@@ -54,7 +50,7 @@ nguon: ${g.sources.map(s => [s.title, s.author, s.publisher, s.year].filter(Bool
 
 [BAN_PHOI]
 dang_nguoi: ${gender}
-mau: ${color.name} (hành ${color.element}), ý nghĩa: ${color.meaning}
+mau: ${color.name} (${color.hex}; hành ${color.element}${c.customColorHex ? ', quy chiếu gần đúng theo bảng màu di sản' : ''}), ý nghĩa tham khảo: ${color.meaning}
 hoa_van: ${pattern.name}, ${pattern.symbolism}
 ha_y: ${bottom.name} [${bottom.category}]
 khan_non: ${head.name} [${head.category}]

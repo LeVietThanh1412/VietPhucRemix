@@ -1,6 +1,7 @@
 import React from 'react';
 import { OutfitConfig } from '../types/vietphuc';
-import { HERITAGE_COLORS, BOTTOMS } from '../data/heritageData';
+import { BOTTOMS } from '../data/heritageData';
+import { effectiveColor } from '../utils/outfitColor';
 import { evaluateColorHarmony } from '../utils/harmonyCalculator';
 import { Palette, Sparkles, CheckCircle2 } from 'lucide-react';
 
@@ -10,7 +11,7 @@ interface ColorHarmonyEngineProps {
 
 export const ColorHarmonyEngine: React.FC<ColorHarmonyEngineProps> = ({ config }) => {
   const harmony = evaluateColorHarmony(config);
-  const garmentColor = HERITAGE_COLORS.find(c => c.id === config.colorId) || HERITAGE_COLORS[0];
+  const garmentColor = effectiveColor(config);
   const bottom = BOTTOMS.find(b => b.id === config.bottomId) || BOTTOMS[0];
 
   return (

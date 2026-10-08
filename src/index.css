@@ -109,3 +109,7 @@ svg g, svg path {
   scrollbar-width: none;
 }
 
+
+section[id] {
+  scroll-margin-top: 90px;
+}

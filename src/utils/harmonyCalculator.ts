@@ -1,5 +1,5 @@
-import { ColorId, OutfitConfig, ColorHarmonyResult } from '../types/vietphuc';
-import { HERITAGE_COLORS, BOTTOMS } from '../data/heritageData';
+import { OutfitConfig, ColorHarmonyResult } from '../types/vietphuc';
+import { effectiveColor } from './outfitColor';
 
 const ELEMENT_CYCLE: Record<string, { generates: string; overcomes: string }> = {
   'Kim': { generates: 'Thủy', overcomes: 'Mộc' },
@@ -10,14 +10,13 @@ const ELEMENT_CYCLE: Record<string, { generates: string; overcomes: string }> = 
 };
 
 export function evaluateColorHarmony(config: OutfitConfig): ColorHarmonyResult {
-  const garmentColor = HERITAGE_COLORS.find(c => c.id === config.colorId) || HERITAGE_COLORS[0];
-  const bottom = BOTTOMS.find(b => b.id === config.bottomId);
+  const garmentColor = effectiveColor(config);
 
   // Determine bottom color element
   let bottomElement: 'Kim' | 'Thủy' | 'Mộc' | 'Hỏa' | 'Thổ' = 'Kim';
   if (config.bottomId === 'quan-lua-den') bottomElement = 'Thủy';
   else if (config.bottomId === 'quan-jeans-suong') bottomElement = 'Thủy';
-  else if (config.bottomId === 'vay-xep-ly') bottomElement = 'Mộc';
+  else if (config.bottomId === 'vay-xep-ly') bottomElement = 'Kim';
   else if (config.bottomId === 'quan-palazzo') bottomElement = 'Thổ';
 
   const gElement = garmentColor.element;
@@ -37,9 +36,10 @@ export function evaluateColorHarmony(config: OutfitConfig): ColorHarmonyResult {
     score += 10;
     elementAnalysis = `Quan hệ Đồng Hành (${gElement}): Tạo sự vững chãi, liền mạch và phong thái đồng điệu.`;
     tags.push('Đồng Hành Tương Trợ');
-  } else if (cycleInfo.overcomes === bottomElement) {
+  } else if (cycleInfo.overcomes === bottomElement || ELEMENT_CYCLE[bottomElement].overcomes === gElement) {
     score -= 5;
-    elementAnalysis = `Quan hệ Tương Khắc (${gElement} khắc ${bottomElement}): Tạo sự tương phản thị giác gắt ghét nhưng giàu kịch tính nếu biết tiết chế phụ kiện.`;
+    const pair = cycleInfo.overcomes === bottomElement ? `${gElement} khắc ${bottomElement}` : `${bottomElement} khắc ${gElement}`;
+    elementAnalysis = `Quan hệ Tương Khắc (${pair}): Tạo sự tương phản thị giác mạnh nhưng giàu kịch tính nếu biết tiết chế phụ kiện.`;
     tags.push('Tương Phản Cá Tính');
   } else {
     score += 5;
@@ -68,7 +68,7 @@ export function evaluateColorHarmony(config: OutfitConfig): ColorHarmonyResult {
   return {
     score: Math.min(100, Math.max(65, score)),
     title: score >= 90 ? 'Hài Hòa Tuyệt Sắc' : score >= 80 ? 'Cân Đối Trang Nhã' : 'Phá Cách Ấn Tượng',
-    elementAnalysis,
+    elementAnalysis: config.customColorHex ? `Màu tùy chỉnh được quy chiếu gần đúng theo bảng màu di sản. ${elementAnalysis}` : elementAnalysis,
     ratioAnalysis,
     advice,
     tags

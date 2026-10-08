@@ -1,10 +1,10 @@
 import React from 'react';
-import { EventId, WeatherId, OutfitConfig } from '../types/vietphuc';
-import { EVENTS, EVENT_COMBOS } from '../data/heritageData';
+import { EventId, WeatherId, ModelGender, OutfitConfig } from '../types/vietphuc';
+import { eventCombo } from '../utils/eventRecommendations';
+import { EVENTS } from '../data/heritageData';
 import {
   CITIES,
   LiveWeather,
-  WeatherIconType,
   adviseForWeather,
   describeWeatherCode,
   fetchLiveWeather,
@@ -33,6 +33,7 @@ import {
 
 interface WeatherEventRecommenderProps {
   currentEvent: EventId;
+  modelGender: ModelGender;
   onSelectEvent: (eventId: EventId) => void;
   onApplyRecommendedCombo: (configUpdate: Partial<OutfitConfig>) => void;
 }
@@ -48,77 +49,107 @@ const CITY_KEY = 'vietphuc-remix:city';
 
 export const WeatherEventRecommender: React.FC<WeatherEventRecommenderProps> = ({
   currentEvent,
+  modelGender,
   onSelectEvent,
   onApplyRecommendedCombo
 }) => {
   const [selectedWeather, setSelectedWeather] = React.useState<WeatherId>('xuan-se-lanh');
-  const [cityId, setCityId] = React.useState<string>(() => localStorage.getItem(CITY_KEY) || 'ha-noi');
+  const [cityId, setCityId] = React.useState<string>(() => {
+    try {
+      const stored = localStorage.getItem(CITY_KEY);
+      return stored && CITIES.some(c => c.id === stored) ? stored : 'ha-noi';
+    } catch { return 'ha-noi'; }
+  });
   const [live, setLive] = React.useState<LiveWeather | null>(null);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const abortRef = React.useRef<AbortController | null>(null);
+  const requestId = React.useRef(0);
+  const [manualWeather, setManualWeather] = React.useState(false);
 
   const load = React.useCallback(async (lat: number, lon: number, name: string) => {
+    const id = ++requestId.current;
     abortRef.current?.abort();
     const ctrl = new AbortController();
     abortRef.current = ctrl;
+    const timeout = window.setTimeout(() => ctrl.abort(), 10_000);
     setLoading(true);
     setError(null);
+    setLive(null);
+    setManualWeather(false);
     try {
       const w = await fetchLiveWeather(lat, lon, name, ctrl.signal);
+      if (id !== requestId.current) return;
       setLive(w);
       setSelectedWeather(toWeatherId(w));
-    } catch (e) {
-      if ((e as Error).name !== 'AbortError') {
-        setError('Không tải được thời tiết (mất mạng?). Bạn vẫn có thể chọn mùa thủ công bên dưới.');
-      }
+    } catch {
+      if (id === requestId.current) setError('Không tải được thời tiết. Bạn vẫn có thể chọn mùa thủ công bên dưới.');
     } finally {
-      if (abortRef.current === ctrl) setLoading(false);
+      window.clearTimeout(timeout);
+      if (id === requestId.current) setLoading(false);
     }
   }, []);
 
   React.useEffect(() => {
     if (cityId === 'gps') return;
     const city = CITIES.find(c => c.id === cityId) || CITIES[0];
-    localStorage.setItem(CITY_KEY, city.id);
-    load(city.lat, city.lon, city.name);
+    try { localStorage.setItem(CITY_KEY, city.id); } catch { /* private mode */ }
+    void load(city.lat, city.lon, city.name);
   }, [cityId, load]);
 
-  React.useEffect(() => () => abortRef.current?.abort(), []);
+  React.useEffect(() => () => { ++requestId.current; abortRef.current?.abort(); }, []);
 
   const handleGeolocate = () => {
     if (!navigator.geolocation) {
       setError('Trình duyệt không hỗ trợ định vị.');
       return;
     }
+    const id = ++requestId.current;
+    abortRef.current?.abort();
     setLoading(true);
+    setError(null);
+    setLive(null);
     navigator.geolocation.getCurrentPosition(
       pos => {
+        if (id !== requestId.current) return;
         setCityId('gps');
-        load(pos.coords.latitude, pos.coords.longitude, 'Vị trí của bạn');
+        void load(pos.coords.latitude, pos.coords.longitude, 'Vị trí của bạn');
       },
       () => {
+        if (id !== requestId.current) return;
         setLoading(false);
-        setError('Bạn đã từ chối quyền vị trí. Hãy chọn thành phố thủ công.');
+        setError('Không lấy được vị trí. Hãy chọn thành phố thủ công.');
       },
       { timeout: 8000, maximumAge: 600000 }
     );
   };
 
+  const selectSeason = (weather: WeatherId) => {
+    ++requestId.current;
+    abortRef.current?.abort();
+    setLoading(false);
+    setError(null);
+    setManualWeather(true);
+    setSelectedWeather(weather);
+  };
+
   const refresh = () => {
     if (cityId === 'gps') return handleGeolocate();
     const city = CITIES.find(c => c.id === cityId) || CITIES[0];
-    load(city.lat, city.lon, city.name);
+    void load(city.lat, city.lon, city.name);
   };
 
   const currentEventData = EVENTS.find(e => e.id === currentEvent) || EVENTS[0];
   const activeWeather = WEATHERS.find(w => w.id === selectedWeather) || WEATHERS[0];
-  const baseCombo = { ...EVENT_COMBOS[currentEvent], targetEvent: currentEvent };
-  const liveAdvice = live ? adviseForWeather(live, baseCombo) : null;
+  const baseCombo = eventCombo(currentEvent, modelGender);
+  const seasonalAdjust: Partial<OutfitConfig> = selectedWeather === 'dong-lanh-gia'
+    ? { footwearId: ['ao-tac', 'ao-nhat-binh', 'ao-vien-linh'].includes(baseCombo.garmentId ?? '') || ['le-chua-tam-linh', 'dam-cuoi-ban-than'].includes(currentEvent) ? 'giay-oxford' : 'boot-da-co-thap' }
+    : {};
+  const liveAdvice = live && !manualWeather ? adviseForWeather(live, baseCombo) : null;
   const liveDesc = live ? describeWeatherCode(live.weatherCode) : null;
 
   const handleApplyCombo = () => {
-    onApplyRecommendedCombo({ ...EVENT_COMBOS[currentEvent], ...(liveAdvice?.adjust ?? {}) });
+    onApplyRecommendedCombo({ ...baseCombo, ...(liveAdvice?.adjust ?? seasonalAdjust) });
   };
 
   return (
@@ -165,7 +196,7 @@ export const WeatherEventRecommender: React.FC<WeatherEventRecommenderProps> = (
           <div className="flex items-center gap-1.5">
             <select
               value={cityId}
-              onChange={e => setCityId(e.target.value)}
+              onChange={e => { ++requestId.current; abortRef.current?.abort(); setLive(null); setCityId(e.target.value); }}
               className="text-xs border border-stone-200 rounded-md px-2 py-1 bg-white"
               aria-label="Chọn thành phố"
             >
@@ -220,7 +251,7 @@ export const WeatherEventRecommender: React.FC<WeatherEventRecommenderProps> = (
             return (
               <button
                 key={w.id}
-                onClick={() => setSelectedWeather(w.id)}
+                onClick={() => selectSeason(w.id)}
                 className={`p-2.5 rounded-lg text-left border transition-all text-xs ${
                   selectedWeather === w.id
                     ? 'border-stone-900 bg-stone-900 text-white font-semibold shadow-xs'
@@ -267,7 +298,7 @@ export const WeatherEventRecommender: React.FC<WeatherEventRecommenderProps> = (
           className="w-full py-2 px-3 rounded-lg bg-amber-800 hover:bg-amber-900 text-white text-xs font-medium transition-colors flex items-center justify-center gap-2 shadow-xs mt-1"
         >
           <Sparkles className="w-3.5 h-3.5 text-amber-200" />
-          <span>{live ? 'Áp dụng công thức theo sự kiện + thời tiết hôm nay' : 'Áp dụng công thức phối chuẩn cho sự kiện này'}</span>
+          <span>{live && !manualWeather ? 'Áp dụng công thức theo sự kiện + thời tiết hôm nay' : 'Áp dụng công thức theo sự kiện + mùa đã chọn'}</span>
         </button>
       </div>
     </div>

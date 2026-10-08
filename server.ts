@@ -4,6 +4,7 @@ import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { GoogleGenAI } from '@google/genai';
+import { createKeyRotation, createRateLimiter, parseGeminiKeys } from './src/server/aiRuntime';
 import { sanitizeLook } from './src/utils/lookStorage';
 import { buildStylistContext, STYLIST_SYSTEM_PROMPT } from './src/utils/stylistContext';
 
@@ -13,106 +14,56 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = Number(process.env.PORT) || 3000;
+const PORT = Number(process.env.PORT || 3000);
+if (!Number.isInteger(PORT) || PORT < 1 || PORT > 65535) throw new Error('PORT must be an integer between 1 and 65535');
 const IS_PROD = process.env.NODE_ENV === 'production' || process.argv.includes('--prod');
-const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 const MAX_QUERY = 500;
 
-app.set('trust proxy', true);
+// Only trust forwarded IPs when the deployment explicitly specifies its proxy hops.
+const proxyHops = Number(process.env.TRUST_PROXY_HOPS || 0);
+app.set('trust proxy', Number.isInteger(proxyHops) && proxyHops > 0 ? proxyHops : false);
 app.use(express.json({ limit: '16kb' }));
 app.use((err: any, _req: express.Request, res: express.Response, next: express.NextFunction) => {
-  if (err instanceof SyntaxError && 'status' in err && (err as any).status === 400) {
-    return res.status(400).json({ error: 'Malformed JSON payload' });
-  }
+  if (err?.type === 'entity.parse.failed') return res.status(400).json({ error: 'Malformed JSON payload' });
+  if (err?.type === 'entity.too.large') return res.status(413).json({ error: 'Payload too large' });
+  if (err?.status >= 400 && err?.status < 500) return res.status(err.status).json({ error: 'Invalid request body' });
   next(err);
 });
 
 // ───────────── Gemini API Key Pool & Auto-Rotation ─────────────
-function parseGeminiKeys(): string[] {
-  const rawList = process.env.GEMINI_API_KEYS || process.env.GEMINI_API_KEY || '';
-  return rawList
-    .split(/[\n,;]+/)
-    .map(k => k.trim().replace(/^["']|["']$/g, ''))
-    .filter(k => k && k !== 'MY_GEMINI_API_KEY' && k !== 'MY_GEMINI_API_KEYS');
-}
-
-const keyPool = parseGeminiKeys();
+const keyPool = parseGeminiKeys(process.env.GEMINI_API_KEYS, process.env.GEMINI_API_KEY);
 interface KeyClient {
-  key: string;
   client: GoogleGenAI;
-  label: string;
 }
 
 const aiClients: KeyClient[] = [];
 for (let i = 0; i < keyPool.length; i++) {
   const k = keyPool[i];
   try {
-    const masked = k.length > 10 ? `${k.slice(0, 6)}...${k.slice(-4)}` : '***';
     aiClients.push({
-      key: k,
-      client: new GoogleGenAI({ apiKey: k }),
-      label: `Account #${i + 1} (${masked})`
+      client: new GoogleGenAI({ apiKey: k })
     });
   } catch (err) {
     console.error(`[Key Pool] Lỗi khởi tạo client #${i + 1}:`, err);
   }
 }
 
-let currentClientIndex = 0;
+const rotate = createKeyRotation(aiClients);
+const rateLimited = createRateLimiter();
 
-/** Round-robin key execution with automatic failover across keys on 429/quota limits */
-async function generateContentWithRotation(prompt: string, systemInstruction: string) {
-  if (aiClients.length === 0) {
-    throw new Error('NO_API_KEYS');
-  }
-
-  const maxAttempts = aiClients.length;
-  let lastError: any = null;
-
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    const idx = (currentClientIndex + attempt) % aiClients.length;
-    const target = aiClients[idx];
-
-    try {
-      const response = await target.client.models.generateContent({
-        model: GEMINI_MODEL,
-        contents: prompt,
-        config: {
-          systemInstruction,
-          temperature: 0.6,
-          maxOutputTokens: 700
-        }
-      });
-
-      // Advance round-robin pointer for next incoming request
-      currentClientIndex = (idx + 1) % aiClients.length;
-      return { response, usedAccount: target.label };
-    } catch (err: any) {
-      lastError = err;
-      const isQuotaOrRateLimit =
-        err?.status === 429 ||
-        err?.message?.includes('RESOURCE_EXHAUSTED') ||
-        err?.message?.includes('quota') ||
-        err?.message?.includes('rate limit');
-
-      console.warn(`[Key Rotation] ${target.label} gặp lỗi (${isQuotaOrRateLimit ? 'Hết Quota/Rate Limit' : 'Lỗi gọi API'}). Đang tự động chuyển sang tài khoản kế tiếp...`);
+async function generateContentWithRotation(prompt: string, systemInstruction: string, signal: AbortSignal) {
+  return rotate(target => target.client.models.generateContent({
+    model: GEMINI_MODEL,
+    contents: prompt,
+    config: {
+      abortSignal: signal,
+      httpOptions: { timeout: 20_000 },
+      systemInstruction,
+      temperature: 0.6,
+      maxOutputTokens: 700
     }
-  }
-
-  throw lastError;
-}
-
-// ───────────── Simple in-memory rate limit (per IP) ─────────────
-const WINDOW_MS = 60_000;
-const MAX_PER_WINDOW = 15; // Increased per-IP limit since pool has multiple keys
-const hits = new Map<string, number[]>();
-function rateLimited(ip: string): boolean {
-  const now = Date.now();
-  const arr = (hits.get(ip) || []).filter(t => now - t < WINDOW_MS);
-  arr.push(now);
-  hits.set(ip, arr);
-  if (hits.size > 5000) hits.clear();
-  return arr.length > MAX_PER_WINDOW;
+  }), signal);
 }
 
 // ───────────── Public URL (for QR codes / share links) ─────────────
@@ -127,7 +78,14 @@ function lanAddress(): string | null {
 
 function publicBaseUrl(): { url: string; source: 'env' | 'lan' | 'none' } {
   const env = process.env.APP_URL?.trim();
-  if (env && env !== 'MY_APP_URL' && /^https?:\/\//.test(env)) return { url: env.replace(/\/+$/, ''), source: 'env' };
+  try {
+    const url = new URL(env || '');
+    if (['http:', 'https:'].includes(url.protocol) && !url.username && !url.password) {
+      url.search = '';
+      url.hash = '';
+      return { url: url.toString().replace(/\/+$/, ''), source: 'env' };
+    }
+  } catch { /* invalid APP_URL → use LAN fallback */ }
   const lan = lanAddress();
   if (lan) return { url: `http://${lan}:${PORT}`, source: 'lan' };
   return { url: '', source: 'none' };
@@ -139,6 +97,9 @@ app.get('/api/public-url', (_req, res) => {
 
 // ───────────── AI Stylist (grounded on app data with key rotation) ─────────────
 app.post('/api/ai-stylist', async (req, res) => {
+  if (req.body?.query !== undefined && typeof req.body.query !== 'string') return res.status(400).json({ error: 'Query must be a string' });
+  const config = sanitizeLook(req.body?.config);
+  if (!config) return res.status(400).json({ error: 'Invalid outfit config' });
   if (aiClients.length === 0) {
     return res.status(503).json({ error: 'Gemini API not configured. Falling back to local styling logic.' });
   }
@@ -146,23 +107,30 @@ app.post('/api/ai-stylist', async (req, res) => {
     return res.status(429).json({ error: 'Bạn hỏi hơi nhanh, vui lòng thử lại sau ít phút.' });
   }
 
-  const config = sanitizeLook(req.body?.config);
-  if (!config) return res.status(400).json({ error: 'Invalid outfit config' });
   const query = String(req.body?.query || 'Hãy nhận xét và thẩm định outfit này')
     .replace(/[\u0000-\u001f]/g, ' ')
     .slice(0, MAX_QUERY);
 
+  const disconnected = new AbortController();
+  const onClose = () => { if (!res.writableEnded) disconnected.abort(); };
+  res.on('close', onClose);
+  const signal = AbortSignal.any([disconnected.signal, AbortSignal.timeout(20_000)]);
   try {
     const context = buildStylistContext(config);
     const prompt = `${context}\n\n<cau_hoi_nguoi_dung>\n${query}\n</cau_hoi_nguoi_dung>`;
 
-    const { response, usedAccount } = await generateContentWithRotation(prompt, STYLIST_SYSTEM_PROMPT);
+    const response = await generateContentWithRotation(prompt, STYLIST_SYSTEM_PROMPT, signal);
 
-    const reply = response.text?.trim() || 'Outfit phối đồ của bạn rất ấn tượng và đậm chất di sản đương đại!';
-    return res.json({ reply, model: GEMINI_MODEL, account: usedAccount });
+    const reply = response.text?.trim();
+    if (!reply) return res.status(502).json({ error: 'AI returned an empty response' });
+    return res.json({ reply, model: GEMINI_MODEL });
   } catch (error: unknown) {
-    console.error('Error in /api/ai-stylist after trying key pool:', error);
-    return res.status(500).json({ error: 'Failed to generate styling advice' });
+    if (disconnected.signal.aborted) return;
+    if (signal.aborted) return res.status(504).json({ error: 'Styling advice timed out' });
+    console.error('Error in /api/ai-stylist:', (error as Error)?.name);
+    return res.status(502).json({ error: 'Failed to generate styling advice' });
+  } finally {
+    res.off('close', onClose);
   }
 });
 
@@ -177,10 +145,15 @@ app.get('/api/health', (_req, res) => {
   });
 });
 
+app.use('/api', (_req, res) => res.status(404).json({ error: 'API route not found' }));
+
 // ───────────── Frontend ─────────────
 async function startServer() {
   if (IS_PROD) {
-    app.use(express.static(path.resolve(__dirname, 'dist'), { maxAge: '7d', index: false }));
+    app.use(express.static(path.resolve(__dirname, 'dist'), { maxAge: '7d', index: false, setHeaders: (res, file) => {
+      if (file.endsWith('.html')) res.setHeader('Cache-Control', 'no-cache');
+    } }));
+    app.use('/assets', (_req, res) => res.status(404).end());
     app.get('*', (_req, res) => {
       res.setHeader('Cache-Control', 'no-cache');
       res.sendFile(path.resolve(__dirname, 'dist', 'index.html'));

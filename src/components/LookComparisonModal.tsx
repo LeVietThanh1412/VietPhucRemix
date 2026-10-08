@@ -60,14 +60,19 @@ export const LookComparisonModal: React.FC<LookComparisonModalProps> = ({
   }, [currentLook, savedLooks]);
 
   const defaultSelection = React.useCallback((): string[] => {
-    if (initialSelection?.length) return initialSelection.slice(0, MAX_COMPARE);
+    if (initialSelection?.length) {
+      const valid = [...new Set(initialSelection)].filter(key => candidates.some(c => c.key === key));
+      return [...valid, ...candidates.map(c => c.key).filter(key => !valid.includes(key))].slice(0, Math.max(2, Math.min(MAX_COMPARE, valid.length)));
+    }
     const saved = savedLooks.filter(s => !sameLook(s.config, currentLook)).slice(0, 2).map(s => `saved:${s.id}`);
     if (saved.length) return ['current', ...saved];
     const preset = PRESET_LOOKBOOKS.find(p => p.config.garmentId !== currentLook.garmentId) ?? PRESET_LOOKBOOKS[0];
     return ['current', `preset:${preset.id}`];
-  }, [initialSelection, savedLooks, currentLook]);
+  }, [initialSelection, savedLooks, currentLook, candidates]);
 
   const [selected, setSelected] = React.useState<string[]>(defaultSelection);
+  const [exportError, setExportError] = React.useState('');
+  const exportBusy = React.useRef(false);
   const [exporting, setExporting] = React.useState(false);
   const svgRefs = React.useRef<Record<string, SVGSVGElement | null>>({});
 
@@ -76,6 +81,14 @@ export const LookComparisonModal: React.FC<LookComparisonModalProps> = ({
     if (isOpen) setSelected(defaultSelection());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
+
+  React.useEffect(() => {
+    setSelected(prev => {
+      const valid = [...new Set(prev)].filter(key => candidates.some(c => c.key === key));
+      const next = [...valid, ...candidates.map(c => c.key).filter(key => !valid.includes(key))].slice(0, Math.max(2, Math.min(MAX_COMPARE, valid.length)));
+      return next.join('|') === prev.join('|') ? prev : next;
+    });
+  }, [candidates]);
 
   React.useEffect(() => {
     if (!isOpen) return;
@@ -89,7 +102,9 @@ export const LookComparisonModal: React.FC<LookComparisonModalProps> = ({
   const chosen = selected.map(k => candidates.find(c => c.key === k)).filter((c): c is Candidate => !!c);
   const metrics = chosen.map(c => computeLookMetrics(c.config));
   const totals = metrics.map(overallScore);
-  const bestIdx = totals.length ? totals.indexOf(Math.max(...totals)) : -1;
+  const bestScore = Math.max(...totals);
+  const winners = totals.flatMap((total, i) => total === bestScore ? [i] : []);
+  const bestIdx = winners.length === 1 ? winners[0] : -1;
 
   const toggle = (key: string) =>
     setSelected(prev =>
@@ -98,6 +113,7 @@ export const LookComparisonModal: React.FC<LookComparisonModalProps> = ({
 
   const verdict = (() => {
     if (chosen.length < 2) return null;
+    if (winners.length > 1) return { text: `Các look ${winners.map(i => '"' + chosen[i].name + '"').join(', ')} đồng điểm (${bestScore}/100).`, tip: 'Chọn theo từng tiêu chí và bối cảnh sự kiện bên dưới.' };
     const b = chosen[bestIdx];
     const bm = metrics[bestIdx];
     const parts: string[] = [];
@@ -113,6 +129,9 @@ export const LookComparisonModal: React.FC<LookComparisonModalProps> = ({
   })();
 
   const handleExport = async () => {
+    if (exportBusy.current || chosen.length < 2) return;
+    exportBusy.current = true;
+    setExportError('');
     setExporting(true);
     try {
       const entries = await Promise.all(
@@ -125,8 +144,9 @@ export const LookComparisonModal: React.FC<LookComparisonModalProps> = ({
       const canvas = await renderComparisonSheet(entries);
       downloadBlob(await canvasToBlob(canvas), 'viet-phuc-remix-so-sanh.png');
     } catch (e) {
-      console.error(e);
+      setExportError('Không xuất được bảng so sánh, vui lòng thử lại');
     } finally {
+      exportBusy.current = false;
       setExporting(false);
     }
   };
@@ -164,6 +184,7 @@ export const LookComparisonModal: React.FC<LookComparisonModalProps> = ({
         </div>
 
         <div className="p-6 space-y-6">
+          {exportError && <p role="alert" className="text-sm text-red-800">{exportError}</p>}
           {/* Picker */}
           <div className="space-y-2">
             <p className="text-xs text-stone-600">
@@ -272,7 +293,7 @@ export const LookComparisonModal: React.FC<LookComparisonModalProps> = ({
                   {ROWS.map(row => {
                     const vals = metrics.map((m, i) => row.get(m, totals[i]));
                     const nums = vals.filter((v): v is number => typeof v === 'number');
-                    const top = row.best && nums.length === vals.length ? Math.max(...nums) : null;
+                    const top = row.best && nums.length === vals.length ? (row.best === 'min' ? Math.min(...nums) : Math.max(...nums)) : null;
                     const tie = top !== null && nums.every(n => n === top);
                     return (
                       <tr key={row.label} className="border-t border-stone-100 align-top">

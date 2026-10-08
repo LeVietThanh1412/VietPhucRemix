@@ -1,6 +1,7 @@
 import React from 'react';
-import { EventId, OutfitConfig } from '../types/vietphuc';
+import { EventId, ModelGender, OutfitConfig } from '../types/vietphuc';
 import { EVENT_COMBOS } from '../data/heritageData';
+import { eventCombo } from '../utils/eventRecommendations';
 import { Sparkles, Compass } from 'lucide-react';
 import { 
   IconVietAllOccasions,
@@ -83,12 +84,14 @@ export const OCCASIONS_LIST: OccasionInfo[] = [
 
 interface OccasionFilterBarProps {
   selectedTag: OccasionTag;
+  modelGender: ModelGender;
   onSelectTag: (tag: OccasionTag) => void;
   onApplyPresetLook: (configPatch: Partial<OutfitConfig>) => void;
 }
 
 export const OccasionFilterBar: React.FC<OccasionFilterBarProps> = ({
   selectedTag,
+  modelGender,
   onSelectTag,
   onApplyPresetLook
 }) => {
@@ -99,10 +102,7 @@ export const OccasionFilterBar: React.FC<OccasionFilterBarProps> = ({
     if (!currentOccasion.mappedEventId) return;
     const combo = EVENT_COMBOS[currentOccasion.mappedEventId];
     if (combo) {
-      onApplyPresetLook({
-        ...combo,
-        targetEvent: currentOccasion.mappedEventId
-      });
+      onApplyPresetLook(eventCombo(currentOccasion.mappedEventId, modelGender));
     }
   };
 

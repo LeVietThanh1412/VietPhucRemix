@@ -1,5 +1,6 @@
 import React from 'react';
 import QRCode from 'qrcode';
+import { effectiveColor } from '../utils/outfitColor';
 import { OutfitConfig } from '../types/vietphuc';
 import { GARMENTS, HERITAGE_COLORS, BOTTOMS, FOOTWEAR, HEADWEAR } from '../data/heritageData';
 import { computeLookMetrics } from '../utils/lookMetrics';
@@ -12,6 +13,8 @@ interface StoryCardNodeProps {
   title?: string;
   shareUrl?: string;
   cardRef?: React.Ref<HTMLDivElement>;
+  onQrReady?: (url: string) => void;
+  onQrError?: (url: string) => void;
 }
 
 export const StoryCardNode: React.FC<StoryCardNodeProps> = ({
@@ -19,12 +22,14 @@ export const StoryCardNode: React.FC<StoryCardNodeProps> = ({
   format,
   title,
   shareUrl = '',
-  cardRef
+  cardRef,
+  onQrReady,
+  onQrError
 }) => {
   const [qrDataUrl, setQrDataUrl] = React.useState<string>('');
 
   const selectedGarment = GARMENTS.find(g => g.id === config.garmentId) || GARMENTS[0];
-  const selectedColor = HERITAGE_COLORS.find(c => c.id === config.colorId) || HERITAGE_COLORS[0];
+  const selectedColor = effectiveColor(config);
   const selectedBottom = BOTTOMS.find(b => b.id === config.bottomId);
   const selectedFootwear = FOOTWEAR.find(f => f.id === config.footwearId);
   const selectedHeadwear = HEADWEAR.find(h => h.id === config.headwearId);
@@ -34,6 +39,8 @@ export const StoryCardNode: React.FC<StoryCardNodeProps> = ({
   const isStory = format === 'story';
 
   React.useEffect(() => {
+    let cancelled = false;
+    setQrDataUrl('');
     if (!shareUrl) return;
     QRCode.toDataURL(shareUrl, {
       margin: 1,
@@ -43,15 +50,16 @@ export const StoryCardNode: React.FC<StoryCardNodeProps> = ({
         light: '#FFFFFF'
       }
     })
-      .then(url => setQrDataUrl(url))
-      .catch(err => console.error('QR code generation error', err));
-  }, [shareUrl]);
+      .then(url => { if (!cancelled) { setQrDataUrl(url); onQrReady?.(shareUrl); } })
+      .catch(() => { if (!cancelled) onQrError?.(shareUrl); });
+    return () => { cancelled = true; };
+  }, [shareUrl, onQrReady, onQrError]);
 
   return (
     <div
       ref={cardRef}
       className={`relative mx-auto bg-[#FAF7F2] text-stone-900 overflow-hidden flex flex-col justify-between shadow-2xl border-4 border-amber-900/30 ${
-        isStory ? 'w-[420px] h-[746px] p-6' : 'w-[440px] h-[550px] p-5'
+        isStory ? 'w-[432px] h-[768px] p-6' : 'w-[432px] h-[540px] p-5'
       }`}
       style={{
         boxSizing: 'border-box',
@@ -74,7 +82,7 @@ export const StoryCardNode: React.FC<StoryCardNodeProps> = ({
           <span>✦</span>
         </div>
 
-        <h1 className="font-serif text-2xl font-black text-stone-900 tracking-tight leading-tight">
+        <h1 className="break-words font-serif text-2xl font-black text-stone-900 tracking-tight leading-tight">
           {displayTitle}
         </h1>
 
@@ -92,14 +100,13 @@ export const StoryCardNode: React.FC<StoryCardNodeProps> = ({
       </div>
 
       {/* 2. Visualizer Centerpiece */}
-      <div className="relative z-10 flex-1 my-2 flex items-center justify-center overflow-hidden">
-        <div className={`w-full ${isStory ? 'max-h-[390px]' : 'max-h-[280px]'} flex items-center justify-center`}>
+      <div className="relative z-10 flex-1 min-h-0 my-2 flex items-center justify-center">
           <MannequinVisualizer
             config={config}
             hideBadge
-            className="w-full h-full shadow-lg border-2 border-stone-200/90 rounded-xl"
+            fitToContainer
+            className="shadow-lg border-2 border-stone-200/90 rounded-xl"
           />
-        </div>
       </div>
 
       {/* 3. Cultural Story & Harmony Summary */}

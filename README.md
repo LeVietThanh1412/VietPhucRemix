@@ -9,7 +9,7 @@ npm install
 cp .env.example .env    # tùy chọn: GEMINI_API_KEY, APP_URL, VITE_FEEDBACK_URL
 npm run dev             # phát triển: http://localhost:3000
 npm run demo            # build + chạy bản production (dùng khi trình diễn)
-npm test                # 18 test: luật văn hóa, link chia sẻ, quiz, ngữ cảnh AI
+npm test                # kiểm tra: luật văn hóa, link chia sẻ, quiz, ngữ cảnh AI
 npm run lint            # kiểm tra kiểu TypeScript
 ```
 
@@ -17,16 +17,30 @@ npm run lint            # kiểm tra kiểu TypeScript
 - **Bật AI Stylist:** lấy key miễn phí tại https://aistudio.google.com/apikey rồi điền `GEMINI_API_KEY` trong `.env`.
 - Font chữ được đóng gói sẵn trong app (có bộ ký tự tiếng Việt), nên mất mạng vẫn hiển thị đúng. Riêng thời tiết thật và AI cần Internet.
 
+### Kiểm thử trên trình duyệt
+
+Khởi chạy app hoặc container ở cổng 3000, rồi chạy:
+
+```bash
+npx playwright-core install chromium # một lần, nếu chưa có browser cho Playwright
+npm run test:browser
+# Hoặc dùng Chrome có sẵn:
+CHROME_PATH=/path/to/chrome npm run test:browser
+# TEST_BASE_URL=http://127.0.0.1:3000 có thể đổi địa chỉ app được kiểm tra.
+```
+
+Bộ thử dùng dữ liệu riêng của từng browser context: kiểm tra API lỗi, hai tab lưu đồng thời (cả khi không có Web Locks), quota lưu trữ, so sánh sau khi xóa look, focus popup, hủy đổi tên, chia sẻ/JPG và lỗi tải module. Xem [AUDIT.md](AUDIT.md) để biết phạm vi rà soát và kết quả.
+
 ### Trình diễn và mã QR
 
-Mã QR và link chia sẻ **không bao giờ trỏ về `localhost`**. Server chọn địa chỉ công khai theo thứ tự:
+Mã QR và link chia sẻ dùng `APP_URL` nếu được cấu hình. Khi mở app trên localhost, giao diện lấy địa chỉ chia sẻ từ server theo thứ tự:
 
 1. `APP_URL` trong `.env`, nếu đã deploy (ví dụ `https://viet-phuc-remix.onrender.com`).
 2. Nếu không có, dùng **IP mạng LAN** của máy (ví dụ `http://192.168.1.10:3000`). Điện thoại dùng **cùng Wi-Fi** sẽ quét QR được ngay.
    - Nếu máy có nhiều card mạng (VPN, máy ảo...), server có thể chọn nhầm IP. Khi đó hãy đặt `APP_URL=http://<IP-Wi-Fi>:3000`.
    - Windows có thể hỏi quyền tường lửa cho Node.js lần đầu; hãy chọn *Allow*.
 
-Popup Lookbook sẽ hiện cảnh báo nếu link chỉ mở được trên máy hiện tại.
+Khi truy cập bằng domain hoặc IP LAN, link mặc định dùng địa chỉ đang mở; `VITE_PUBLIC_URL` có thể ghi đè khi build. Nếu chạy trong Docker để điện thoại quét QR, đặt `APP_URL=http://<IP-Wi-Fi-của-máy-host>:3000` (IP tự dò trong container có thể chỉ truy cập được nội bộ Docker). Popup Lookbook hiện cảnh báo nếu link chỉ mở được trên máy hiện tại.
 
 ### Deploy (tùy chọn)
 
@@ -93,7 +107,7 @@ Chọn sự kiện / thời tiết ──► Chọn áo (có huy hiệu mức t�
   - Xuất ảnh dạng **Story 9:16** (1080×1920) hoặc **Post 4:5** (1080×1350), kèm **mã QR** mở lại đúng look.
   - Đặt tên look, chia sẻ ảnh qua Web Share API trên điện thoại (máy không hỗ trợ thì tự tải ảnh và sao chép caption), có caption và hashtag gợi ý.
   - Hiện cảnh báo trước khi chia sẻ nếu look còn sai lệch văn hóa.
-- **Link chia sẻ ngắn** (khoảng 17 ký tự, ví dụ `?look=1-121010-04-3-2-1`), mỗi món đồ mã hóa bằng vị trí của nó trong danh mục nên mã QR nhỏ (QR v4 thay vì v15). Link cũ dạng base64 vẫn mở được. *Lưu ý: chỉ được thêm món mới vào cuối danh mục, không đổi thứ tự các món cũ.*
+- **Link chia sẻ ngắn** (khoảng 17 ký tự, ví dụ `?look=1-121010-04-3-2-1`), mỗi món đồ mã hóa bằng vị trí của nó trong danh mục nên mã QR nhỏ (QR v4 thay vì v15). Look có màu Hex tùy chỉnh hoặc lớp ẩn dùng mã phiên bản 2 để giữ nguyên hình ảnh khi mở lại. Link cũ dạng phiên bản 1 và base64 vẫn mở được. *Lưu ý: chỉ được thêm món mới vào cuối danh mục, không đổi thứ tự các món cũ.*
 - Link chia sẻ mã hóa toàn bộ cấu hình vào URL, không cần backend. Khi mở link, dữ liệu được kiểm tra lại với danh mục có sẵn trước khi áp dụng.
 
 ## 4. Bảo đảm thông tin văn hóa phù hợp
@@ -118,7 +132,7 @@ Chọn sự kiện / thời tiết ──► Chọn áo (có huy hiệu mức t�
    - không tình dục hóa trang phục;
    - bỏ qua mọi câu lệnh đổi vai trò.
 
-   Server kiểm tra lại cấu hình look trước khi dùng, giới hạn câu hỏi 500 ký tự và giới hạn 8 lượt hỏi mỗi phút cho mỗi IP.
+   Server kiểm tra lại cấu hình look trước khi dùng, giới hạn câu hỏi 500 ký tự và giới hạn 15 lượt hỏi mỗi phút cho mỗi IP.
 7. **Kênh góp ý:** nội dung ghi rõ đang chờ chuyên gia thẩm định. Đặt `VITE_FEEDBACK_URL` (ví dụ Google Form) để hiện link "Góp ý / báo sai thông tin văn hóa". Hướng tiếp theo là mời giảng viên hoặc các nhóm phục dựng cổ phục duyệt lại `heritageData.ts` và `culturalRules.ts`.
 8. **Test tự động** (`npm test`):
    - mọi look mẫu, mọi công thức theo sự kiện và toàn bộ 288 tổ hợp câu trả lời quiz đều không có lỗi văn hóa;

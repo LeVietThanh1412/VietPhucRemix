@@ -1,16 +1,15 @@
 import React from 'react';
+import { SaveResult, STORAGE_ERROR } from '../hooks/useSavedLooks';
 import { OutfitConfig } from '../types/vietphuc';
 import { MannequinVisualizer } from './MannequinVisualizer';
 import { StoryCardNode } from './StoryCardNode';
-import { buildShareUrl, shareLinksAreLocalOnly } from '../utils/lookStorage';
+import { buildShareUrl, initPublicBaseUrl, shareLinksAreLocalOnly } from '../utils/lookStorage';
 import { computeLookMetrics } from '../utils/lookMetrics';
 import { exportElementToImage, downloadDataUrl } from '../utils/htmlToImageExport';
 import {
   ExportFormat,
   FORMAT_SIZE,
   buildCaption,
-  canvasToBlob,
-  downloadBlob,
   renderLookbookCard,
   shareImage,
   slug,
@@ -36,7 +35,7 @@ interface LookbookCardModalProps {
   isOpen: boolean;
   onClose: () => void;
   config: OutfitConfig;
-  onSave?: (config: OutfitConfig, name?: string) => 'saved' | 'duplicate' | 'full';
+  onSave?: (config: OutfitConfig, name?: string) => Promise<SaveResult>;
   isSaved?: boolean;
 }
 
@@ -54,13 +53,24 @@ export const LookbookCardModal: React.FC<LookbookCardModalProps> = ({
   const [title, setTitle] = React.useState('');
   const [preview, setPreview] = React.useState<string | null>(null);
   const [rendering, setRendering] = React.useState(false);
+  const [exporting, setExporting] = React.useState(false);
+  const exportBusy = React.useRef(false);
+  const [qrErrorUrl, setQrErrorUrl] = React.useState('');
   const [flash, setFlash] = React.useState<string | null>(null);
 
   const svgRef = React.useRef<SVGSVGElement>(null);
   const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
   const storyNodeRef = React.useRef<HTMLDivElement>(null);
 
-  const shareUrl = React.useMemo(() => (isOpen ? buildShareUrl(config) : ''), [isOpen, config]);
+  const [shareUrl, setShareUrl] = React.useState('');
+  const [qrReadyUrl, setQrReadyUrl] = React.useState('');
+  React.useEffect(() => {
+    if (!isOpen) return;
+    let cancelled = false;
+    setShareUrl('');
+    void initPublicBaseUrl().then(() => { if (!cancelled) setShareUrl(buildShareUrl(config)); });
+    return () => { cancelled = true; };
+  }, [isOpen, config]);
   const metrics = React.useMemo(() => computeLookMetrics(config), [config]);
   const fileNameBase = `viet-phuc-remix-${slug(title || metrics.labels.garment)}-${format}`;
 
@@ -73,6 +83,13 @@ export const LookbookCardModal: React.FC<LookbookCardModalProps> = ({
   React.useEffect(() => {
     if (!isOpen) return;
     let cancelled = false;
+    setPreview(null);
+    canvasRef.current = null;
+    setRendering(true);
+    if (!shareUrl || (engine === 'html-to-image' && qrReadyUrl !== shareUrl)) {
+      if (qrErrorUrl === shareUrl) setRendering(false);
+      return;
+    }
 
     const t = window.setTimeout(async () => {
       setRendering(true);
@@ -84,7 +101,7 @@ export const LookbookCardModal: React.FC<LookbookCardModalProps> = ({
           await new Promise(r => setTimeout(r, 60));
           const dataUrl = await exportElementToImage(storyNodeRef.current, {
             format: 'png',
-            pixelRatio: 2
+            pixelRatio: 2.5
           });
           if (cancelled) return;
           setPreview(dataUrl);
@@ -109,7 +126,7 @@ export const LookbookCardModal: React.FC<LookbookCardModalProps> = ({
       cancelled = true;
       window.clearTimeout(t);
     };
-  }, [isOpen, format, engine, config, shareUrl, title]);
+  }, [isOpen, format, engine, config, shareUrl, qrReadyUrl, qrErrorUrl, title]);
 
   React.useEffect(() => {
     if (!isOpen) return;
@@ -129,67 +146,52 @@ export const LookbookCardModal: React.FC<LookbookCardModalProps> = ({
     }
   };
 
-  const handleDownloadPng = async () => {
-    if (!preview) return;
-    if (engine === 'html-to-image') {
-      downloadDataUrl(preview, `${fileNameBase}.png`);
-      notify('Đã tải ảnh PNG chuẩn nét (html-to-image)');
-    } else {
-      if (!canvasRef.current) return;
-      downloadBlob(await canvasToBlob(canvasRef.current), `${fileNameBase}.png`);
-      notify('Đã tải ảnh lookbook PNG');
-    }
+  // Every operation uses the completed preview captured at click time. Inputs can
+  // change while the native share dialog or image conversion is awaiting.
+  const exportPreview = async (action: (snapshot: string) => Promise<void> | void) => {
+    if (!preview || rendering || exportBusy.current) return;
+    exportBusy.current = true;
+    setExporting(true);
+    try { await action(preview); }
+    catch { notify('Không xuất được ảnh, vui lòng thử lại'); }
+    finally { exportBusy.current = false; setExporting(false); }
   };
 
-  const handleDownloadJpg = async () => {
-    if (engine === 'html-to-image' && storyNodeRef.current) {
-      try {
-        const jpgUrl = await exportElementToImage(storyNodeRef.current, {
-          format: 'jpeg',
-          pixelRatio: 2
-        });
-        downloadDataUrl(jpgUrl, `${fileNameBase}.jpg`);
-        notify('Đã tải ảnh JPG chất lượng cao');
-      } catch (e) {
-        console.error('Error exporting JPG', e);
-        notify('Lỗi xuất file JPG');
-      }
-    } else if (canvasRef.current) {
-      canvasRef.current.toBlob(blob => {
-        if (blob) {
-          downloadBlob(blob, `${fileNameBase}.jpg`);
-          notify('Đã tải ảnh JPG');
-        }
-      }, 'image/jpeg', 0.92);
-    }
-  };
+  const handleDownloadPng = () => exportPreview(snapshot => {
+    downloadDataUrl(snapshot, `${fileNameBase}.png`);
+    notify('Đã tải ảnh lookbook PNG');
+  });
 
-  const handleShareImage = async () => {
-    if (!preview) return;
-    let blob: Blob | null = null;
-    if (engine === 'html-to-image') {
-      const res = await fetch(preview);
-      blob = await res.blob();
-    } else if (canvasRef.current) {
-      blob = await canvasToBlob(canvasRef.current);
-    }
+  const handleDownloadJpg = () => exportPreview(async snapshot => {
+    const img = new Image();
+    img.src = snapshot;
+    await img.decode();
+    const canvas = document.createElement('canvas');
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Canvas unavailable');
+    ctx.fillStyle = '#FAF7F2';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0);
+    downloadDataUrl(canvas.toDataURL('image/jpeg', 0.95), `${fileNameBase}.jpg`);
+    notify('Đã tải ảnh JPG chất lượng cao');
+  });
 
-    if (!blob) return;
-
-    const shared = await shareImage(blob, `${fileNameBase}.png`, buildCaption(config, title), shareUrl);
+  const handleShareImage = () => exportPreview(async snapshot => {
+    const blob = await (await fetch(snapshot)).blob();
+    const caption = buildCaption(config, title);
+    const shared = await shareImage(blob, `${fileNameBase}.png`, caption, shareUrl);
     if (!shared) {
-      handleDownloadPng();
-      await copy(
-        buildCaption(config, title) + '\n' + shareUrl,
-        'Trình duyệt không hỗ trợ chia sẻ trực tiếp. Đã tải ảnh và sao chép caption!'
-      );
+      downloadDataUrl(snapshot, `${fileNameBase}.png`);
+      await copy(caption + '\n' + shareUrl, 'Đã tải ảnh và sao chép caption');
     }
-  };
+  });
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!onSave) return;
-    const r = onSave(config, title);
-    notify(r === 'saved' ? 'Đã lưu vào Tủ đồ' : r === 'duplicate' ? 'Look này đã có trong Tủ đồ' : 'Tủ đồ đã đầy (tối đa 12)');
+    const r = await onSave(config, title);
+    notify(r === 'saved' ? 'Đã lưu vào Tủ đồ' : r === 'duplicate' ? 'Look này đã có trong Tủ đồ' : r === 'error' ? STORAGE_ERROR : 'Tủ đồ đã đầy (tối đa 12)');
   };
 
   const size = FORMAT_SIZE[format];
@@ -210,6 +212,8 @@ export const LookbookCardModal: React.FC<LookbookCardModalProps> = ({
           format={format}
           title={title}
           shareUrl={shareUrl}
+          onQrReady={setQrReadyUrl}
+          onQrError={setQrErrorUrl}
         />
       </div>
 
@@ -359,47 +363,50 @@ export const LookbookCardModal: React.FC<LookbookCardModalProps> = ({
               </div>
             )}
 
-            {metrics.critical > 0 && (
+            {(metrics.critical > 0 || metrics.warnings > 0) && (
               <div className="flex items-start gap-2 p-3 rounded-lg bg-red-50 border border-red-200 text-red-900">
                 <OctagonAlert className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>
-                  Look này có <b>{metrics.critical} điểm chưa chuẩn mực</b> (điểm {metrics.cultural}/100). Bạn nên kiểm tra kỹ
+                  Look này có <b>{metrics.critical} sai lệch nghiêm trọng và {metrics.warnings} lưu ý</b> (điểm {metrics.cultural}/100). Bạn nên kiểm tra kỹ
                   trước khi chia sẻ công khai.
                 </span>
               </div>
             )}
 
+            {qrErrorUrl === shareUrl && engine === 'html-to-image' && <p role="alert" className="text-red-800">Không tạo được mã QR. Hãy thử xuất bằng Canvas 2D.</p>}
             {/* Download and Share Buttons */}
             <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={handleDownloadPng}
-                disabled={!preview || rendering}
+                disabled={!preview || rendering || exporting}
                 className="py-2.5 rounded-lg bg-stone-900 text-white font-semibold hover:bg-stone-800 disabled:opacity-50 flex items-center justify-center gap-1.5 shadow-xs transition-all active:scale-98"
               >
                 <Download className="w-3.5 h-3.5" /> Tải ảnh PNG
               </button>
               <button
                 onClick={handleDownloadJpg}
-                disabled={!preview || rendering}
+                disabled={!preview || rendering || exporting}
                 className="py-2.5 rounded-lg bg-stone-800 text-white font-semibold hover:bg-stone-700 disabled:opacity-50 flex items-center justify-center gap-1.5 shadow-xs transition-all active:scale-98"
               >
                 <Download className="w-3.5 h-3.5" /> Tải ảnh JPG
               </button>
               <button
                 onClick={handleShareImage}
-                disabled={!preview || rendering}
+                disabled={!preview || rendering || exporting}
                 className="col-span-2 py-2.5 rounded-lg bg-amber-800 text-white font-semibold hover:bg-amber-900 disabled:opacity-50 flex items-center justify-center gap-1.5 shadow-xs transition-all active:scale-98"
               >
                 <Share2 className="w-3.5 h-3.5" /> Chia sẻ lên Story / Mạng Xã Hội
               </button>
               <button
                 onClick={() => copy(shareUrl, 'Đã sao chép link look')}
+                disabled={!shareUrl}
                 className="py-2 rounded-lg border border-stone-300 bg-white hover:bg-stone-50 text-stone-700 font-medium flex items-center justify-center gap-1.5"
               >
                 <Link2 className="w-3.5 h-3.5" /> Sao chép link
               </button>
               <button
                 onClick={() => copy(buildCaption(config, title) + '\n' + shareUrl, 'Đã sao chép caption')}
+                disabled={!shareUrl}
                 className="py-2 rounded-lg border border-stone-300 bg-white hover:bg-stone-50 text-stone-700 font-medium flex items-center justify-center gap-1.5"
               >
                 <Copy className="w-3.5 h-3.5" /> Sao chép caption

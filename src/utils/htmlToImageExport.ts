@@ -14,6 +14,8 @@ export async function exportElementToImage(
   element: HTMLElement,
   options: ExportCardOptions = {}
 ): Promise<string> {
+  await document.fonts?.ready;
+  await Promise.all(Array.from(element.querySelectorAll('img')).map(img => img.decode()));
   const pixelRatio = options.pixelRatio || 2;
   const isJpeg = options.format === 'jpeg';
 
