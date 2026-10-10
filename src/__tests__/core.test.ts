@@ -129,18 +129,18 @@ describe('share links', () => {
 });
 
 describe('quiz engine', () => {
-  it('never recommends critical/warning looks, and respects gender', () => {
-    for (const e of EVENTS)
-      for (const r of REGIONS)
-        for (const s of STYLES)
-          for (const gender of ['female', 'male', 'unisex'] as const) {
-            const res = recommendLooks({ event: e.id, region: r.id, style: s.id, gender });
-            expect(res.length).toBeGreaterThan(0);
-            for (const x of res) {
-              expect(bad(x.config).map(a => a.id), `${e.id}/${r.id}/${s.id}/${gender}`).toEqual([]);
-              if (gender === 'male') expect(['ao-tu-than', 'ao-nhat-binh']).not.toContain(x.config.garmentId);
-            }
+  // Keep all 288 combinations, but give each event its own timeout on CI.
+  it.each(EVENTS)('never recommends critical/warning looks, and respects gender ($id)', e => {
+    for (const r of REGIONS)
+      for (const s of STYLES)
+        for (const gender of ['female', 'male', 'unisex'] as const) {
+          const res = recommendLooks({ event: e.id, region: r.id, style: s.id, gender });
+          expect(res.length).toBeGreaterThan(0);
+          for (const x of res) {
+            expect(bad(x.config).map(a => a.id), `${e.id}/${r.id}/${s.id}/${gender}`).toEqual([]);
+            if (gender === 'male') expect(['ao-tu-than', 'ao-nhat-binh']).not.toContain(x.config.garmentId);
           }
+        }
   }, 15000);
 
   it('Nam Bộ casual recommends áo bà ba', () => {

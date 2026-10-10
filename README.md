@@ -9,7 +9,9 @@
 3. Mở **Actions → Deploy GitHub Pages**. Nếu lần chạy đầu thất bại vì chưa bật Pages, bấm **Re-run all jobs** sau bước 2. Bạn cũng có thể bấm **Run workflow** khi workflow đã có trên nhánh mặc định.
 4. Chờ hai job `build` và `deploy` thành công. Link ở **Settings → Pages** hoặc job `deploy` chính là URL điền vào ô **URL demo**.
 
-Với repo hiện tại `minhmnq/VietPhucRemix`, địa chỉ dự kiến là **https://minhmnq.github.io/VietPhucRemix/**. Link chỉ hoạt động sau khi triển khai thành công. Nếu bạn upload sang tài khoản hoặc repo khác, lấy địa chỉ thực tế từ Settings → Pages.
+Với repo `LeVietThanh1412/VietPhucRemix`, địa chỉ mặc định là **https://levietthanh1412.github.io/VietPhucRemix/**. Nếu trang chính `LeVietThanh1412.github.io` đã cấu hình domain `thanhtech.cloud`, repo này để trống **Custom domain** sẽ kế thừa domain và dùng đường dẫn `/VietPhucRemix/`. Không nhập `thanhtech.cloud/VietPhucRemix` vào ô Custom domain vì ô đó chỉ nhận tên miền. Link chỉ hoạt động sau khi triển khai thành công; lấy địa chỉ thực tế từ Settings → Pages.
+
+**Không upload `.env` và không cần API key để deploy bản Pages.** Chỉ upload `.env.example` với giá trị mẫu. `.gitignore` bỏ qua `.env*` (trừ `.env.example`), `node_modules`, `dist`, video và các thư mục cấu hình riêng. Khi upload bằng giao diện GitHub, tự bỏ các mục này ra vì thao tác kéo thả file không áp dụng `.gitignore`. Nếu tab Actions báo test quiz quá 15 giây, upload bản mới của `src/__tests__/core.test.ts` rồi chạy workflow ở commit mới; test đã tách theo sự kiện và vẫn kiểm tra đủ 288 tình huống.
 
 Workflow tự lấy đường dẫn do GitHub Pages cấp, nên JS, CSS, font chữ và các cửa sổ tải động vẫn chạy trong thư mục của repo. Link chia sẻ và mã QR giữ nguyên đường dẫn ứng dụng. Chỉ thư mục `dist` được xuất bản; không upload `node_modules`, `.env`, video demo hoặc toàn bộ thư mục nguồn làm website.
 
