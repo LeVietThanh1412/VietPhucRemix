@@ -2,6 +2,33 @@
 
 Ứng dụng giúp học sinh, sinh viên khám phá và phối trang phục truyền thống Việt Nam theo sự kiện, vùng miền hoặc phong cách cá nhân: vừa hiện đại, vừa tôn trọng giá trị văn hóa.
 
+## Đăng bản demo lên GitHub Pages (không cần server)
+
+1. Đẩy mã nguồn lên GitHub, bao gồm `.github/workflows/deploy-pages.yml`. Workflow tự chạy khi push vào `main`, `master` hoặc `Thanh`; sửa danh sách này nếu bạn dùng nhánh khác.
+2. Trong repository, mở **Settings → Pages → Build and deployment → Source**, chọn **GitHub Actions**. Tài khoản GitHub Free cần repository public để dùng Pages.
+3. Mở **Actions → Deploy GitHub Pages**. Nếu lần chạy đầu thất bại vì chưa bật Pages, bấm **Re-run all jobs** sau bước 2. Bạn cũng có thể bấm **Run workflow** khi workflow đã có trên nhánh mặc định.
+4. Chờ hai job `build` và `deploy` thành công. Link ở **Settings → Pages** hoặc job `deploy` chính là URL điền vào ô **URL demo**.
+
+Với repo hiện tại `minhmnq/VietPhucRemix`, địa chỉ dự kiến là **https://minhmnq.github.io/VietPhucRemix/**. Link chỉ hoạt động sau khi triển khai thành công. Nếu bạn upload sang tài khoản hoặc repo khác, lấy địa chỉ thực tế từ Settings → Pages.
+
+Workflow tự lấy đường dẫn do GitHub Pages cấp, nên JS, CSS, font chữ và các cửa sổ tải động vẫn chạy trong thư mục của repo. Link chia sẻ và mã QR giữ nguyên đường dẫn ứng dụng. Chỉ thư mục `dist` được xuất bản; không upload `node_modules`, `.env`, video demo hoặc toàn bộ thư mục nguồn làm website.
+
+**Bản Pages có:** quiz, phối đồ, thông tin và cảnh báo văn hóa, đánh giá màu, thời tiết, tủ đồ, so sánh, xuất ảnh và link chia sẻ. Tủ đồ lưu riêng trên trình duyệt của mỗi người dùng.
+
+**Trợ lý trên Pages dùng tri thức cục bộ**, hiển thị đúng chế độ này và không gọi `/api/ai-stylist`. GitHub Pages không chạy Node.js/Express. Thêm `GEMINI_API_KEYS` vào GitHub Secrets không tự tạo backend; không đưa key vào biến `VITE_*`, HTML hoặc mã JavaScript. Nếu sau này muốn Gemini trực tuyến, dùng bản triển khai có backend ở mục Deploy phía dưới.
+
+Thử bản Pages trên máy trước khi push:
+
+```bash
+npm run build:pages -- --base=/VietPhucRemix/
+npm run preview -- --base=/VietPhucRemix/ --host 127.0.0.1
+# Mở http://127.0.0.1:4173/VietPhucRemix/
+```
+
+Khi preview đang chạy, có thể kiểm tra luồng Pages bằng `npm run test:pages`. Dùng `CHROME_PATH` nếu chạy Chrome có sẵn hoặc `TEST_BASE_URL` nếu preview ở địa chỉ khác; bộ thử kiểm tra tải tài nguyên dưới đường dẫn repo, tư vấn cục bộ, tủ đồ, so sánh, xuất PNG và mở link chia sẻ trên trình duyệt mới.
+
+`npm run build` và `npm run dev` vẫn dùng chế độ có backend như trước.
+
 ## Chạy dự án
 
 ```bash

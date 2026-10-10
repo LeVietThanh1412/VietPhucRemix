@@ -1,0 +1,86 @@
+[
+  {
+    "id": "intro",
+    "title": "VIỆT PHỤC REMIX",
+    "subtitle": "Khám phá di sản • Phối theo cá tính",
+    "duration": 15,
+    "text": "Mặc Việt phục đi chụp kỷ yếu, đón Tết hay dạo phố: chọn áo nào, phối phụ kiện ra sao, và điều gì cần lưu ý về văn hóa? Việt Phục Remix giúp học sinh, sinh viên trả lời những câu hỏi đó bằng trải nghiệm phối đồ trực quan."
+  },
+  {
+    "id": "quiz",
+    "title": "01 / BẮT ĐẦU TỪ NHU CẦU",
+    "subtitle": "Sự kiện → Vùng văn hóa → Phong cách",
+    "duration": 19,
+    "text": "Người mới bắt đầu bằng ba câu hỏi: mặc đi đâu, thích nét văn hóa vùng nào và muốn theo phong cách nào. Ví dụ, chọn kỷ yếu, không giới hạn vùng miền và phong cách truyền thống. Ứng dụng đưa ra ba bản phối, kèm lý do gợi ý và các điểm tham khảo."
+  },
+  {
+    "id": "studio",
+    "title": "02 / PHỐI ĐỒ TRỰC QUAN",
+    "subtitle": "Chọn áo • Đổi màu • Xem kết quả ngay",
+    "duration": 19,
+    "text": "Trong phòng thử đồ, người dùng có thể chọn loại áo, màu sắc, hoa văn, hạ y, khăn nón, giày dép và phụ kiện. Khi thay lựa chọn, nhân vật minh họa cập nhật ngay. Bản demo sử dụng các lớp vector hai chiều để kiểm soát hình minh họa và giữ tương tác nhẹ, nhanh."
+  },
+  {
+    "id": "remix",
+    "title": "03 / THỂ HIỆN CÁ TÍNH",
+    "subtitle": "Phụ kiện hiện đại trong bối cảnh phù hợp",
+    "duration": 14,
+    "text": "Chuyển sang bối cảnh dạo phố để thử một phong cách năng động hơn. Người dùng có thể phối giày sneaker, túi tote hoặc kính, đổi nền và lưu phương án yêu thích. Những lựa chọn này vẫn được kiểm tra theo bối cảnh sử dụng."
+  },
+  {
+    "id": "heritage",
+    "title": "04 / HIỂU TRANG PHỤC ĐANG MẶC",
+    "subtitle": "Nguồn gốc • Ý nghĩa • Nguồn tham khảo",
+    "duration": 20,
+    "text": "Mỗi loại trang phục đi cùng thông tin nguồn gốc, ý nghĩa và nguồn tham khảo. Các nhãn có tư liệu, phỏng dựng và cách tân cận đại giúp người dùng phân biệt mức độ tư liệu. Ghi chú kiểm chứng làm rõ dữ kiện và diễn giải phổ biến. Nội dung hiện vẫn cần chuyên gia thẩm định thêm."
+  },
+  {
+    "id": "warning",
+    "title": "05 / LƯU Ý VĂN HÓA CÓ GIẢI THÍCH",
+    "subtitle": "Phát hiện kết hợp cần cân nhắc và gợi ý sửa",
+    "duration": 17,
+    "text": "Ví dụ, khi thử áo Nhật Bình cùng quần denim, ứng dụng đưa ra cảnh báo về đặc trưng lễ phục và đề xuất điều chỉnh. Mỗi cảnh báo có lý do và hướng sửa. Điểm văn hóa là chỉ số tham khảo theo bộ quy tắc của ứng dụng, hỗ trợ người dùng cân nhắc."
+  },
+  {
+    "id": "weather",
+    "title": "06 / MÀU SẮC VÀ BỐI CẢNH",
+    "subtitle": "Hài hòa màu • Sự kiện • Thời tiết",
+    "duration": 14,
+    "text": "Bảng màu đưa ra đánh giá hài hòa và gợi ý cân bằng bản phối. Người dùng còn có thể chọn sự kiện, xem thời tiết hoặc chọn mùa thủ công để nhận công thức phù hợp. Nhờ đó, trải nghiệm phối đồ gắn với nhu cầu mặc thực tế."
+  },
+  {
+    "id": "ai",
+    "title": "07 / TRỢ LÝ DI SẢN VÀ GEMINI",
+    "subtitle": "Phiên quay: tư vấn cục bộ khi API không khả dụng",
+    "duration": 22,
+    "text": "Ứng dụng tích hợp Gemini qua máy chủ, gửi câu hỏi cùng bản phối, nguồn tham khảo và cảnh báo văn hóa. Prompt yêu cầu không tự tạo nguồn và nói rõ khi thiếu tư liệu kiểm chứng. Trong phiên quay này, API không trả lời thành công nên ứng dụng hiển thị chế độ tri thức di sản: tư vấn cục bộ từ dữ liệu có sẵn."
+  },
+  {
+    "id": "compare",
+    "title": "08 / LƯU VÀ SO SÁNH",
+    "subtitle": "Tủ đồ cá nhân • So sánh nhiều phương án",
+    "duration": 13,
+    "text": "Các bản phối được lưu vào tủ đồ trên thiết bị. Người dùng có thể mặc lại hoặc so sánh hai đến ba phương án qua hình ảnh, độ hài hòa màu, độ hợp sự kiện và lưu ý văn hóa, trước khi quyết định chọn bộ nào."
+  },
+  {
+    "id": "lookbook",
+    "title": "09 / TẠO LOOKBOOK VIỆT PHỤC",
+    "subtitle": "Xuất ảnh Story hoặc Post • Chia sẻ bản phối",
+    "duration": 15,
+    "text": "Khi đã chọn được phương án, người dùng đặt tên và xuất lookbook dạng Story hoặc bài đăng. Thẻ ảnh có mã QR để mở lại cấu hình bản phối. Người dùng có thể tải ảnh, sao chép caption và chia sẻ ý tưởng cùng bạn bè."
+  },
+  {
+    "id": "workflow",
+    "title": "GEMINI TRONG QUÁ TRÌNH XÂY DỰNG",
+    "subtitle": "Phân tích đề bài → So sánh phương án → Prompt triển khai",
+    "duration": 15,
+    "text": "Trong quá trình phát triển, đội cũng dùng Gemini để phân tích đề bài, xác định tính năng, so sánh phương án hiển thị và soạn prompt cho coding agent. Qua nhiều lượt làm rõ yêu cầu, đội chọn hướng vector hai chiều xếp lớp phù hợp với giao diện hiện có."
+  },
+  {
+    "id": "outro",
+    "title": "KHÁM PHÁ DI SẢN, PHỐI THEO CÁ TÍNH",
+    "subtitle": "VIỆT PHỤC REMIX / AUDITION DEMO",
+    "duration": 8,
+    "text": "Việt Phục Remix đưa di sản đến gần người trẻ qua việc khám phá, thử phối và chia sẻ. Mỗi lựa chọn thời trang là một cơ hội hiểu thêm về văn hóa Việt Nam."
+  }
+]

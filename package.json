@@ -6,13 +6,15 @@
   "scripts": {
     "dev": "tsx server.ts",
     "build": "vite build",
+    "build:pages": "vite build --mode github-pages",
     "preview": "vite preview",
     "start": "tsx server.ts --prod",
     "demo": "vite build && tsx server.ts --prod",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
     "test": "vitest run",
-    "test:browser": "node scripts/browser-regression.mjs"
+    "test:browser": "node scripts/browser-regression.mjs",
+    "test:pages": "node scripts/pages-smoke.mjs"
   },
   "dependencies": {
     "@fontsource/cormorant-garamond": "^5.3.0",
