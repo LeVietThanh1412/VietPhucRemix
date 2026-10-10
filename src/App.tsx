@@ -1199,13 +1199,15 @@ export default function App() {
         <section id="ai-stylist" className="space-y-4">
           <div>
             <span className="text-xs uppercase tracking-widest font-semibold text-indigo-700 font-sans">
-              05. AI FASHION EXPERT
+              {import.meta.env.VITE_STATIC_SITE === 'true' ? '05. HERITAGE STYLING ADVICE' : '05. AI FASHION EXPERT'}
             </span>
             <h2 className="font-serif text-2xl font-bold text-stone-900">
-              Trợ Lý Stylist & Thẩm Định Trực Tiếp
+              {import.meta.env.VITE_STATIC_SITE === 'true' ? 'Trợ Lý Phối Đồ Di Sản' : 'Trợ Lý Stylist & Thẩm Định Trực Tiếp'}
             </h2>
             <p className="text-stone-600 text-xs md:text-sm mt-0.5">
-              Trao đổi với AI Stylist am hiểu cổ phục để nhận lời khuyên tạo dáng, góc máy và cách remix tinh tế nhất.
+              {import.meta.env.VITE_STATIC_SITE === 'true'
+                ? 'Nhận gợi ý phối đồ và lưu ý văn hóa từ dữ liệu trang phục, sự kiện và bản phối hiện tại.'
+                : 'Trao đổi với AI Stylist am hiểu cổ phục để nhận lời khuyên tạo dáng, góc máy và cách remix tinh tế nhất.'}
             </p>
           </div>
           <AIStylistConsultant

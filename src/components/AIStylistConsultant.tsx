@@ -3,6 +3,8 @@ import { OutfitConfig } from '../types/vietphuc';
 import { Bot, Sparkles, Send, Loader2, RefreshCw, Wand2, ArrowRight } from 'lucide-react';
 import { offlineStylist, StylistAction } from '../utils/offlineStylist';
 
+const STATIC_SITE = import.meta.env.VITE_STATIC_SITE === 'true';
+
 interface AIStylistConsultantProps {
   config: OutfitConfig;
   onApplyConfig?: (patch: Partial<OutfitConfig>) => void;
@@ -16,7 +18,7 @@ export const AIStylistConsultant: React.FC<AIStylistConsultantProps> = ({
   const [response, setResponse] = useState<string | null>(null);
   const [detectedActions, setDetectedActions] = useState<StylistAction[]>([]);
   const [loading, setLoading] = useState(false);
-  const [source, setSource] = useState<'ai' | 'offline' | null>(null);
+  const [source, setSource] = useState<'ai' | 'offline' | null>(STATIC_SITE ? 'offline' : null);
 
   const requestRef = useRef<AbortController | null>(null);
   useEffect(() => {
@@ -25,7 +27,7 @@ export const AIStylistConsultant: React.FC<AIStylistConsultantProps> = ({
     setLoading(false);
     setResponse(null);
     setDetectedActions([]);
-    setSource(null);
+    setSource(STATIC_SITE ? 'offline' : null);
     return () => requestRef.current?.abort();
   }, [config]);
 
@@ -39,6 +41,14 @@ export const AIStylistConsultant: React.FC<AIStylistConsultantProps> = ({
   const handleConsult = async (queryText?: string) => {
     const query = (queryText || promptQuery).trim().slice(0, 500);
     if (!query || requestRef.current) return;
+    const fallback = offlineStylist(config, query);
+    // Pages has no /api routes: answer locally without an unsuccessful request.
+    if (STATIC_SITE) {
+      setResponse(fallback.reply);
+      setDetectedActions(fallback.actions);
+      setSource('offline');
+      return;
+    }
     const controller = new AbortController();
     requestRef.current = controller;
     const timeout = window.setTimeout(() => controller.abort(), 25_000);
@@ -46,7 +56,6 @@ export const AIStylistConsultant: React.FC<AIStylistConsultantProps> = ({
     setResponse(null);
     setDetectedActions([]);
     setSource(null);
-    const fallback = offlineStylist(config, query);
     try {
       const res = await fetch('/api/ai-stylist', {
         method: 'POST',
@@ -96,7 +105,7 @@ export const AIStylistConsultant: React.FC<AIStylistConsultantProps> = ({
           </div>
           <div>
             <h3 className="font-semibold text-stone-900 text-sm md:text-base flex items-center gap-2">
-              <span>Trợ Lý Thời Trang Di Sản AI</span>
+              <span>{STATIC_SITE ? 'Trợ Lý Thời Trang Di Sản' : 'Trợ Lý Thời Trang Di Sản AI'}</span>
               <span className="text-[10px] bg-amber-100 text-amber-800 font-medium px-2 py-0.5 rounded-full">
                 {source === 'ai' ? 'Gemini AI' : source === 'offline' ? 'Chế độ tri thức di sản' : 'Tư vấn di sản'}
               </span>
@@ -133,7 +142,7 @@ export const AIStylistConsultant: React.FC<AIStylistConsultantProps> = ({
           value={promptQuery}
           onChange={e => setPromptQuery(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && handleConsult()}
-          placeholder="Hỏi AI về cách phối Áo Tấc, Áo Nhật Bình, ý nghĩa 5 khuy cúc hoặc phối màu di sản..."
+          placeholder="Hỏi về cách phối Áo Tấc, Áo Nhật Bình, ý nghĩa 5 khuy cúc hoặc phối màu di sản..."
           className="flex-1 px-3 py-2 text-xs border border-stone-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-stone-400 bg-stone-50/50"
         />
         <button

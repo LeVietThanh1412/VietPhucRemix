@@ -8,3 +8,6 @@ coverage/
 !.env.example
 tmp.md
 .codex/
+video/
+script/
+artifacts/

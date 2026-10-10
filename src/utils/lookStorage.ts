@@ -156,6 +156,7 @@ let publicBaseRequest: Promise<void> | undefined;
 
 /** Ask the server for APP_URL / LAN address. Call once on app start. */
 export function initPublicBaseUrl(): Promise<void> {
+  if (import.meta.env.VITE_STATIC_SITE === 'true') return Promise.resolve();
   if (publicBase || typeof window === 'undefined' || !isLocalHost(window.location.hostname)) return Promise.resolve();
   return publicBaseRequest ??= (async () => {
     try {
