@@ -4,10 +4,14 @@ dist/
 coverage/
 .DS_Store
 *.log
+# Local secrets; only the template belongs in the repository.
 .env*
 !.env.example
 tmp.md
 .codex/
+.agents/
+.aws/
+.vscode/
 video/
 script/
 artifacts/

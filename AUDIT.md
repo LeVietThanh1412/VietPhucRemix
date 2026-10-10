@@ -33,3 +33,18 @@ Chưa gọi Gemini bằng key thật: container thử nghiệm dùng `YOUR_KEY`,
 Tủ đồ vẫn dùng localStorage của từng trình duyệt, không đồng bộ tài khoản/thiết bị. Web Locks và IndexedDB bảo vệ thao tác giữa các tab; nếu trình duyệt chặn cả hai cơ chế khóa, app vẫn có thể lưu localStorage nhưng không đảm bảo ghi đồng thời giữa nhiều tab.
 
 Rà soát này xác minh các luồng và lỗi nêu trên; không phải cam kết mọi lỗi có thể xảy ra đã được loại bỏ. Nội dung lịch sử và luật văn hóa chưa được thẩm định bởi chuyên gia trong lần sửa này.
+
+## Kiểm tra GitHub Pages và file môi trường — 2026-10-10
+
+Đã kiểm tra cấu hình Git/Vite/Docker/Actions, các điểm đọc biến môi trường và gọi API, danh sách mã nguồn được Git theo dõi, dependency và các luồng demo Pages.
+
+- `.env` không được Git theo dõi; chỉ có `.env.example`. Quét các định dạng khóa Google/GitHub/AWS và private key trong file được theo dõi, bản build, cùng 5 blob lịch sử của file môi trường không phát hiện khóa thật. Đây là kiểm tra theo mẫu, không phải chứng nhận không có mọi loại bí mật.
+- Đọc cây file hiện tại của nhánh `main` trên `LeVietThanh1412/VietPhucRemix`: không có `.env`, `.aws`, `node_modules` hoặc `dist`; chỉ có `.env.example`. Kiểm tra này không quét toàn bộ lịch sử của repo online.
+- Bổ sung `.agents/`, `.aws/`, `.vscode/` vào `.gitignore`; bổ sung cấu hình editor, video và artifacts vào `.dockerignore`.
+- Log job build `114167471068` trong workflow run `38036346217` xác nhận bước `Run tests` thất bại vì test quiz mất 17.139 giây, vượt giới hạn 15 giây. Configure Pages, npm ci và TypeScript đều đã qua.
+- Chia test quiz thành 6 test theo sự kiện, vẫn kiểm tra đủ 288 tổ hợp. Không bỏ qua test hoặc thay đổi thuật toán gợi ý. Sau sửa, mỗi nhóm mất khoảng 1,7–1,9 giây trên máy kiểm tra; tổng 49/49 test qua.
+- `npm run lint`, `git diff --check`, `npm run build:pages -- --base=/VietPhucRemix/`: qua. Build Pages với `envDir` là thư mục trống cũng qua, xác nhận không cần `.env`.
+- `npm audit`: 0 lỗ hổng được npm báo tại thời điểm kiểm tra.
+- `npm run test:pages` trên Chrome: tải tài nguyên ở đường dẫn repo, lưu tủ đồ, mở so sánh/lookbook, xuất PNG, tư vấn cục bộ không gọi `/api`, và mở look được chia sẻ trên trình duyệt mới đều qua.
+
+Bản Pages không chạy Express/Gemini trực tuyến; API key không giúp sửa lỗi test hoặc tạo backend trên Pages. Các thay đổi trong lần kiểm tra này nằm trong workspace, chưa được đẩy lên GitHub. Cần upload/commit bản sửa rồi chạy workflow ở commit mới; re-run lần chạy cũ vẫn dùng code cũ.
